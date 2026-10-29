@@ -1796,6 +1796,21 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
             // Keep the page trapped on this screen with the centered 2:3 ID photo visible.
             const lock = document.getElementById('phoneLockOverlay');
             if (lock) lock.style.display = 'block';
+            // Browsers may suspend Web Audio after a refresh until the user interacts.
+            // Resume the existing scream on the first interaction before the blackout blocks it.
+            const unlockMinsuAudio = () => {
+                if (!document.body.classList.contains('phone-blood-mode')) return;
+                if (audioCtx.state !== 'running') {
+                    audioCtx.resume().then(() => {
+                        if (!minsuPiercingToneNodes.length) startMinsuPiercingTone();
+                    }).catch(() => {});
+                } else if (!minsuPiercingToneNodes.length) {
+                    startMinsuPiercingTone();
+                }
+            };
+            document.addEventListener('pointerdown', unlockMinsuAudio, true);
+            document.addEventListener('keydown', unlockMinsuAudio, true);
+
             const stopInteraction = event => {
                 if (document.body.classList.contains('phone-blood-mode')) {
                     event.preventDefault();
