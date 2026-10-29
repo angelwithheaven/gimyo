@@ -1695,10 +1695,10 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
             try{if(audioCtx.state==='suspended')audioCtx.resume();window.speechSynthesis.cancel();}catch(e){}
             document.getElementById('finalMinsuOverlay').style.display='none';
             document.body.style.overflow='hidden';
-            document.body.style.transition='filter 4.5s ease-in';
-            document.body.style.filter='brightness(1)';
+            document.body.style.transition='none';
+            document.body.style.filter='none';
+            document.body.style.opacity='1';
 
-            // The bell repeats more slowly each time, as if the school bell is winding down.
             let bellDelay=1750;
             let bellTimer=null;
             const ringBell=()=>{
@@ -1710,28 +1710,24 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
             ringBell();
 
             const dimAndExit=()=>{
-                // Wait two seconds after the final spoken line, then fade out slowly.
+                // Start the fade two seconds after the final sentence finishes.
                 window.setTimeout(()=>{
                     if(!minsuAnnouncementActive)return;
                     playMinsuWarningTone();
-                    const start=Date.now(),duration=5200;
-                    const dimTimer=setInterval(()=>{
-                        const p=Math.min(1,(Date.now()-start)/duration);
-                        document.body.style.filter='brightness('+Math.max(.005,1-p)+' ) contrast('+(1+p*.65)+')';
-                        if(p>=1){
-                            clearInterval(dimTimer);
-                            if(bellTimer)clearTimeout(bellTimer);
-                            document.body.style.filter='brightness(0)';
-                            setTimeout(leaveMinsuPage,900);
-                        }
-                    },50);
+                    const overlay=document.createElement('div');
+                    overlay.id='minsuFinalFade';
+                    overlay.style.cssText='position:fixed;inset:0;background:#000;opacity:0;z-index:999999;pointer-events:none;transition:opacity 5.5s linear;';
+                    document.body.appendChild(overlay);
+                    // Force the initial opacity to be painted before starting the transition.
+                    void overlay.offsetWidth;
+                    overlay.style.opacity='1';
+                    if(bellTimer)clearTimeout(bellTimer);
+                    window.setTimeout(leaveMinsuPage,6500);
                 },2000);
             };
 
             const secondAnnouncement=()=>{
                 if(!minsuAnnouncementActive)return;
-                // Dissonant school-bell motif continues beneath the second announcement,
-                // gradually spacing out with the recurring bell.
                 let dissonanceDelay=900;
                 let dissonanceTimer=null;
                 const playDissonance=()=>{
