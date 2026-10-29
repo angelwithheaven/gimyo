@@ -247,7 +247,7 @@
         #phoneFadeOverlay { position:fixed; inset:0; z-index:19000; background:#000; opacity:0; pointer-events:none; transition:opacity 1.4s ease; }
         #phoneFadeOverlay.active { opacity:1; }
         #prankWarningOverlay { position:fixed; inset:0; z-index:40000; display:none; align-items:center; justify-content:center; overflow:hidden; background:#000; opacity:1; }
-        .melt-warning { white-space:pre-line; color:#a00000; font-family:'Nanum Myeongjo',serif; font-weight:900; font-size:clamp(2rem,8vw,6.5rem); letter-spacing:.04em; line-height:1.65; text-align:center; padding:1.5rem; text-shadow:0 0 2px #f00,0 0 14px #900; animation:warningImpact 3.6s steps(1,end) forwards; }
+        .melt-warning { white-space:pre-line; color:#ff0000; font-family:'Nanum Myeongjo',serif; font-weight:900; font-size:calc(clamp(2rem,8vw,6.5rem) - 5pt); letter-spacing:.04em; line-height:1.65; text-align:center; padding:1.5rem; text-shadow:0 0 2px #f00,0 0 14px #900; animation:warningImpact 3.6s steps(1,end) forwards; } .melt-warning .warning-char { display:inline-block; color:#ff0000; opacity:0; animation:warningCharIn .08s steps(1,end) forwards; } @keyframes warningCharIn { from { opacity:0; transform:translateY(-3px); } to { opacity:1; transform:translateY(0); } }
         @keyframes warningImpact { 0% { opacity:0; transform:scale(1.7); filter:blur(12px); } 8% { opacity:1; transform:scale(1); filter:blur(0); } 13% { opacity:.12; } 17% { opacity:1; } 28% { transform:translateX(-8px) scale(1.02); text-shadow:5px 0 #5b0000,-5px 0 #f00; } 29% { transform:translateX(7px) scale(.99); } 30% { transform:translateX(0) scale(1); } 72% { opacity:1; filter:contrast(180%); } 100% { opacity:0; transform:scale(.92); filter:blur(18px); } }
         #phoneLockOverlay { position:fixed; inset:0; z-index:25000; display:none; background:transparent; pointer-events:auto; cursor:wait; touch-action:none; }
         #phoneBloodWash { position:fixed; inset:0; z-index:17000; display:none; background:rgba(180,0,0,.94); mix-blend-mode:multiply; pointer-events:none; animation:bloodPulse .22s infinite alternate; }
@@ -1687,6 +1687,38 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
             }, 5000);
         }
 
+        let warningHeartbeatActive = false;
+        let warningHeartbeatTimer = null;
+        function playWarningHeartbeat() {
+            warningHeartbeatActive = true;
+            const beat = () => {
+                if (!warningHeartbeatActive) return;
+                try {
+                    if (audioCtx.state === 'suspended') audioCtx.resume();
+                    const now = audioCtx.currentTime;
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    const filter = audioCtx.createBiquadFilter();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(72 + Math.random() * 24, now);
+                    osc.frequency.exponentialRampToValueAtTime(34, now + 0.13);
+                    filter.type = 'lowpass'; filter.frequency.value = 115;
+                    gain.gain.setValueAtTime(0.0001, now);
+                    gain.gain.exponentialRampToValueAtTime(0.72 + Math.random() * 0.22, now + 0.012);
+                    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.17);
+                    osc.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination);
+                    osc.start(now); osc.stop(now + 0.18);
+                } catch(e) {}
+                const interval = Math.random() < 0.28 ? 58 + Math.random() * 24 : 95 + Math.random() * 42;
+                warningHeartbeatTimer = window.setTimeout(beat, interval);
+            };
+            beat();
+        }
+        function stopWarningHeartbeat() {
+            warningHeartbeatActive = false;
+            if (warningHeartbeatTimer) window.clearTimeout(warningHeartbeatTimer);
+            warningHeartbeatTimer = null;
+        }
         function showPrankWarningOnReturn() {
             let shouldWarn = false;
             try {
@@ -1696,10 +1728,25 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
             if (!shouldWarn) return;
             const overlay = document.getElementById('prankWarningOverlay');
             const warning = overlay.querySelector('.melt-warning');
-            if(warning) warning.textContent = '다시는 그런 장난 치지 마...';
+            const message = '다시는 그런 장난 치지 마...';
+            if (warning) {
+                warning.textContent = '';
+                Array.from(message).forEach((char, index) => {
+                    const span = document.createElement('span');
+                    span.className = 'warning-char';
+                    span.textContent = char === ' ' ? '\u00a0' : char;
+                    span.style.animationDelay = (index * 105) + 'ms';
+                    warning.appendChild(span);
+                });
+                warning.style.animation = 'none';
+                void warning.offsetWidth;
+                warning.style.animation = '';
+            }
             overlay.style.display = 'flex';
             overlay.style.opacity = '1';
+            playWarningHeartbeat();
             window.setTimeout(() => {
+                stopWarningHeartbeat();
                 overlay.style.transition = 'opacity .75s ease';
                 overlay.style.opacity = '0';
                 window.setTimeout(() => {
