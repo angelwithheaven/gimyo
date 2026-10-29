@@ -1499,25 +1499,27 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
             const photos = [
                 { title: '2026 체육대회 개막식', img: 'https://images.unsplash.com/photo-1526676037777-05a232554f77?w=500&auto=format&fit=crop&q=80' },
                 { title: '과학실험실 탐구활동', img: 'https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=500&auto=format&fit=crop&q=80' },
-                { title: '구관 방면 펜스 정비 (접근금지)', img: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=500&auto=format&fit=crop&q=80', corrupt: true },
+                { title: '교내 풍경', img: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?w=500&auto=format&fit=crop&q=80' },
                 { title: '도서관 야간 자율학습', img: 'https://images.unsplash.com/photo-1521587760476-6c12a4b040da?w=500&auto=format&fit=crop&q=80' },
-                { title: '제23회 졸업식 기념사진', img: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=500&auto=format&fit=crop&q=80' },
+                { title: '제31회 졸업식 기념사진', img: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=500&auto=format&fit=crop&q=80' },
                 { title: '2학년 4반 단체사진 (2026)', img: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=500&auto=format&fit=crop&q=80', corruptFace: true },
                 { title: '동아리 활동 기록', img: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=500&auto=format&fit=crop&q=80' },
                 { title: '제20회 기이 예술제 금상 · 2학년 4반 KMS', img: 'https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=500&auto=format&fit=crop&q=80' },
-                { title: '교내 풍경', img: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?w=500&auto=format&fit=crop&q=80' }
+                { title: '舊館', img: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=500&auto=format&fit=crop&q=80', oldBuilding: true }
             ];
 
             photos.forEach(item => {
                 const div = document.createElement('div');
                 div.className = 'bg-white border border-slate-200 rounded overflow-hidden group cursor-pointer hover:shadow-md transition';
-                if (item.corrupt) div.onclick = () => triggerPhotoGlitch();
+                if (item.oldBuilding) div.onclick = () => {
+                    showRetroPopUp('', '시스템 경고', 'fa-solid fa-triangle-exclamation text-red-600');
+                    minsuSpeak('당신을 바라보는 중입니다.', 0.72, 0.62, 0.9);
+                };
                 if (item.corruptFace) div.onclick = () => showRetroPopUp('사진 속 2학년 4반 학생 중 1명의 얼굴이 피사체 분석 불가 상태입니다.', '보안 오류', 'fa-solid fa-user-slash text-red-600');
 
                 div.innerHTML = `
                     <div class="aspect-video bg-slate-900 overflow-hidden relative">
                         <img src="${item.img}" alt="${item.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300 filter grayscale">
-                        ${item.corrupt ? '<div class="absolute inset-0 bg-red-950/30 flex items-center justify-center font-mono text-red-200 text-xs font-bold">WARNING</div>' : ''}
                     </div>
                     <div class="p-2.5 text-xs font-medium text-slate-800">${item.title}</div>
                 `;
