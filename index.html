@@ -903,7 +903,7 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
             </div>
 
             <!-- STAFF-ONLY PORTAL -->
-            <div id="tab-staff" class="hidden fixed inset-0 z-[100] overflow-y-auto bg-black p-3 sm:p-6 font-mono text-xs">
+            <div id="tab-staff" class="hidden fixed inset-0 z-[100] overflow-y-auto bg-[#080b10] p-3 sm:p-6 font-mono text-xs">
                 <div class="bg-slate-900 text-slate-100 p-5 rounded border border-blue-900 space-y-3">
                     <div class="flex justify-between items-center border-b border-slate-700 pb-3">
                         <div>
@@ -923,13 +923,13 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
                             <p class="text-slate-400">1998년 10월 24일자 출석부 원본은 폐기된 것으로 처리한다. 해당 날짜에 대한 문의는 교장실로 이관하며, 학생에게는 시설 안전사고로 안내할 것.</p>
                         </div>
                     </div>
-                    <p class="text-[10px] text-slate-500">내부 포털 접속 종료 후 학생기록부는 별도 인증 경로에서 열람할 것.</p>
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-3 mt-4"><div class="border border-red-950 bg-black p-4"><p class="text-red-400 font-bold">긴급 공지 · 21:30</p><p class="mt-3 leading-6 text-slate-400">방송실에서 본인의 이름을 부르더라도 대답하지 마십시오. 오늘 당직표에 본인의 이름이 없다면 즉시 건물을 나가십시오.</p></div><div class="border border-slate-800 bg-black p-4"><p class="text-cyan-700 font-bold">서버 상태</p><p class="mt-3 text-slate-500">학적 서버: 정상</p><p class="mt-1 text-amber-700">CCTV 동기화: 지연 00:17</p><p class="mt-1 text-red-500">재실 인원: 확인 불가</p></div><div class="border border-slate-800 bg-black p-4"><p class="text-slate-400 font-bold">오늘의 당직표</p><p class="mt-3 text-slate-500">행정실 — 박 선생</p><p class="mt-1 text-slate-500">보안실 — 공석</p><p class="mt-1 text-red-400">교무실 — 김민수</p><p class="mt-2 text-slate-600">※ 교직원 명부에 해당 이름은 없습니다.</p></div></div><div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3"><div class="border border-amber-950 bg-[#15120d] p-4"><p class="text-amber-500 font-bold">출결 정정 기록</p><p class="mt-3 leading-6 text-slate-500">1998년 10월 24일자 출석부는 폐기된 것으로 처리한다. 해당 날짜를 문의하는 학생에게는 시설 안전사고로 안내할 것.</p><p class="mt-2 text-red-400">21:44 — 요청자 계정은 아직 로그인하지 않은 상태로 기록됨.</p></div><div class="border border-slate-800 bg-slate-950 p-4"><p class="text-slate-400 font-bold">시설 이상 보고</p><p class="mt-3 leading-6 text-slate-500">신관 3층 화장실 복도에서 같은 신고가 반복 접수되고 있습니다. 신고 위치는 접수될 때마다 한 층씩 올라갑니다.</p><p class="mt-2 text-red-400">마지막 신고 위치: 폐쇄된 본관 옥상.</p></div></div><p class="text-[10px] text-slate-500">내부 포털 접속 종료 후 학생기록부는 별도 인증 경로에서 열람할 것.</p>
                     <button onclick="switchTab('home')" class="border border-slate-700 px-3 py-1.5 text-slate-300 hover:bg-slate-800">포털 닫기 ×</button>
                 </div>
             </div>
 
             <!-- RESTRICTED STUDENT RECORDS -->
-            <div id="tab-records" class="hidden fixed inset-0 z-[100] overflow-y-auto bg-stone-950 text-stone-200 p-3 sm:p-6 font-mono text-xs">
+            <div id="tab-records" class="hidden fixed inset-0 z-[110] overflow-y-auto bg-[#090706] text-stone-200 p-3 sm:p-6 font-mono text-xs">
                 <div class="flex justify-between items-center border-b border-amber-900 pb-3">
                     <div>
                         <p class="text-amber-500 text-[10px] tracking-widest">KMS ARCHIVE / STUDENT RECORD</p>
@@ -938,7 +938,7 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
                     <span class="text-red-400 text-[10px] border border-red-900 px-2 py-1">RECORD LOCKED</span>
                 </div>
                 <p class="text-red-300 font-bold">주의: 아래 기록은 학교 홈페이지의 공식 공개 자료와 일치하지 않습니다.</p>
-                <div class="border border-stone-800 bg-black/40 p-4 space-y-2">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-3 mb-4"><div class="border border-stone-800 bg-black p-4"><p class="text-stone-600">ARCHIVE INDEX</p><p class="text-amber-600 text-lg mt-3">2학년 4반</p><p class="mt-2 text-stone-400">등록 학생: 28명</p><p class="mt-1 text-stone-400">현재 학생: 29명</p><p class="mt-3 text-red-500">명부 마지막 줄은 열람할 때마다 아래로 이동합니다.</p></div><div class="border border-stone-800 bg-black p-4"><p class="text-stone-600">파일 속성</p><p class="mt-3">생성일: 2026.10.22</p><p class="mt-1">최종 수정: <span class="text-red-400">내일 00:01</span></p><p class="mt-1">수정자: 없음</p><p class="mt-3 text-stone-600">이 파일은 생성되기 3년 전부터 서버에 존재했습니다.</p></div><div class="border border-red-950 bg-black p-4"><p class="text-red-500 font-bold">자동 생성 메모</p><p class="mt-3 leading-6 text-stone-500">보호자에게 연락하지 마십시오. 전화가 연결되면 상대방이 먼저 교직원의 이름과 현재 위치를 물을 것입니다.</p><p class="mt-2 text-red-400">대답한 직원의 인사 기록은 다음 날 조회되지 않습니다.</p></div></div><div class="border border-stone-800 bg-black/40 p-4 space-y-2">
                     <p class="text-amber-300 font-bold">학적 정보 — 김민수</p>
                     <p>학년/반: 2학년 4반</p>
                     <p>상태: <span class="text-red-400">2026년 10월 22일 이후 출결 기록 없음</span></p>
@@ -952,7 +952,7 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
                     <p>10/23 00:01 — 학생 수 1명 증가. 학급 명부에는 변화 없음.</p>
                     <p class="text-red-400 mt-2">비고: 김민수 학생의 기록을 삭제할 때마다 다른 학생의 이름이 한 줄씩 지워진다.</p>
                 </div>
-                <button onclick="switchTab('staff')" class="border border-stone-700 px-3 py-1.5 text-stone-300 hover:bg-stone-900">교직원 포털로 돌아가기</button>
+                <span class="text-red-900 tracking-widest">SESSION SEALED / NO RETURN ROUTE</span>
             </div>
 
         </section>
