@@ -1827,6 +1827,7 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
             image.classList.toggle('mix-blend-luminosity', currentCamIdx !== 2);
             image.classList.toggle('contrast-125', currentCamIdx !== 2);
             image.classList.toggle('opacity-80', currentCamIdx !== 2);
+            image.classList.toggle('grayscale', currentCamIdx === 2);
 
             const glitchOverlay = document.getElementById('cctvGlitchText');
             if (cam.glitch) {
