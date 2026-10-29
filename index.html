@@ -172,6 +172,36 @@
         }
         #finalMinsuOverlay .final-message { font-family: 'Nanum Myeongjo', serif; font-size: clamp(1.25rem, 4vw, 2rem); margin-top: 2rem; }
 
+        .phone-modal { position: fixed; inset: 0; z-index: 15000; display: none; align-items: center; justify-content: center; padding: 1rem; background: rgba(0,0,0,.76); }
+        .phone-window { width: min(100%, 390px); background: #e5e7eb; border: 2px solid #94a3b8; box-shadow: 0 0 35px #000; font-family: 'Share Tech Mono', monospace; animation: phoneAppear .25s ease-out; }
+        .phone-titlebar { display:flex; justify-content:space-between; align-items:center; background:#172033; color:#e5e7eb; padding:.65rem .8rem; font-size:.8rem; letter-spacing:.08em; }
+        .phone-status-dot { width:8px; height:8px; border-radius:50%; background:#b91c1c; box-shadow:0 0 8px #f00; animation: phoneDot .8s infinite alternate; }
+        .phone-body { text-align:center; padding:2rem 1.2rem 1.5rem; color:#111827; }
+        .phone-icon { font-size:2rem; color:#7f1d1d; margin-bottom:1.2rem; animation: phoneRing .35s infinite alternate; }
+        .phone-line { font-family:'Nanum Myeongjo',serif; font-weight:800; font-size:1.65rem; }
+        .phone-subline { margin-top:.75rem; font-size:.72rem; color:#7f1d1d; line-height:1.7; }
+        .phone-actions { display:grid; gap:.55rem; padding:0 1rem 1rem; }
+        .phone-choice { padding:.8rem .5rem; border:1px solid #64748b; background:#f8fafc; color:#1f2937; font-size:.85rem; transition:.15s; }
+        .phone-choice:hover { background:#dbeafe; }
+        .phone-choice-danger { border-color:#7f1d1d; color:#7f1d1d; }
+        .phone-choice-danger:hover { background:#7f1d1d; color:white; }
+        @keyframes phoneAppear { from { opacity:0; transform:scale(.94) translateY(10px); } to { opacity:1; transform:scale(1) translateY(0); } }
+        @keyframes phoneDot { from { opacity:.25; } to { opacity:1; } }
+        @keyframes phoneRing { from { transform:rotate(-12deg); } to { transform:rotate(12deg); } }
+        #phoneFadeOverlay { position:fixed; inset:0; z-index:19000; background:#000; opacity:0; pointer-events:none; transition:opacity 1.4s ease; }
+        #phoneFadeOverlay.active { opacity:1; }
+        #prankWarningOverlay { position:fixed; inset:0; z-index:18000; display:none; align-items:center; justify-content:center; overflow:hidden; background:#030000; }
+        .melt-warning { color:#b00000; font-family:'Nanum Myeongjo',serif; font-weight:900; font-size:clamp(2.2rem,9vw,7rem); letter-spacing:.1em; text-align:center; text-shadow:0 0 8px #f00,0 0 30px #700; animation:meltLetters 2.8s ease-in forwards; }
+        @keyframes meltLetters { 0% { opacity:0; transform:translateY(-10px) scaleY(.7); filter:blur(8px); } 15% { opacity:1; transform:translateY(0) scaleY(1); filter:blur(0); } 45% { letter-spacing:.18em; filter:blur(1px); } 100% { opacity:0; transform:translateY(45vh) scaleY(2.4); filter:blur(12px); } }
+        #phoneBloodWash { position:fixed; inset:0; z-index:17000; display:none; background:rgba(180,0,0,.94); mix-blend-mode:multiply; pointer-events:none; animation:bloodPulse .22s infinite alternate; }
+        @keyframes bloodPulse { from { background-color:rgba(120,0,0,.92); } to { background-color:rgba(210,0,0,.97); } }
+        #phoneJumpOverlay { position:fixed; inset:0; z-index:30000; display:none; align-items:center; justify-content:center; flex-direction:column; overflow:hidden; background:#8b0000; color:#fff; }
+        .phone-jump-text { font-family:'Nanum Myeongjo',serif; font-size:clamp(4rem,17vw,13rem); font-weight:900; line-height:1; text-shadow:0 0 20px #000; animation:jumpSlam .12s steps(2,end) infinite; }
+        .phone-jump-face { position:absolute; right:-4vw; bottom:-14vh; font-family:Arial,sans-serif; font-size:clamp(15rem,55vw,42rem); line-height:1; color:#080000; opacity:.8; transform:rotate(90deg); }
+        @keyframes jumpSlam { 0% { transform:translate(-12px,4px) scale(1.08); } 50% { transform:translate(9px,-6px) scale(.98); } 100% { transform:translate(0,0) scale(1.12); } }
+        body.phone-blood-mode { background:#850000 !important; }
+        body.phone-blood-mode * { transition:none !important; }
+
         /* Custom Scrollbar */
         ::-webkit-scrollbar {
             width: 8px;
@@ -337,7 +367,7 @@
                     <button onclick="openClassifiedModal('1998_B1')" class="p-2.5 bg-slate-50 border border-slate-200 hover:bg-slate-100 rounded text-center transition text-slate-700">
                         <i class="fa-solid fa-building text-slate-600 text-base mb-1 block"></i> 구관 시설안내
                     </button>
-                    <button onclick="triggerStaticSound(0.4)" class="p-2.5 bg-slate-50 border border-slate-200 hover:bg-slate-100 rounded text-center transition">
+                    <button onclick="startOfficeCall()" class="p-2.5 bg-slate-50 border border-slate-200 hover:bg-slate-100 rounded text-center transition">
                         <i class="fa-solid fa-phone text-slate-600 text-base mb-1 block"></i> 교무실 연결
                     </button>
                 </div>
@@ -798,6 +828,26 @@
         <p class="text-xs text-slate-500 mt-5 font-mono">SESSION TERMINATED</p>
         <button onclick="leaveMinsuPage()" class="mt-8 border border-slate-600 px-5 py-2 text-sm hover:bg-white hover:text-black">확인</button>
     </div>
+
+    <!-- OFFICE PHONE CALL EVENT -->
+    <div id="officeCallModal" class="phone-modal" role="dialog" aria-modal="true" aria-labelledby="officeCallTitle">
+        <div class="phone-window">
+            <div class="phone-titlebar"><span id="officeCallTitle">교무실 연결 중</span><span class="phone-status-dot"></span></div>
+            <div class="phone-body">
+                <div class="phone-icon"><i class="fa-solid fa-phone-volume"></i></div>
+                <p class="phone-line">……여보세요?</p>
+                <p class="phone-subline">수화기 너머에서 누군가 숨을 죽이고 있습니다.</p>
+            </div>
+            <div class="phone-actions">
+                <button onclick="chooseOfficeCall('prank')" class="phone-choice">장난전화 입니다.</button>
+                <button onclick="chooseOfficeCall('minsu')" class="phone-choice phone-choice-danger">김민수는 어디 있습니까</button>
+            </div>
+        </div>
+    </div>
+    <div id="phoneFadeOverlay" aria-hidden="true"></div>
+    <div id="prankWarningOverlay" aria-hidden="true"><div class="melt-warning">장난치면 혼난다.</div></div>
+    <div id="phoneBloodWash" aria-hidden="true"></div>
+    <div id="phoneJumpOverlay" aria-hidden="true"><div class="phone-jump-text">니 옆에</div><div class="phone-jump-face">☺̸̢</div></div>
 
     <!-- Application Engine JavaScript -->
     <script>
@@ -1334,6 +1384,96 @@
             if(clockEl) clockEl.innerText = dateStr;
         }, 1000);
 
+        // Office phone call easter egg
+        let officeRingTimer = null;
+        function playOfficeRing() {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const start = audioCtx.currentTime;
+            // Two old-fashioned telephone ring bursts: "뚜루루, 뚜루루"
+            [0, 0.62, 1.45, 2.07].forEach((offset, index) => {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                const filter = audioCtx.createBiquadFilter();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(index % 2 === 0 ? 440 : 480, start + offset);
+                filter.type = 'bandpass'; filter.frequency.value = 1000; filter.Q.value = 1.2;
+                gain.gain.setValueAtTime(0.0001, start + offset);
+                gain.gain.exponentialRampToValueAtTime(0.16, start + offset + 0.025);
+                gain.gain.setValueAtTime(0.16, start + offset + 0.22);
+                gain.gain.exponentialRampToValueAtTime(0.0001, start + offset + 0.29);
+                osc.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination);
+                osc.start(start + offset); osc.stop(start + offset + 0.31);
+            });
+        }
+
+        function startOfficeCall() {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            playOfficeRing();
+            document.getElementById('officeCallModal').style.display = 'flex';
+            window.setTimeout(() => {
+                const line = document.querySelector('.phone-line');
+                if (line && document.getElementById('officeCallModal').style.display === 'flex') {
+                    line.textContent = '……여보세요?';
+                    triggerGlitchBeep();
+                }
+            }, 2900);
+        }
+
+        function chooseOfficeCall(choice) {
+            document.getElementById('officeCallModal').style.display = 'none';
+            if (choice === 'prank') {
+                // The warning is shown once on the next visit only.
+                try { localStorage.setItem('gimyo_prank_warning_once', '1'); } catch (e) {}
+                document.getElementById('phoneFadeOverlay').classList.add('active');
+                window.setTimeout(() => {
+                    try { window.location.replace('about:blank'); }
+                    catch (e) { document.body.innerHTML = ''; document.body.style.background = '#000'; }
+                }, 1450);
+                return;
+            }
+            triggerOfficeMinsuCurse();
+        }
+
+        function triggerOfficeMinsuCurse() {
+            document.body.classList.add('phone-blood-mode');
+            document.getElementById('phoneBloodWash').style.display = 'block';
+            const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+            const nodes = [];
+            while (walker.nextNode()) {
+                const node = walker.currentNode;
+                if (node.parentElement && !node.parentElement.closest('script, style, #phoneJumpOverlay')) nodes.push(node);
+            }
+            nodes.forEach(node => {
+                if (node.nodeValue.trim()) node.nodeValue = '김민수';
+            });
+            window.setTimeout(() => {
+                const jump = document.getElementById('phoneJumpOverlay');
+                jump.style.display = 'flex';
+                triggerMinsuScreamSound();
+                document.body.style.animation = 'none';
+                window.setTimeout(() => {
+                    try { window.location.replace('about:blank'); }
+                    catch (e) { document.body.innerHTML = ''; document.body.style.background = '#000'; }
+                }, 950);
+            }, 5000);
+        }
+
+        function showPrankWarningOnReturn() {
+            let shouldWarn = false;
+            try {
+                shouldWarn = localStorage.getItem('gimyo_prank_warning_once') === '1';
+                if (shouldWarn) localStorage.removeItem('gimyo_prank_warning_once');
+            } catch (e) {}
+            if (!shouldWarn) return;
+            const overlay = document.getElementById('prankWarningOverlay');
+            overlay.style.display = 'flex';
+            window.setTimeout(() => {
+                overlay.style.transition = 'opacity 1s ease';
+                overlay.style.opacity = '0';
+                window.setTimeout(() => { overlay.style.display = 'none'; }, 1050);
+            }, 3000);
+        }
+
         // EASTER EGGS & HORROR TRIGGERS
         function triggerEmblemGlitch() {
             triggerGlitchBeep();
@@ -1449,6 +1589,7 @@
             triggerGlitchBeep();
             showRetroPopUp(`[구관 시설 안내 - ${code}]<br>현재 구관은 완전 봉쇄되어 있습니다.<br>지하 1층 및 지하시설은 열쇠가 철거되었으며 내부에 침입할 경우 외부에서 문이 닫힙니다.`, '구관 봉쇄 안내', 'fa-solid fa-ban text-red-600');
         }
+        showPrankWarningOnReturn();
     </script>
 </body>
 </html>
