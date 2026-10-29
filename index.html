@@ -1082,18 +1082,7 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
         }
 
         function closeRetroPopUp() {
-            if (mealGlitchTimeout) {
-                clearTimeout(mealGlitchTimeout);
-                mealGlitchTimeout = null;
-            }
-            const modal = document.getElementById('retroPopUpModal');
-            if (modal) {
-                modal.classList.add('hidden');
-                const wall = modal.querySelector('#mealGlitchWordWall');
-                if (wall) wall.remove();
-                const closeButton = modal.querySelector('button[onclick="closeRetroPopUp()"]');
-                if (closeButton) closeButton.style.zIndex = '';
-            }
+            document.getElementById('retroPopUpModal').classList.add('hidden');
         }
 
         // 1. CRT Static Sound Effect
