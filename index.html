@@ -91,6 +91,27 @@
         .minsu-monster {
             animation: creepShake 0.08s infinite;
         }
+        .horror-glyph {
+            font-family: "Noto Sans Symbols 2", "Apple Color Emoji", sans-serif;
+            font-size: clamp(8rem, 28vw, 18rem);
+            line-height: .9;
+            color: #a00000;
+            text-shadow: 0 0 8px #f00, 0 0 28px #700, 8px 3px 0 #250000;
+            filter: contrast(220%) saturate(180%);
+            animation: glyphFlicker .09s steps(2, end) infinite;
+            user-select: none;
+        }
+        .blood-drip {
+            color: #b00000;
+            text-shadow: 0 0 12px #f00;
+            letter-spacing: .35em;
+            animation: glyphFlicker .14s steps(2, end) infinite;
+        }
+        @keyframes glyphFlicker {
+            0% { transform: translate(-3px, 1px) skew(-4deg); filter: contrast(250%) hue-rotate(-12deg); }
+            50% { transform: translate(4px, -2px) skew(5deg); filter: contrast(400%) invert(.15); }
+            100% { transform: translate(-1px, 2px) skew(-2deg); filter: contrast(280%) hue-rotate(12deg); }
+        }
 
         .glitch-text-hover:hover {
             animation: glitchText 0.2s infinite;
@@ -151,21 +172,8 @@
     <!-- MINSU HORROR JUMPSCARE OVERLAY -->
     <div id="minsuJumpscareOverlay">
         <div class="minsu-monster relative flex flex-col items-center justify-center">
-            <!-- Distorted Creepy Face SVG Art -->
-            <svg class="w-72 h-72 sm:w-96 sm:h-96 text-red-700" viewBox="0 0 200 200" fill="currentColor">
-                <circle cx="100" cy="100" r="90" fill="#110000" stroke="#880000" stroke-width="4"/>
-                <!-- Hollow Eyes -->
-                <ellipse cx="65" cy="75" rx="22" ry="35" fill="#000" stroke="#ff0000" stroke-width="3"/>
-                <ellipse cx="135" cy="75" rx="22" ry="35" fill="#000" stroke="#ff0000" stroke-width="3"/>
-                <circle cx="62" cy="80" r="4" fill="#ffffff"/>
-                <circle cx="138" cy="70" r="3" fill="#ffffff"/>
-                <!-- Blood Tears / Drips -->
-                <path d="M 65 110 L 60 170 L 70 140 Z" fill="#990000"/>
-                <path d="M 135 110 L 140 180 L 130 150 Z" fill="#990000"/>
-                <!-- Distorted Screaming Mouth -->
-                <path d="M 50 135 Q 100 210 150 135 Q 100 110 50 135 Z" fill="#000000" stroke="#cc0000" stroke-width="4"/>
-                <path d="M 70 145 L 80 165 L 90 148 L 110 168 L 120 145" fill="none" stroke="#ffffff" stroke-width="2"/>
-            </svg>
+            <div class="horror-glyph" aria-label="일그러진 비명 얼굴">😱̷̢̛͎̰̓͒🩸</div>
+            <div class="blood-drip text-2xl sm:text-4xl font-mono mt-2">血̸̢̛̰̓  🩸  血̷̢̛̰̓</div>
             <h1 class="text-4xl sm:text-6xl font-extrabold text-red-600 font-mono tracking-widest mt-6 animate-pulse select-none text-center">
                 나도 무서워
             </h1>
@@ -476,11 +484,12 @@
             <!-- PRINCIPAL GREETING TAB -->
             <div id="tab-principal" class="hidden space-y-4 text-xs text-slate-700 leading-relaxed">
                 <h2 class="font-bold text-lg text-slate-800 border-b-2 border-slate-700 pb-2">학교장 인사말</h2>
-                <div class="flex flex-col md:flex-row gap-6 my-4 items-start">
-                    <div class="text-center shrink-0">
-                        <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&auto=format&fit=crop&q=80" 
+                <div class="grid grid-cols-1 md:grid-cols-[9rem_minmax(0,1fr)] gap-5 my-4 items-start">
+                    <div class="text-center">
+                        <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&auto=format&fit=crop&q=80"
                              class="w-36 h-48 object-cover rounded border border-slate-300 filter grayscale mx-auto">
                         <p class="font-bold text-slate-800 mt-2">제14대 교장 박성철</p>
+                        <p class="text-[10px] text-slate-500 mt-1">학교법인 기이학원</p>
                     </div>
                     <div class="space-y-3 font-myeongjo text-sm">
                         <p class="font-bold text-base text-slate-900">안녕하십니까. 기이고등학교 홈페이지 방문을 진심으로 환영합니다.</p>
@@ -489,7 +498,24 @@
                         <p class="glitch-text-hover cursor-pointer" onclick="triggerStaticSound(0.5)">
                             본교는 모든 학생의 안전을 최우선으로 관리하고 있으며, 밤 10시 이후 교내 잔류는 철저히 통제되고 있습니다. <span class="hidden-spoiler">(거짓말. 통제할 수 없다.)</span>
                         </p>
-                        <p class="pt-4 text-right font-bold">- 기이고등학교 교장 박성철 올림 -</p>
+                        <p class="pt-2 text-right font-bold">- 기이고등학교 교장 박성철 올림 -</p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-6">
+                    <div class="border border-slate-200 bg-slate-50 p-4 rounded">
+                        <p class="text-[10px] tracking-widest text-slate-400 mb-1">SCHOOL TREE</p>
+                        <p class="font-bold text-sm text-slate-800">교목 · 느티나무</p>
+                        <p class="text-xs text-slate-500 mt-2 leading-relaxed">오랜 세월 한자리를 지키며 학생들의 성장을 지켜보는 나무.</p>
+                    </div>
+                    <div class="border border-slate-200 bg-slate-50 p-4 rounded">
+                        <p class="text-[10px] tracking-widest text-slate-400 mb-1">SCHOOL FLOWER</p>
+                        <p class="font-bold text-sm text-slate-800">교화 · 흰 동백꽃</p>
+                        <p class="text-xs text-slate-500 mt-2 leading-relaxed">흔들림 없는 절개와 겨울에도 지지 않는 생명력을 상징합니다.</p>
+                    </div>
+                    <div class="border border-slate-200 bg-slate-50 p-4 rounded">
+                        <p class="text-[10px] tracking-widest text-slate-400 mb-1">SCHOOL MOTTO</p>
+                        <p class="font-bold text-sm text-slate-800">교훈 · 바른 마음, 바른 기록</p>
+                        <p class="text-xs text-slate-500 mt-2 leading-relaxed">모든 학생의 이름과 기록은 소중히 보존되어야 합니다.</p>
                     </div>
                 </div>
             </div>
@@ -720,7 +746,8 @@
 
     <!-- FINAL MINSU EVENT -->
     <div id="finalMinsuOverlay" role="alertdialog" aria-modal="true">
-        <div class="smile" aria-label="웃는 얼굴">😊</div>
+        <div class="smile horror-glyph" aria-label="피 흘리며 일그러진 웃는 얼굴">🙂̸̢̛͎̰̓͒🩸</div>
+        <div class="blood-drip text-xl sm:text-3xl font-mono mt-4">찾 았 다̷̢̛̰̓  🩸</div>
         <div class="final-message">찾아줘서 고마워, 내가 갈게</div>
         <p class="text-xs text-slate-500 mt-5 font-mono">SESSION TERMINATED</p>
         <button onclick="leaveMinsuPage()" class="mt-8 border border-slate-600 px-5 py-2 text-sm hover:bg-white hover:text-black">확인</button>
