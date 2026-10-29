@@ -1531,16 +1531,22 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
             const c=canvas.getContext('2d');c.clearRect(0,0,canvas.width,canvas.height);
             const hits=[{x:.2,y:.27,s:.9,a:-.35},{x:.78,y:.22,s:1.05,a:.3},{x:.52,y:.58,s:1.25,a:-.12},{x:.13,y:.7,s:.82,a:.5},{x:.86,y:.68,s:1,a:-.45},{x:.49,y:.12,s:.72,a:.08}];
             let i=0;
-            const stamp=()=>{if(i>=hits.length)return;const p=hits[i++];drawMinsuHand(canvas,canvas.width*p.x,canvas.height*p.y,p.s*Math.min(canvas.width,canvas.height)/700,p.a);minsuKnock(i>2?1.45:1);if(i===2)minsuSpeak('문 열어...',.68,.4,.9);setTimeout(stamp, i<3?370:510);};
+            const stamp=()=>{if(i>=hits.length)return;const p=hits[i++];drawMinsuHand(canvas,canvas.width*p.x,canvas.height*p.y,p.s*Math.min(canvas.width,canvas.height)/700,p.a);minsuKnock(i>2?1.45:1);setTimeout(stamp, i<3?370:510);};
             stamp();
             setTimeout(()=>{overlay.classList.remove('active');document.body.classList.remove('minsu-impact');c.clearRect(0,0,canvas.width,canvas.height);},4300);
         }
         function triggerMinsuPrankWarning(){
-            const overlay=document.getElementById('prankWarningOverlay');
-            if(overlay){overlay.style.display='flex';const t=overlay.querySelector('.melt-warning');if(t)t.textContent='다시는 그런 장난 치지마...';}
-            triggerMinsuScreamSound(3);minsuSpeak('다시는 그런 장난 치지 마...',.72,.48,.95);
-            document.body.classList.add('shake-screen');
-            setTimeout(()=>{if(overlay)overlay.style.display='none';document.body.classList.remove('shake-screen');showRetroPopUp('통화 기록이 삭제되었습니다.\n발신자: 김민수','수신 오류','fa-solid fa-phone-slash text-red-700');},3400);
+            // Show the warning only after the visitor returns to the site.
+            try { localStorage.setItem('gimyo_prank_warning_once', '1'); } catch(e) {}
+            const fade=document.getElementById('phoneFadeOverlay');
+            if(fade) fade.classList.add('active');
+            document.body.style.transition='opacity 1.25s ease, filter 1.25s ease';
+            document.body.style.opacity='0';
+            document.body.style.filter='brightness(0)';
+            window.setTimeout(()=>{
+                try { window.location.replace('about:blank'); }
+                catch(e) { document.body.innerHTML=''; document.body.style.cssText='background:#000;margin:0;'; }
+            },1350);
         }
 
         // MINSU JUMPSCARE TRIGGER
@@ -1633,7 +1639,6 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
                 triggerMinsuPrankWarning();
                 return;
             }
-            minsuSpeak('김민수... 나 안 보여?', 0.68, 0.42, 1);
             document.querySelector('#phoneJumpOverlay .phone-jump-text').textContent='나 안 보여?';
             setTimeout(()=>{triggerMinsuScreamSound(1);triggerOfficeMinsuCurse();},650);
         }
@@ -1690,6 +1695,8 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
             } catch (e) {}
             if (!shouldWarn) return;
             const overlay = document.getElementById('prankWarningOverlay');
+            const warning = overlay.querySelector('.melt-warning');
+            if(warning) warning.textContent = '다시는 그런 장난 치지 마...';
             overlay.style.display = 'flex';
             overlay.style.opacity = '1';
             window.setTimeout(() => {
