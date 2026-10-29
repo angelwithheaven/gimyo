@@ -589,7 +589,11 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
                 </div>
             </div>
 
-            <!-- REAL-TIME SCHOOL CCTV WIDGET (EASTER EGG) -->
+            <div id="cctv123Overlay" class="hidden fixed inset-0 z-[20000] bg-black flex items-center justify-center" style="background:#000;">
+        <img src="CCTV3.png" alt="" class="max-w-[92vw] max-h-[92vh] object-contain" style="filter:grayscale(1) contrast(1.15);">
+    </div>
+
+    <!-- REAL-TIME SCHOOL CCTV WIDGET (EASTER EGG) -->
             <div class="bg-white p-3 border border-slate-200 rounded shadow-sm">
                 <div class="flex items-center justify-between mb-2">
                     <h3 class="font-bold text-xs text-slate-800 flex items-center gap-1.5">
@@ -601,7 +605,7 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
                 
                 <!-- CCTV View Box -->
                 <div class="relative bg-slate-900 rounded overflow-hidden aspect-video border border-slate-800 cursor-pointer group" onclick="cycleCCTVCam()">
-                    <img id="cctvImage" src="https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=600&auto=format&fit=crop&q=80" 
+                    <img id="cctvImage" src="CCTV1.png" 
                          class="w-full h-full object-cover opacity-80 mix-blend-luminosity filter contrast-125">
                     
                     <!-- Timestamp & Noise Overlay -->
@@ -609,7 +613,7 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
                         REC <span id="cctvTime">14:40:02</span>
                     </div>
                     <div id="cctvGlitchText" class="hidden absolute inset-0 bg-red-950/80 text-white font-mono text-[11px] p-3 flex items-center justify-center text-center">
-                        [경고] 감시 구역 내 승인되지 않은 사람 형태 감지됨.<br>복도 접근 금지.
+                        [경고]<br>감시 구역 내<br>승인되지 않은 사람 형태 감지됨.<br>복도 접근 금지.
                     </div>
                     <div class="absolute bottom-1 right-2 text-[9px] text-slate-400 font-mono">클릭하여 카메라 전환</div>
                 </div>
@@ -1738,24 +1742,96 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
 
         // CCTV Camera Switching Simulation
         const cctvCams = [
-            { name: "CAM-01 중앙현관", img: "https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=600&auto=format&fit=crop&q=80" },
-            { name: "CAM-02 2층 복도 (2학년 4반 앞)", img: "https://images.unsplash.com/photo-1509062522246-3755977927d7?w=600&auto=format&fit=crop&q=80" },
-            { name: "CAM-03 구관 연결 통로 (폐쇄)", img: "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=600&auto=format&fit=crop&q=80", glitch: true }
+            { name: "CAM-01 중앙현관", img: "CCTV1.png" },
+            { name: "CAM-02 2층 복도", img: "CCTV2.png" },
+            { name: "CAM-03 구관 통로 (폐쇄)", img: "CCTV3.png", glitch: true }
         ];
         let currentCamIdx = 0;
+        let cctv123Triggered = false;
+        let cctv123Sequence = [];
+
+        function playCCTVSharpBeep() {
+            try {
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+                const now = audioCtx.currentTime;
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                const filter = audioCtx.createBiquadFilter();
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(3200, now);
+                osc.frequency.setValueAtTime(3900, now + 0.045);
+                osc.frequency.setValueAtTime(3400, now + 0.13);
+                filter.type = 'highpass'; filter.frequency.value = 1800;
+                gain.gain.setValueAtTime(0.0001, now);
+                gain.gain.exponentialRampToValueAtTime(0.85, now + 0.008);
+                gain.gain.setValueAtTime(0.85, now + 0.16);
+                gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.48);
+                osc.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination);
+                osc.start(now); osc.stop(now + 0.5);
+            } catch (e) {}
+        }
+
+        function triggerCCTV123() {
+            if (cctv123Triggered) return;
+            cctv123Triggered = true;
+            const overlay = document.getElementById('cctv123Overlay');
+            overlay.classList.remove('hidden');
+            playCCTVSharpBeep();
+
+            // Android-like Korean speech synthesis; the greeting starts with the beep.
+            try {
+                if ('speechSynthesis' in window) {
+                    window.speechSynthesis.cancel();
+                    const greeting = new SpeechSynthesisUtterance('안녕?');
+                    greeting.lang = 'ko-KR';
+                    greeting.rate = 0.92;
+                    greeting.pitch = 0.82;
+                    greeting.volume = 1;
+                    window.speechSynthesis.speak(greeting);
+                }
+            } catch (e) {}
+
+            setTimeout(() => {
+                overlay.classList.add('hidden');
+                if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+                // Restore CAM-03's original warning state; the photo easter egg stays disabled this visit.
+                const warning = document.getElementById('cctvGlitchText');
+                warning.classList.remove('hidden');
+                warning.innerHTML = '[경고]<br>감시 구역 내<br>승인되지 않은 사람 형태 감지됨.<br>복도 접근 금지.';
+            }, 2000);
+        }
+
+        document.addEventListener('keydown', (event) => {
+            if (event.repeat || event.ctrlKey || event.altKey || event.metaKey) return;
+            if (/INPUT|TEXTAREA|SELECT/.test(event.target.tagName)) return;
+            const key = event.key;
+            if (key === '1' || key === '2' || key === '3') {
+                cctv123Sequence.push(key);
+                if (cctv123Sequence.length > 3) cctv123Sequence.shift();
+                if (cctv123Sequence.join('') === '123') {
+                    cctv123Sequence = [];
+                    triggerCCTV123();
+                }
+            } else {
+                cctv123Sequence = [];
+            }
+        });
 
         function cycleCCTVCam() {
             triggerStaticSound(0.2);
             currentCamIdx = (currentCamIdx + 1) % cctvCams.length;
             const cam = cctvCams[currentCamIdx];
-
             document.getElementById('cctvCamName').innerText = cam.name;
-            document.getElementById('cctvImage').src = cam.img;
+            const image = document.getElementById('cctvImage');
+            image.src = cam.img;
+            image.classList.toggle('mix-blend-luminosity', currentCamIdx !== 2);
+            image.classList.toggle('contrast-125', currentCamIdx !== 2);
+            image.classList.toggle('opacity-80', currentCamIdx !== 2);
 
             const glitchOverlay = document.getElementById('cctvGlitchText');
-            if(cam.glitch) {
+            if (cam.glitch) {
                 glitchOverlay.classList.remove('hidden');
-                triggerGlitchBeep();
+                if (!cctv123Triggered) triggerGlitchBeep();
             } else {
                 glitchOverlay.classList.add('hidden');
             }
