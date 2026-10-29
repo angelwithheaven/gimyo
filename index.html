@@ -1567,7 +1567,7 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
                 card.className = "border border-slate-200 rounded p-3 bg-slate-50 space-y-3 text-xs";
                 const comments = (post.comments || []).map(comment => `
                     <div class="border-l-2 border-slate-300 pl-2 py-1">
-                        <span class="font-bold text-slate-500">${escapeQnaHtml(comment.author)}</span>
+                        <span class="font-bold ${comment.author === '김민수' ? 'text-red-700' : 'text-slate-500'}">${escapeQnaHtml(comment.author)}</span>
                         <span class="${comment.text === '나 아직 집에 못갔어' ? 'text-red-700 font-bold' : 'text-slate-600'}">${escapeQnaHtml(comment.text)}</span>
                     </div>`).join('');
                 card.innerHTML = `
@@ -1649,7 +1649,7 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
             if (commentText.includes('김민수')) {
                 post.comments.push({author: '김민수', text: commentText});
                 renderQnaBoard();
-                triggerMinsuFinale();
+                window.setTimeout(triggerMinsuFinale, 5000);
                 return;
             }
             post.comments.push({author: '익명', text: commentText});
@@ -1695,24 +1695,47 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
             try{if(audioCtx.state==='suspended')audioCtx.resume();window.speechSynthesis.cancel();}catch(e){}
             document.getElementById('finalMinsuOverlay').style.display='none';
             document.body.style.overflow='hidden';
-            document.body.style.transition='filter 1s linear';
+            document.body.style.transition='filter 4.5s ease-in';
             document.body.style.filter='brightness(1)';
-            const bell=()=>{try{playSchoolBell();}catch(e){}};
-            bell();const bellTimer=setInterval(bell,1750);
-            const dimAndExit=()=>{
-                playMinsuWarningTone();
-                const start=Date.now();
-                const dimTimer=setInterval(()=>{
-                    const p=Math.min(1,(Date.now()-start)/2100);
-                    document.body.style.filter='brightness('+Math.max(.005,1-p)+') contrast('+(1+p*.65)+')';
-                    if(p>=1){clearInterval(dimTimer);clearInterval(bellTimer);document.body.style.filter='brightness(0)';setTimeout(leaveMinsuPage,900);}
-                },40);
+
+            // The bell repeats more slowly each time, as if the school bell is winding down.
+            let bellDelay=1750;
+            let bellTimer=null;
+            const ringBell=()=>{
+                if(!minsuAnnouncementActive)return;
+                try{playSchoolBell();}catch(e){}
+                bellDelay=Math.min(5200,bellDelay+420);
+                bellTimer=window.setTimeout(ringBell,bellDelay);
             };
+            ringBell();
+
+            const dimAndExit=()=>{
+                // Wait two seconds after the final spoken line, then fade out slowly.
+                window.setTimeout(()=>{
+                    if(!minsuAnnouncementActive)return;
+                    playMinsuWarningTone();
+                    const start=Date.now(),duration=5200;
+                    const dimTimer=setInterval(()=>{
+                        const p=Math.min(1,(Date.now()-start)/duration);
+                        document.body.style.filter='brightness('+Math.max(.005,1-p)+' ) contrast('+(1+p*.65)+')';
+                        if(p>=1){
+                            clearInterval(dimTimer);
+                            if(bellTimer)clearTimeout(bellTimer);
+                            document.body.style.filter='brightness(0)';
+                            setTimeout(leaveMinsuPage,900);
+                        }
+                    },50);
+                },2000);
+            };
+
             const secondAnnouncement=()=>{
                 if(!minsuAnnouncementActive)return;
-                // Repeat the dissonant school-bell motif throughout the threatening announcement.
-                const dissonance=setInterval(()=>{
-                    if(!minsuAnnouncementActive){clearInterval(dissonance);return;}
+                // Dissonant school-bell motif continues beneath the second announcement,
+                // gradually spacing out with the recurring bell.
+                let dissonanceDelay=900;
+                let dissonanceTimer=null;
+                const playDissonance=()=>{
+                    if(!minsuAnnouncementActive)return;
                     [523.25,659.25,587.33,392.00].forEach((freq,i)=>setTimeout(()=>{
                         if(!minsuAnnouncementActive)return;
                         try{
@@ -1722,16 +1745,18 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
                             g.gain.setValueAtTime(.0001,now);g.gain.exponentialRampToValueAtTime(.085,now+.03);g.gain.exponentialRampToValueAtTime(.0001,now+.8);
                             o.connect(f);f.connect(g);g.connect(audioCtx.destination);o.start(now);o.stop(now+.82);
                         }catch(e){}
-                    },i*180));
-                },1050);
+                    },i*220));
+                    dissonanceDelay=Math.min(2600,dissonanceDelay+250);
+                    dissonanceTimer=setTimeout(playDissonance,dissonanceDelay);
+                };
+                playDissonance();
                 try{window.speechSynthesis.cancel();}catch(e){}
-                const second=speakMinsuAnnouncement('다시 한번 말합니다. 김민수 학생, 서둘러 짐을 싸서 이곳을 나가.',true);
+                const second=speakMinsuAnnouncement('다시 한번 말합니다. 김민수 학생, 서둘러 짐을 싸서 이곳을 나가십시오.',true);
                 const finish=()=>{
-                    clearInterval(dissonance);
-                    if(!minsuAnnouncementActive)return;
+                    if(dissonanceTimer)clearTimeout(dissonanceTimer);
                     dimAndExit();
                 };
-                if(second)second.onend=finish;else setTimeout(finish,5000);
+                if(second)second.onend=finish;else setTimeout(finish,6000);
             };
             const first=speakMinsuAnnouncement('아직 하교하지 않은 학생은 서둘러 짐을 싸서 하교해 주시기 바랍니다.',false);
             if(first)first.onend=()=>setTimeout(secondAnnouncement,450);
