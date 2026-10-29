@@ -1537,7 +1537,7 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
         }
         function triggerMinsuPrankWarning(){
             // Show the warning only after the visitor returns to the site.
-            try { localStorage.setItem('gimyo_prank_warning_once', '1'); } catch(e) {}
+            try { localStorage.setItem('gimyo_prank_curse_stage', 'pending'); } catch(e) {}
             const fade=document.getElementById('phoneFadeOverlay');
             if(fade) fade.classList.add('active');
             document.body.style.transition='opacity 1.25s ease, filter 1.25s ease';
