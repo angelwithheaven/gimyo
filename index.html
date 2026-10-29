@@ -94,34 +94,34 @@
         /* Original CSS/SVG creature: no emoji, stock art, or borrowed character design. */
         .minsu-face-art {
             position: relative;
-            width: clamp(15rem, 58vw, 34rem);
+            width: clamp(19rem, 78vw, 48rem);
             aspect-ratio: 1 / 1;
-            filter: contrast(1.5);
-            animation: faceLurch .11s steps(2,end) infinite;
+            filter: contrast(1.7) drop-shadow(0 0 35px #5c0000);
+            animation: eyeLurch .09s steps(2,end) infinite;
             transform-origin: center;
         }
         .minsu-face-art svg { display:block; width:100%; height:100%; overflow:visible; }
-        .minsu-face-art .face-skin { fill:#c9c3b9; }
-        .minsu-face-art .face-shadow { fill:#100b0b; }
-        .minsu-face-art .eye-white { fill:#e6dfd4; }
-        .minsu-face-art .eye-pupil { fill:#050303; }
-        .minsu-face-art .mouth-hole { fill:#080303; }
-        .minsu-face-art .teeth { fill:#c9c1b4; }
-        .minsu-face-art .blood { fill:#7f0000; }
-        .minsu-face-art .face-scratch { fill:none; stroke:#3a0909; stroke-width:4; }
-        .minsu-face-art .eye-left { transform-origin: 34% 42%; animation: eyeTwitch .7s steps(2,end) infinite; }
-        .minsu-face-art .eye-right { transform-origin: 66% 40%; animation: eyeTwitch .43s steps(2,end) infinite reverse; }
-        .minsu-face-art .jaw { transform-origin: 50% 64%; animation: jawDrop .9s ease-in-out infinite alternate; }
-        .minsu-face-art .blood-drop { animation: bloodRun 1.2s ease-in infinite; }
-        @keyframes faceLurch {
+        .minsu-face-art .rolling-pupil { transform-origin: 50% 50%; animation: pupilRoll .42s steps(5,end) infinite; }
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        @keyframes eyeLurch {
             0% { transform:translate(0,0) rotate(0deg) scale(1); filter:contrast(1.5); }
             25% { transform:translate(-3px,2px) rotate(-.7deg) scale(1.015); filter:contrast(2.2) brightness(.82); }
             50% { transform:translate(2px,-1px) rotate(.5deg) scale(.99); filter:contrast(1.7); }
             100% { transform:translate(1px,1px) rotate(-.2deg) scale(1.025); filter:contrast(2.4) brightness(.7); }
         }
-        @keyframes eyeTwitch { 0%,72%,100% { transform:translate(0,0); } 74% { transform:translate(5px,-2px); } 77% { transform:translate(-3px,2px); } }
-        @keyframes jawDrop { from { transform:scaleY(.92) translateY(0); } to { transform:scaleY(1.12) translateY(5px); } }
-        @keyframes bloodRun { 0% { transform:translateY(-4px); opacity:.45; } 65% { opacity:1; } 100% { transform:translateY(13px); opacity:.85; } }
+        @keyframes pupilRoll { 0% { transform:translate(-43px,-12px) rotate(-20deg); } 24% { transform:translate(38px,-20px) rotate(65deg); } 49% { transform:translate(18px,35px) rotate(160deg); } 73% { transform:translate(-35px,20px) rotate(245deg); } 100% { transform:translate(-43px,-12px) rotate(340deg); } }
+        
+        
         .blood-drip {
             color: #850000;
             text-shadow: 0 0 12px #f00, 0 0 24px #300;
@@ -187,7 +187,7 @@
             from { margin-top: 0; opacity: .75; }
             to { margin-top: 1.2rem; opacity: 1; }
         }
-        #finalMinsuOverlay .final-message { font-family: 'Nanum Myeongjo', serif; font-size: clamp(1.25rem, 4vw, 2rem); margin-top: 2rem; }
+        #finalMinsuOverlay .final-message { font-family: 'Nanum Myeongjo', serif; font-size: clamp(1.25rem, 4vw, 2rem); margin-top: 1.2rem; color:#f2eeee; text-shadow:0 0 12px #790000; }
 
         .phone-modal { position: fixed; inset: 0; z-index: 15000; display: none; align-items: center; justify-content: center; padding: 1rem; background: rgba(0,0,0,.76); }
         .phone-window { width: min(100%, 390px); background: #e5e7eb; border: 2px solid #94a3b8; box-shadow: 0 0 35px #000; font-family: 'Share Tech Mono', monospace; animation: phoneAppear .25s ease-out; }
@@ -248,29 +248,25 @@
         <div class="minsu-monster relative flex flex-col items-center justify-center w-full">
             <div class="minsu-face-art" aria-label="비대칭으로 일그러진 창백한 사람 얼굴">
             <svg viewBox="0 0 400 400" role="img" aria-hidden="true">
-                <defs>
-                    <radialGradient id="skinShade" cx="45%" cy="35%" r="70%"><stop offset="0" stop-color="#e1d9cc"/><stop offset=".62" stop-color="#a9a197"/><stop offset="1" stop-color="#332626"/></radialGradient>
-                    <filter id="faceGrain"><feTurbulence type="fractalNoise" baseFrequency=".78" numOctaves="2" seed="19"/><feColorMatrix values="0 0 0 0 .22 0 0 0 0 .18 0 0 0 0 .16 0 0 0 .18 0"/></filter>
-                </defs>
-                <ellipse cx="200" cy="205" rx="151" ry="178" fill="#000" opacity=".9"/>
-                <path class="face-skin" fill="url(#skinShade)" d="M200 24 C116 17 66 84 65 174 C63 267 113 355 184 377 C221 389 268 349 302 294 C337 237 336 132 289 66 C265 33 232 22 200 24Z"/>
-                <path class="face-shadow" d="M69 146 Q108 102 165 139 L157 176 Q111 153 76 184Z"/>
-                <path class="face-shadow" d="M222 131 Q280 92 324 144 L315 183 Q272 150 225 171Z"/>
-                <g class="eye-left"><path class="eye-white" d="M86 158 Q120 126 157 157 Q131 191 91 174Z"/><ellipse class="eye-pupil" cx="123" cy="160" rx="8" ry="16"/><circle cx="126" cy="154" r="2" fill="#fff"/></g>
-                <g class="eye-right"><path class="eye-white" d="M231 153 Q273 119 307 150 Q287 180 236 172Z"/><ellipse class="eye-pupil" cx="273" cy="154" rx="7" ry="15"/><circle cx="276" cy="149" r="2" fill="#fff"/></g>
-                <path class="face-shadow" d="M179 160 Q158 208 174 230 Q190 241 204 225 L194 218 Q184 220 187 207 L204 165Z"/>
-                <path class="face-scratch" d="M89 204 l-12 18 18 -5 M294 198 l15 13 -16 1 M118 260 l-9 20 M282 241 l12 18 M160 305 l-8 16"/>
-                <g class="jaw">
-                    <path class="mouth-hole" d="M111 260 Q153 230 200 254 Q251 224 294 256 Q285 321 228 344 Q169 358 127 316Z"/>
-                    <path class="teeth" d="M126 261 Q164 247 199 265 Q245 243 279 258 L272 278 Q234 269 200 285 Q163 270 132 282Z"/>
-                    <path class="teeth" d="M143 311 Q183 323 224 310 Q252 304 267 287 L260 313 Q220 344 176 336Z"/>
-                    <path class="blood" d="M137 286 Q151 296 146 327 Q142 345 153 356 Q162 341 160 322 L163 292Z"/>
-                    <path class="blood" d="M259 274 Q270 290 266 312 Q264 329 276 337 Q284 314 277 292 L276 270Z"/>
-                </g>
-                <path class="blood blood-drop" d="M102 176 Q109 194 101 213 Q95 230 106 238 Q119 221 114 204 L112 180Z"/>
-                <path class="blood blood-drop" d="M294 176 Q300 195 291 214 Q286 231 298 241 Q310 223 305 204 L304 179Z" style="animation-delay:-.6s"/>
-                <rect x="0" y="0" width="400" height="400" filter="url(#faceGrain)" opacity=".2"/>
-            </svg>
+  <defs>
+    <radialGradient id="eyeballShade" cx="35%" cy="28%" r="72%"><stop offset="0" stop-color="#fffdf4"/><stop offset=".48" stop-color="#d5d0c7"/><stop offset=".82" stop-color="#817b76"/><stop offset="1" stop-color="#181313"/></radialGradient>
+    <filter id="eyeballGrain"><feTurbulence type="fractalNoise" baseFrequency=".72" numOctaves="3" seed="7"/><feColorMatrix values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 .2 0"/></filter>
+  </defs>
+  <ellipse cx="200" cy="214" rx="170" ry="158" fill="#170000" opacity=".9"/>
+  <path d="M27 205 Q90 62 204 67 Q320 67 374 203 Q299 333 194 340 Q82 333 27 205Z" fill="#0a0303" stroke="#4d0000" stroke-width="8"/>
+  <path d="M38 202 Q101 82 202 82 Q304 79 362 203 Q292 316 196 324 Q97 317 38 202Z" fill="url(#eyeballShade)"/>
+  <g class="rolling-pupil">
+    <ellipse cx="221" cy="200" rx="75" ry="88" fill="#76000a"/>
+    <ellipse cx="225" cy="198" rx="49" ry="65" fill="#160305"/>
+    <ellipse cx="229" cy="197" rx="24" ry="42" fill="#000"/>
+    <circle cx="244" cy="168" r="12" fill="#fff" opacity=".92"/>
+    <circle cx="205" cy="220" r="5" fill="#f4e9dc" opacity=".7"/>
+  </g>
+  <path d="M30 199 Q92 65 202 67 Q317 66 374 201" fill="none" stroke="#080202" stroke-width="24"/>
+  <path d="M49 233 Q107 314 196 324 Q288 315 351 234" fill="none" stroke="#2b0000" stroke-width="13"/>
+  <path d="M91 286 Q104 315 96 349 Q91 369 103 383 Q119 357 114 331 L109 300Z M302 277 Q316 307 307 333 Q302 353 316 366 Q333 342 325 310 L320 282Z" fill="#650000"/>
+  <rect x="0" y="0" width="400" height="400" filter="url(#eyeballGrain)" opacity=".32"/>
+</svg>
         </div>
             <h1 class="text-4xl sm:text-6xl font-extrabold text-red-700 font-mono tracking-widest mt-2 select-none text-center" style="text-shadow:0 0 9px #a00000,0 0 30px #300;">
                 나도 무서워
@@ -861,34 +857,30 @@
     <div id="finalMinsuOverlay" role="alertdialog" aria-modal="true">
         <div class="minsu-face-art" aria-label="비대칭으로 일그러진 창백한 사람 얼굴">
             <svg viewBox="0 0 400 400" role="img" aria-hidden="true">
-                <defs>
-                    <radialGradient id="skinShade" cx="45%" cy="35%" r="70%"><stop offset="0" stop-color="#e1d9cc"/><stop offset=".62" stop-color="#a9a197"/><stop offset="1" stop-color="#332626"/></radialGradient>
-                    <filter id="faceGrain"><feTurbulence type="fractalNoise" baseFrequency=".78" numOctaves="2" seed="19"/><feColorMatrix values="0 0 0 0 .22 0 0 0 0 .18 0 0 0 0 .16 0 0 0 .18 0"/></filter>
-                </defs>
-                <ellipse cx="200" cy="205" rx="151" ry="178" fill="#000" opacity=".9"/>
-                <path class="face-skin" fill="url(#skinShade)" d="M200 24 C116 17 66 84 65 174 C63 267 113 355 184 377 C221 389 268 349 302 294 C337 237 336 132 289 66 C265 33 232 22 200 24Z"/>
-                <path class="face-shadow" d="M69 146 Q108 102 165 139 L157 176 Q111 153 76 184Z"/>
-                <path class="face-shadow" d="M222 131 Q280 92 324 144 L315 183 Q272 150 225 171Z"/>
-                <g class="eye-left"><path class="eye-white" d="M86 158 Q120 126 157 157 Q131 191 91 174Z"/><ellipse class="eye-pupil" cx="123" cy="160" rx="8" ry="16"/><circle cx="126" cy="154" r="2" fill="#fff"/></g>
-                <g class="eye-right"><path class="eye-white" d="M231 153 Q273 119 307 150 Q287 180 236 172Z"/><ellipse class="eye-pupil" cx="273" cy="154" rx="7" ry="15"/><circle cx="276" cy="149" r="2" fill="#fff"/></g>
-                <path class="face-shadow" d="M179 160 Q158 208 174 230 Q190 241 204 225 L194 218 Q184 220 187 207 L204 165Z"/>
-                <path class="face-scratch" d="M89 204 l-12 18 18 -5 M294 198 l15 13 -16 1 M118 260 l-9 20 M282 241 l12 18 M160 305 l-8 16"/>
-                <g class="jaw">
-                    <path class="mouth-hole" d="M111 260 Q153 230 200 254 Q251 224 294 256 Q285 321 228 344 Q169 358 127 316Z"/>
-                    <path class="teeth" d="M126 261 Q164 247 199 265 Q245 243 279 258 L272 278 Q234 269 200 285 Q163 270 132 282Z"/>
-                    <path class="teeth" d="M143 311 Q183 323 224 310 Q252 304 267 287 L260 313 Q220 344 176 336Z"/>
-                    <path class="blood" d="M137 286 Q151 296 146 327 Q142 345 153 356 Q162 341 160 322 L163 292Z"/>
-                    <path class="blood" d="M259 274 Q270 290 266 312 Q264 329 276 337 Q284 314 277 292 L276 270Z"/>
-                </g>
-                <path class="blood blood-drop" d="M102 176 Q109 194 101 213 Q95 230 106 238 Q119 221 114 204 L112 180Z"/>
-                <path class="blood blood-drop" d="M294 176 Q300 195 291 214 Q286 231 298 241 Q310 223 305 204 L304 179Z" style="animation-delay:-.6s"/>
-                <rect x="0" y="0" width="400" height="400" filter="url(#faceGrain)" opacity=".2"/>
-            </svg>
+  <defs>
+    <radialGradient id="eyeballShade" cx="35%" cy="28%" r="72%"><stop offset="0" stop-color="#fffdf4"/><stop offset=".48" stop-color="#d5d0c7"/><stop offset=".82" stop-color="#817b76"/><stop offset="1" stop-color="#181313"/></radialGradient>
+    <filter id="eyeballGrain"><feTurbulence type="fractalNoise" baseFrequency=".72" numOctaves="3" seed="7"/><feColorMatrix values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 .2 0"/></filter>
+  </defs>
+  <ellipse cx="200" cy="214" rx="170" ry="158" fill="#170000" opacity=".9"/>
+  <path d="M27 205 Q90 62 204 67 Q320 67 374 203 Q299 333 194 340 Q82 333 27 205Z" fill="#0a0303" stroke="#4d0000" stroke-width="8"/>
+  <path d="M38 202 Q101 82 202 82 Q304 79 362 203 Q292 316 196 324 Q97 317 38 202Z" fill="url(#eyeballShade)"/>
+  <g class="rolling-pupil">
+    <ellipse cx="221" cy="200" rx="75" ry="88" fill="#76000a"/>
+    <ellipse cx="225" cy="198" rx="49" ry="65" fill="#160305"/>
+    <ellipse cx="229" cy="197" rx="24" ry="42" fill="#000"/>
+    <circle cx="244" cy="168" r="12" fill="#fff" opacity=".92"/>
+    <circle cx="205" cy="220" r="5" fill="#f4e9dc" opacity=".7"/>
+  </g>
+  <path d="M30 199 Q92 65 202 67 Q317 66 374 201" fill="none" stroke="#080202" stroke-width="24"/>
+  <path d="M49 233 Q107 314 196 324 Q288 315 351 234" fill="none" stroke="#2b0000" stroke-width="13"/>
+  <path d="M91 286 Q104 315 96 349 Q91 369 103 383 Q119 357 114 331 L109 300Z M302 277 Q316 307 307 333 Q302 353 316 366 Q333 342 325 310 L320 282Z" fill="#650000"/>
+  <rect x="0" y="0" width="400" height="400" filter="url(#eyeballGrain)" opacity=".32"/>
+</svg>
         </div>
-        <div class="final-message" style="font-family:'Nanum Myeongjo',serif;color:#a00000;text-shadow:0 0 12px #500;font-size:clamp(1.5rem,5vw,2.5rem);">이젠 내가 갈게…</div>
+        <div class="final-message" style="font-family:'Nanum Myeongjo',serif;color:#a00000;text-shadow:0 0 12px #500;font-size:clamp(1.5rem,5vw,2.5rem);">찾아줘서 고마워, 이제 내가 갈게</div>
         <p class="text-xs text-red-950 mt-5 font-mono tracking-[.4em]">SESSION TERMINATED</p>
         <p class="text-xs text-red-950 mt-2 font-mono">너를 보고 있어</p>
-        <button onclick="leaveMinsuPage()" class="mt-8 border border-slate-600 px-5 py-2 text-sm hover:bg-white hover:text-black">확인</button>
+        
     </div>
 
     <!-- OFFICE PHONE CALL EVENT -->
@@ -984,28 +976,39 @@
         // 3. MINSU SCREAM SOUND EFFECT
         function triggerMinsuScreamSound() {
             if (audioCtx.state === 'suspended') audioCtx.resume();
-
-            // One abrupt, piercing electronic shriek: "삑!!!!!!!!"
             const now = audioCtx.currentTime;
+
+            // Original synthesized alarm shriek + jagged static burst; no external audio asset.
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
             const filter = audioCtx.createBiquadFilter();
-            osc.type = 'square';
-            osc.frequency.setValueAtTime(2850, now);
-            osc.frequency.exponentialRampToValueAtTime(3900, now + 0.045);
-            osc.frequency.exponentialRampToValueAtTime(1750, now + 0.19);
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(1850, now);
+            osc.frequency.exponentialRampToValueAtTime(4600, now + 0.035);
+            osc.frequency.setValueAtTime(3100, now + 0.075);
+            osc.frequency.exponentialRampToValueAtTime(1250, now + 0.19);
+            osc.frequency.setValueAtTime(3900, now + 0.235);
+            osc.frequency.exponentialRampToValueAtTime(2100, now + 0.31);
             filter.type = 'highpass';
-            filter.frequency.setValueAtTime(1500, now);
-            filter.Q.value = 0.7;
+            filter.frequency.setValueAtTime(1750, now);
+            filter.Q.value = 1.1;
             gain.gain.setValueAtTime(0.0001, now);
-            gain.gain.exponentialRampToValueAtTime(0.32, now + 0.008);
-            gain.gain.setValueAtTime(0.32, now + 0.105);
-            gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.23);
-            osc.connect(filter);
-            filter.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.start(now);
-            osc.stop(now + 0.24);
+            gain.gain.exponentialRampToValueAtTime(0.52, now + 0.006);
+            gain.gain.setValueAtTime(0.42, now + 0.12);
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.34);
+            osc.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination);
+            osc.start(now); osc.stop(now + 0.35);
+
+            const second = audioCtx.createOscillator();
+            const secondGain = audioCtx.createGain();
+            second.type = 'square';
+            second.frequency.setValueAtTime(5200, now + 0.025);
+            second.frequency.exponentialRampToValueAtTime(2600, now + 0.11);
+            secondGain.gain.setValueAtTime(0.0001, now);
+            secondGain.gain.exponentialRampToValueAtTime(0.16, now + 0.03);
+            secondGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.16);
+            second.connect(secondGain); secondGain.connect(audioCtx.destination);
+            second.start(now + 0.02); second.stop(now + 0.17);
         }
 
         // 3. School Bell Simulation (Distorted)
