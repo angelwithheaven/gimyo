@@ -1475,19 +1475,29 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
                     .filter(el => el.dataset.normal && el.dataset.corrupt);
                 if (!candidates.length) return;
 
-                const chosen = candidates[Math.floor(Math.random() * candidates.length)];
-                chosen.textContent = '· ' + chosen.dataset.corrupt;
-                chosen.classList.add('text-red-700', 'font-bold');
+                // Randomly select two distinct abnormal-menu candidates each cycle.
+                const pool = [...candidates];
+                for (let i = pool.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [pool[i], pool[j]] = [pool[j], pool[i]];
+                }
+                const chosenMenus = pool.slice(0, Math.min(2, pool.length));
+                chosenMenus.forEach(chosen => {
+                    chosen.textContent = '· ' + chosen.dataset.corrupt;
+                    chosen.classList.add('text-red-700', 'font-bold');
+                });
 
                 lunchGlitchResetTimeout = setTimeout(() => {
-                    chosen.textContent = '· ' + chosen.dataset.normal;
-                    chosen.classList.remove('text-red-700', 'font-bold');
-                    // Keep the abnormal red menu visible for 3 seconds, then repeat on a strict 5-second cycle.
+                    chosenMenus.forEach(chosen => {
+                        chosen.textContent = '· ' + chosen.dataset.normal;
+                        chosen.classList.remove('text-red-700', 'font-bold');
+                    });
+                    // Two abnormal menus stay visible for 3 seconds, followed by a 2-second pause.
                     lunchGlitchTimeout = setTimeout(runRandomMenuGlitch, 2000);
                 }, 3000);
             };
 
-            // First glitch appears after 5 seconds; thereafter one abnormal menu appears every 5 seconds.
+            // First glitch appears after 5 seconds; thereafter two random abnormal menus appear every 5 seconds.
             lunchGlitchTimeout = setTimeout(runRandomMenuGlitch, 5000);
         }
 
