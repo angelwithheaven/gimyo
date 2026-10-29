@@ -1917,92 +1917,60 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
         }
 
         function startPrankHandAttack() {
-            try { sessionStorage.setItem('gimyo_prank_hands_reload', '1'); } catch (e) {}
-            const overlay = document.getElementById('prankHandAttack');
-            if (!overlay) return;
-            overlay.innerHTML = '';
-            overlay.classList.remove('blackout');
-            overlay.classList.add('active');
-            warningHeartbeatActive = true;
-
-            // Bloody palms strike for exactly one minute; after that, keep only the knocking sound over a permanent black screen.
-            const attackStartedAt = Date.now();
-            const handAttackDuration = 60000;
-            let visualAttackEnded = false;
-            window.setTimeout(() => {
-                visualAttackEnded = true;
-                overlay.innerHTML = '';
-                overlay.classList.add('blackout');
-                document.body.classList.remove('minsu-impact');
-                document.body.classList.add('prank-blood-final');
-            }, handAttackDuration);
-
-            const run = () => {
-                const strike = () => {
-                    if (!warningHeartbeatActive) return;
-                    const elapsed = Date.now() - attackStartedAt;
-                    if (elapsed >= handAttackDuration && !visualAttackEnded) {
-                        visualAttackEnded = true;
-                        overlay.innerHTML = '';
-                        overlay.classList.add('blackout');
-                        document.body.classList.remove('minsu-impact');
-                        document.body.classList.add('prank-blood-final');
-                    }
-
-                    // Keep the uneven, rapid knocking going even after the hands disappear.
-                    const groupSize = Math.random() < .38 ? 2 : (Math.random() < .1 ? 3 : 1);
-                    for (let j=0; j<groupSize; j++) {
-                        if (!visualAttackEnded && Date.now() - attackStartedAt < handAttackDuration) {
-                            const hand = document.createElement('img');
-                            hand.className = 'prank-handprint';
-                            // The uploaded files are the right and left palms respectively.
-                            const handSources = [
-                                'file_00000000ca788211a72ec0e147642665.png',
-                                'file_00000000ca788211a72ec0e147642665(1).png'
-                            ];
-                            hand.alt = '';
-                            hand.draggable = false;
-                            hand.style.left = (6 + Math.random()*88) + 'vw';
-                            hand.style.top = (7 + Math.random()*84) + 'vh';
-                            hand.style.setProperty('--hand-angle', (Math.random()*110-55)+'deg');
-                            hand.style.setProperty('--hand-size', (.72+Math.random()*.72).toFixed(2));
-                            hand.onerror = () => { hand.remove(); };
-                            // Start the strike animation only after the PNG has actually loaded.
-                            hand.onload = () => {
-                                if (!visualAttackEnded && warningHeartbeatActive) {
-                                    hand.classList.add('strike');
-                                    window.setTimeout(() => hand.remove(), 420);
-                                } else {
-                                    hand.remove();
-                                }
-                            };
-                            const selectedHand = handSources[Math.random() < .5 ? 0 : 1];
-                            hand.src = 'https://angelwithheaven.github.io/gimyo/' + selectedHand.split('/').map(part => encodeURIComponent(part)).join('/');
-                            overlay.appendChild(hand);
-                            document.body.classList.add('minsu-impact');
-                            window.setTimeout(() => document.body.classList.remove('minsu-impact'), 95);
-                        }
-                        playHandImpactSound(.78 + Math.random()*.42);
-                    }
-                    // Random short flurries and pauses, with no end to the sound loop.
-                    warningHeartbeatTimer = window.setTimeout(strike, 75 + Math.random()*310);
-                };
-                strike();
+            const overlay=document.getElementById('prankHandAttack');
+            if(!overlay)return;
+            let attackStartedAt=0,alreadyFinal=false;
+            try{
+                sessionStorage.setItem('gimyo_prank_hands_reload','1');
+                attackStartedAt=Number(sessionStorage.getItem('gimyo_prank_hands_started_at')||0);
+                alreadyFinal=sessionStorage.getItem('gimyo_prank_hands_final')==='1';
+                if(!attackStartedAt&&!alreadyFinal){attackStartedAt=Date.now();sessionStorage.setItem('gimyo_prank_hands_started_at',String(attackStartedAt));}
+            }catch(e){attackStartedAt=Date.now();}
+            overlay.innerHTML='';overlay.classList.add('active');warningHeartbeatActive=true;document.body.classList.remove('minsu-impact');
+            const showPermanentBlackout=()=>{
+                alreadyFinal=true;if(warningHeartbeatTimer)window.clearTimeout(warningHeartbeatTimer);
+                overlay.innerHTML='';overlay.classList.add('blackout');document.body.classList.add('prank-blood-final');
+                try{sessionStorage.setItem('gimyo_prank_hands_final','1');sessionStorage.setItem('gimyo_prank_hands_reload','1');}catch(e){}
             };
-
-            const beginAfterAudioReady = () => {
-                if (!warningHeartbeatActive) return;
-                run();
+            if(alreadyFinal||Date.now()-attackStartedAt>=30000)showPermanentBlackout();
+            const unlockHandAudio=()=>{if(audioCtx.state!=='running')audioCtx.resume().catch(()=>{});};
+            document.addEventListener('pointerdown',unlockHandAudio,true);
+            document.addEventListener('touchstart',unlockHandAudio,true);
+            document.addEventListener('keydown',unlockHandAudio,true);
+            const remaining=Math.max(0,30000-(Date.now()-attackStartedAt));
+            if(!alreadyFinal&&remaining>0)window.setTimeout(showPermanentBlackout,remaining);
+            const strike=()=>{
+                if(!warningHeartbeatActive)return;
+                if(Date.now()-attackStartedAt>=30000)showPermanentBlackout();
+                if(!alreadyFinal){
+                    const groupSize=2+Math.floor(Math.random()*5);
+                    for(let j=0;j<groupSize;j++){
+                        if(Date.now()-attackStartedAt>=30000)break;
+                        const hand=document.createElement('img');hand.className='prank-handprint';
+                        const handSources=['file_00000000ca788211a72ec0e147642665.png','file_00000000ca788211a72ec0e147642665(1).png'];
+                        hand.alt='';hand.draggable=false;hand.style.width='clamp(135px,30vw,360px)';
+                        hand.style.left=(2+Math.random()*96)+'vw';hand.style.top=(2+Math.random()*96)+'vh';
+                        hand.style.setProperty('--hand-angle',(Math.random()*160-80)+'deg');
+                        hand.style.setProperty('--hand-size',(1+Math.random()*1.15).toFixed(2));
+                        hand.onerror=()=>hand.remove();
+                        hand.onload=()=>{
+                            if(!alreadyFinal&&warningHeartbeatActive&&Date.now()-attackStartedAt<30000){hand.classList.add('strike');window.setTimeout(()=>hand.remove(),420);}
+                            else hand.remove();
+                        };
+                        const selectedHand=handSources[Math.random()<.5?0:1];
+                        hand.src='https://angelwithheaven.github.io/gimyo/'+selectedHand.split('/').map(part=>encodeURIComponent(part)).join('/');
+                        overlay.appendChild(hand);document.body.classList.add('minsu-impact');
+                        window.setTimeout(()=>document.body.classList.remove('minsu-impact'),75);
+                    }
+                }
+                const impacts=2+Math.floor(Math.random()*3);
+                for(let k=0;k<impacts;k++)window.setTimeout(()=>playHandImpactSound(1+Math.random()*.65),k*(24+Math.random()*18));
+                warningHeartbeatTimer=window.setTimeout(strike,35+Math.random()*85);
             };
-            if (audioCtx.state === 'running') {
-                beginAfterAudioReady();
-            } else {
-                audioCtx.resume().then(beginAfterAudioReady).catch(beginAfterAudioReady);
-                warningAudioUnlockHandler = () => {
-                    if (audioCtx.state !== 'running') audioCtx.resume().catch(() => {});
-                };
-                document.addEventListener('pointerdown', warningAudioUnlockHandler, {capture:true});
-                document.addEventListener('keydown', warningAudioUnlockHandler);
+            if(!alreadyFinal)strike();
+            else{
+                const keepSoundAlive=()=>{if(audioCtx.state!=='running')audioCtx.resume().catch(()=>{});if(warningHeartbeatActive)playHandImpactSound(1.05);};
+                document.addEventListener('pointerdown',keepSoundAlive,true);
             }
         }
 
@@ -2046,7 +2014,8 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
             let locked = false;
             try {
                 locked = sessionStorage.getItem('gimyo_minsu_blackout') === '1' ||
-                    sessionStorage.getItem('gimyo_prank_hands_reload') === '1';
+                    sessionStorage.getItem('gimyo_prank_hands_reload') === '1' ||
+                    sessionStorage.getItem('gimyo_prank_hands_final') === '1';
             } catch (e) {}
             if (!locked) return;
             const key = String(event.key || '').toLowerCase();
@@ -2177,34 +2146,39 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
             triggerGlitchBeep();
             showRetroPopUp(`[구관 시설 안내 - ${code}]<br>현재 구관은 완전 봉쇄되어 있습니다.<br>지하 1층 및 지하시설은 열쇠가 철거되었으며 내부에 침입할 경우 외부에서 문이 닫힙니다.`, '구관 봉쇄 안내', 'fa-solid fa-ban text-red-600');
         }
-        // Keep the Minsu curse after refreshes in this tab. A fresh visit or browser Back/Forward clears it.
-        (function restoreMinsuBlackoutAfterReload() {
-            let curseActive = false;
-            let navigationType = 'navigate';
-            try {
-                curseActive = sessionStorage.getItem('gimyo_minsu_blackout') === '1';
-                const navigation = performance.getEntriesByType('navigation')[0];
-                if (navigation && navigation.type) navigationType = navigation.type;
-                if (curseActive && navigationType === 'reload') {
-                    window.setTimeout(() => triggerOfficeMinsuCurse(), 0);
-                } else if (curseActive) {
+        // Escalate the Minsu curse on each refresh; stage four is permanently black.
+        (function restoreMinsuBlackoutAfterReload(){
+            try{
+                const active=sessionStorage.getItem('gimyo_minsu_blackout')==='1';
+                const navigation=performance.getEntriesByType('navigation')[0];
+                const navigationType=navigation&&navigation.type?navigation.type:'navigate';
+                if(active&&navigationType==='reload'){
+                    const finalized=sessionStorage.getItem('gimyo_minsu_finalized')==='1';
+                    let stage=Number(sessionStorage.getItem('gimyo_minsu_reload_stage')||'0');
+                    if(!finalized){stage=Math.min(4,stage+1);sessionStorage.setItem('gimyo_minsu_reload_stage',String(stage));}
+                    else stage=4;
+                    window.setTimeout(()=>triggerOfficeMinsuCurse(stage),0);
+                }else if(active){
                     sessionStorage.removeItem('gimyo_minsu_blackout');
+                    sessionStorage.removeItem('gimyo_minsu_reload_stage');
+                    sessionStorage.removeItem('gimyo_minsu_finalized');
                 }
-            } catch (e) {}
+            }catch(e){}
         })();
 
-        // Restore the palm-strike screen only on a page refresh; a fresh visit clears this lock.
-        (function restorePrankHandsAfterReload() {
-            try {
-                const active = sessionStorage.getItem('gimyo_prank_hands_reload') === '1';
-                const navigation = performance.getEntriesByType('navigation')[0];
-                const navigationType = navigation && navigation.type ? navigation.type : 'navigate';
-                if (active && navigationType === 'reload') {
-                    window.setTimeout(() => startPrankHandAttack(), 0);
-                } else if (active) {
+        // Palm attack keeps its 30-second deadline across refreshes, then remains black in this tab.
+        (function restorePrankHandsAfterReload(){
+            try{
+                const active=sessionStorage.getItem('gimyo_prank_hands_reload')==='1';
+                const navigation=performance.getEntriesByType('navigation')[0];
+                const navigationType=navigation&&navigation.type?navigation.type:'navigate';
+                if(active&&navigationType==='reload')window.setTimeout(()=>startPrankHandAttack(),0);
+                else if(active){
                     sessionStorage.removeItem('gimyo_prank_hands_reload');
+                    sessionStorage.removeItem('gimyo_prank_hands_started_at');
+                    sessionStorage.removeItem('gimyo_prank_hands_final');
                 }
-            } catch (e) {}
+            }catch(e){}
         })();
 
         showPrankWarningOnReturn();
