@@ -1740,15 +1740,15 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
             },3300);
         }
 
-        // CCTV Camera Switching Simulation
+        // CCTV camera cycle: CAM-01 -> CAM-02 -> CAM-03 warning -> CAM-01 -> CAM-02 -> CAM-03 jumpscare.
         const cctvCams = [
             { name: "CAM-01 중앙현관", img: "CCTV1.png" },
             { name: "CAM-02 2층 복도", img: "CCTV2.png" },
             { name: "CAM-03 구관 통로 (폐쇄)", img: "CCTV3.png", glitch: true }
         ];
         let currentCamIdx = 0;
-        let cctv123Triggered = false;
-        let cctv123Sequence = [];
+        let cctv03VisitCount = 0;
+        let cctvJumpscareTriggered = false;
 
         function playCCTVSharpBeep() {
             try {
@@ -1771,20 +1771,15 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
             } catch (e) {}
         }
 
-        function triggerCCTV123() {
-            if (cctv123Triggered) return;
-            cctv123Triggered = true;
+        function triggerCCTVJumpscare() {
+            if (cctvJumpscareTriggered) return;
+            cctvJumpscareTriggered = true;
             const overlay = document.getElementById('cctv123Overlay');
             if (!overlay) return;
             overlay.classList.remove('hidden');
             overlay.style.display = 'flex';
-            try {
-                if (audioCtx.state === 'suspended') audioCtx.resume();
-                triggerGlitchBeep();
-                minsuSpeak('안녕?', 0.72, 0.62, 0.9);
-            } catch (e) {
-                playCCTVSharpBeep();
-            }
+            playCCTVSharpBeep();
+            minsuSpeak('안녕', 0.72, 0.62, 0.9);
             window.setTimeout(() => {
                 overlay.classList.add('hidden');
                 overlay.style.display = 'none';
@@ -1796,30 +1791,6 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
                 }
             }, 2000);
         }
-
-        // Easter egg input: accept both keydown and keyup, including top-row and numpad digits.
-        function handleCCTV123Key(event) {
-            if (event.ctrlKey || event.altKey || event.metaKey) return;
-            const digit = /^[123]$/.test(event.key) ? event.key :
-                (event.code === 'Numpad1' ? '1' : event.code === 'Numpad2' ? '2' : event.code === 'Numpad3' ? '3' : '');
-            if (!digit) return;
-            // Prevent keydown + keyup from counting the same physical press twice.
-            if (event.type === 'keydown') {
-                if (event.repeat) return;
-                window.__cctv123LastKey = digit;
-            } else {
-                if (window.__cctv123LastKey !== digit) return;
-                window.__cctv123LastKey = '';
-                cctv123Sequence.push(digit);
-                if (cctv123Sequence.length > 3) cctv123Sequence.shift();
-                if (cctv123Sequence.join('') === '123') {
-                    cctv123Sequence = [];
-                    triggerCCTV123();
-                }
-            }
-        }
-        document.addEventListener('keydown', handleCCTV123Key, true);
-        document.addEventListener('keyup', handleCCTV123Key, true);
 
         function cycleCCTVCam() {
             triggerStaticSound(0.2);
@@ -1835,8 +1806,13 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
 
             const glitchOverlay = document.getElementById('cctvGlitchText');
             if (cam.glitch) {
-                glitchOverlay.classList.remove('hidden');
-                if (!cctv123Triggered) triggerGlitchBeep();
+                cctv03VisitCount++;
+                if (cctv03VisitCount === 1) {
+                    glitchOverlay.classList.remove('hidden');
+                } else {
+                    glitchOverlay.classList.add('hidden');
+                    triggerCCTVJumpscare();
+                }
             } else {
                 glitchOverlay.classList.add('hidden');
             }
