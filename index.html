@@ -1677,11 +1677,12 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
                 return;
             }
             document.querySelector('#phoneJumpOverlay .phone-jump-text').textContent='나 안 보여?';
-            setTimeout(()=>{triggerMinsuScreamSound(1);triggerOfficeMinsuCurse();},650);
+            setTimeout(()=>{triggerOfficeMinsuCurse();},650);
         }
 
-        // Persistent high-pitched horror tone for the Minsu blackout; modest gain to avoid excessive volume.
+        // Continuous, rough scream-like feedback for the Minsu blackout.
         let minsuPiercingToneNodes = [];
+        let minsuPiercingMaster = null;
         function startMinsuPiercingTone() {
             if (minsuPiercingToneNodes.length) return;
             try {
@@ -1689,56 +1690,79 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
                 const now = audioCtx.currentTime;
                 const master = audioCtx.createGain();
                 master.gain.setValueAtTime(0.0001, now);
-                master.gain.exponentialRampToValueAtTime(0.045, now + 0.18);
+                master.gain.linearRampToValueAtTime(0.16, now + 0.035);
                 master.connect(audioCtx.destination);
+                minsuPiercingMaster = master;
 
+                // Mid-high, harmonically rich tones: more shrill feedback/scream, less pure electronic beep.
                 const toneA = audioCtx.createOscillator();
-                toneA.type = 'sine';
-                toneA.frequency.value = 3150;
+                toneA.type = 'sawtooth';
+                toneA.frequency.setValueAtTime(1880, now);
+                toneA.frequency.linearRampToValueAtTime(2050, now + 0.22);
                 const gainA = audioCtx.createGain();
-                gainA.gain.value = 0.72;
+                gainA.gain.value = 0.42;
                 toneA.connect(gainA);
                 gainA.connect(master);
 
                 const toneB = audioCtx.createOscillator();
                 toneB.type = 'triangle';
-                toneB.frequency.value = 3192;
+                toneB.frequency.setValueAtTime(1945, now);
+                toneB.frequency.linearRampToValueAtTime(2110, now + 0.28);
                 const gainB = audioCtx.createGain();
-                gainB.gain.value = 0.18;
+                gainB.gain.value = 0.32;
                 toneB.connect(gainB);
                 gainB.connect(master);
 
+                // Filtered noise adds a sustained chalk-scrape / harsh-air texture.
+                const noiseBuffer = audioCtx.createBuffer(1, audioCtx.sampleRate * 2, audioCtx.sampleRate);
+                const noiseData = noiseBuffer.getChannelData(0);
+                for (let i = 0; i < noiseData.length; i++) noiseData[i] = (Math.random() * 2 - 1) * 0.7;
+                const noise = audioCtx.createBufferSource();
+                noise.buffer = noiseBuffer;
+                noise.loop = true;
+                const filter = audioCtx.createBiquadFilter();
+                filter.type = 'bandpass';
+                filter.frequency.setValueAtTime(2550, now);
+                filter.Q.value = 1.25;
+                const noiseGain = audioCtx.createGain();
+                noiseGain.gain.value = 0.24;
+                noise.connect(filter);
+                filter.connect(noiseGain);
+                noiseGain.connect(master);
+
+                // Slow, small pitch movement keeps it unsettling without breaking the continuous sound.
                 const wobble = audioCtx.createOscillator();
                 wobble.type = 'sine';
-                wobble.frequency.value = 7.2;
+                wobble.frequency.value = 3.4;
                 const wobbleGain = audioCtx.createGain();
-                wobbleGain.gain.value = 0.009;
+                wobbleGain.gain.value = 85;
                 wobble.connect(wobbleGain);
-                wobbleGain.connect(master.gain);
+                wobbleGain.connect(toneA.frequency);
 
                 toneA.start(now);
                 toneB.start(now);
+                noise.start(now);
                 wobble.start(now);
-                minsuPiercingToneNodes = [toneA, toneB, wobble, master, gainA, gainB, wobbleGain];
+                minsuPiercingToneNodes = [toneA, toneB, noise, wobble, master, gainA, gainB, noiseGain, filter, wobbleGain];
             } catch (e) {}
         }
 
         function stopMinsuPiercingTone() {
             if (!minsuPiercingToneNodes.length) return;
             try {
-                const nodes = minsuPiercingToneNodes;
-                const master = nodes.find(node => node instanceof GainNode && node.gain && node.gain.value <= 1);
-                if (master) {
-                    master.gain.cancelScheduledValues(audioCtx.currentTime);
-                    master.gain.setTargetAtTime(0.0001, audioCtx.currentTime, 0.025);
+                const now = audioCtx.currentTime;
+                if (minsuPiercingMaster) {
+                    minsuPiercingMaster.gain.cancelScheduledValues(now);
+                    minsuPiercingMaster.gain.setTargetAtTime(0.0001, now, 0.025);
                 }
-                nodes.forEach(node => {
-                    if (node instanceof OscillatorNode) {
-                        try { node.stop(audioCtx.currentTime + 0.12); } catch (e) {}
+                minsuPiercingToneNodes.forEach(node => {
+                    if (typeof node.stop === 'function') {
+                        try { node.stop(now + 0.12); } catch (e) {}
                     }
                 });
             } catch (e) {}
             minsuPiercingToneNodes = [];
+            minsuPiercingMaster = null;
         }
 
         window.addEventListener('pagehide', stopMinsuPiercingTone);
