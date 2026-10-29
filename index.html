@@ -1812,20 +1812,30 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
                     for (let j=0; j<groupSize; j++) {
                         if (!visualAttackEnded && Date.now() - attackStartedAt < handAttackDuration) {
                             const hand = document.createElement('img');
-                            hand.className = 'prank-handprint strike';
+                            hand.className = 'prank-handprint';
                             // The uploaded files are the right and left palms respectively.
-                            hand.src = Math.random() < .5
-                                ? 'file_00000000ca788211a72ec0e147642665.png'
-                                : 'file_00000000ca788211a72ec0e147642665(1).png';
+                            const handSources = [
+                                'file_00000000ca788211a72ec0e147642665.png',
+                                'file_00000000ca788211a72ec0e147642665(1).png'
+                            ];
                             hand.alt = '';
                             hand.draggable = false;
                             hand.style.left = (6 + Math.random()*88) + 'vw';
                             hand.style.top = (7 + Math.random()*84) + 'vh';
                             hand.style.setProperty('--hand-angle', (Math.random()*110-55)+'deg');
                             hand.style.setProperty('--hand-size', (.72+Math.random()*.72).toFixed(2));
-                            hand.onerror = () => { hand.style.display='none'; };
+                            hand.onerror = () => { hand.remove(); };
+                            // Start the strike animation only after the PNG has actually loaded.
+                            hand.onload = () => {
+                                if (!visualAttackEnded && warningHeartbeatActive) {
+                                    hand.classList.add('strike');
+                                    window.setTimeout(() => hand.remove(), 420);
+                                } else {
+                                    hand.remove();
+                                }
+                            };
+                            hand.src = handSources[Math.random() < .5 ? 0 : 1];
                             overlay.appendChild(hand);
-                            window.setTimeout(() => hand.remove(), 280);
                             document.body.classList.add('minsu-impact');
                             window.setTimeout(() => document.body.classList.remove('minsu-impact'), 95);
                         }
