@@ -1695,9 +1695,15 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
             try{if(audioCtx.state==='suspended')audioCtx.resume();window.speechSynthesis.cancel();}catch(e){}
             document.getElementById('finalMinsuOverlay').style.display='none';
             document.body.style.overflow='hidden';
-            document.body.style.transition='none';
-            document.body.style.filter='none';
-            document.body.style.opacity='1';
+
+            // The screen begins fading as soon as the announcement starts.
+            const fade=document.createElement('div');
+            fade.id='minsuFinalFade';
+            fade.style.cssText='position:fixed;inset:0;background:#000;opacity:0;z-index:999999;pointer-events:none;animation:minsuVoiceFade 13s linear forwards;';
+            const fadeStyle=document.createElement('style');
+            fadeStyle.textContent='@keyframes minsuVoiceFade{0%{opacity:0}100%{opacity:.82}}';
+            document.head.appendChild(fadeStyle);
+            document.body.appendChild(fade);
 
             let bellDelay=1750;
             let bellTimer=null;
@@ -1709,21 +1715,15 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
             };
             ringBell();
 
-            const dimAndExit=()=>{
-                // Start the fade two seconds after the final sentence finishes.
-                window.setTimeout(()=>{
-                    if(!minsuAnnouncementActive)return;
-                    playMinsuWarningTone();
-                    const overlay=document.createElement('div');
-                    overlay.id='minsuFinalFade';
-                    overlay.style.cssText='position:fixed;inset:0;background:#000;opacity:0;z-index:999999;pointer-events:none;transition:opacity 5.5s linear;';
-                    document.body.appendChild(overlay);
-                    // Force the initial opacity to be painted before starting the transition.
-                    void overlay.offsetWidth;
-                    overlay.style.opacity='1';
-                    if(bellTimer)clearTimeout(bellTimer);
-                    window.setTimeout(leaveMinsuPage,6500);
-                },2000);
+            const finishAndExit=()=>{
+                if(bellTimer)clearTimeout(bellTimer);
+                // At the exact end of the spoken warning, the remaining image disappears
+                // with the final warning tone, then the page exits.
+                try{playMinsuWarningTone();}catch(e){}
+                fade.style.animation='none';
+                fade.style.transition='none';
+                fade.style.opacity='1';
+                window.setTimeout(leaveMinsuPage,900);
             };
 
             const secondAnnouncement=()=>{
@@ -1750,7 +1750,7 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
                 const second=speakMinsuAnnouncement('다시 한번 말합니다. 김민수 학생, 서둘러 짐을 싸서 이곳을 나가십시오.',true);
                 const finish=()=>{
                     if(dissonanceTimer)clearTimeout(dissonanceTimer);
-                    dimAndExit();
+                    finishAndExit();
                 };
                 if(second)second.onend=finish;else setTimeout(finish,6000);
             };
