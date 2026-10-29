@@ -1828,44 +1828,43 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
         }
 
         function showPrankWarningOnReturn() {
-            let shouldWarn = false;
-            try {
-                shouldWarn = localStorage.getItem('gimyo_prank_warning_once') === '1';
-                if (shouldWarn) localStorage.removeItem('gimyo_prank_warning_once');
-            } catch (e) {}
-            if (!shouldWarn) return;
+            let stage = '';
+            try { stage = localStorage.getItem('gimyo_prank_curse_stage') || ''; } catch(e) {}
+            if (!stage) return;
+            // The next visit after the cursed screen restores the original page.
+            if (stage === 'cursed') {
+                try { localStorage.removeItem('gimyo_prank_curse_stage'); } catch(e) {}
+                return;
+            }
+            if (stage !== 'pending') return;
+            try { localStorage.setItem('gimyo_prank_curse_stage', 'cursed'); } catch(e) {}
+
+            const message = '다시는 그런 장난 치지 마...';
+            document.title = '1974년 기이고등학교';
+            document.body.classList.add('prank-cursed');
+
+            // Keep the original page structure, replacing its visible text only.
+            const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+            const nodes = [];
+            while (walker.nextNode()) {
+                const node = walker.currentNode;
+                if (node.parentElement && !node.parentElement.closest('script,style,canvas,#prankWarningOverlay,#prankBloodCurtain')) nodes.push(node);
+            }
+            nodes.forEach(node => { if (node.nodeValue.trim()) node.nodeValue = message; });
 
             const overlay = document.getElementById('prankWarningOverlay');
-            const warning = overlay.querySelector('.melt-warning');
-            const message = '다시는 그런 장난 치지 마...';
+            if (overlay) overlay.style.display = 'none';
 
-            if (warning) {
-                warning.textContent = '';
-                warning.style.animation = 'none';
-                Array.from(message).forEach((char, index) => {
-                    const span = document.createElement('span');
-                    span.className = 'warning-char';
-                    span.textContent = char === ' ' ? '\u00a0' : char;
-                    warning.appendChild(span);
-                    window.setTimeout(() => span.classList.add('visible'), index * 105);
-                });
-                void warning.offsetWidth;
-                warning.style.animation = 'warningImpact 5s linear forwards';
-            }
-
-            overlay.style.display = 'flex';
-            overlay.style.opacity = '1';
-            playWarningHeartbeat();
-
+            // Five seconds of corrupted silence before the knocking and red wash.
             window.setTimeout(() => {
-                stopWarningHeartbeat();
-                overlay.style.transition = 'opacity .75s ease';
-                overlay.style.opacity = '0';
+                playWarningHeartbeat();
+                const curtain = document.getElementById('prankBloodCurtain');
+                if (curtain) curtain.classList.add('spread');
                 window.setTimeout(() => {
-                    overlay.style.display = 'none';
-                    overlay.style.opacity = '1';
-                    overlay.style.transition = '';
-                }, 800);
+                    if (curtain) curtain.classList.add('full');
+                    document.body.classList.add('prank-blood-final');
+                }, 1450);
+                window.setTimeout(() => stopWarningHeartbeat(), 4800);
             }, 5000);
         }
 
