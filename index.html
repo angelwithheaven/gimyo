@@ -1770,6 +1770,7 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
         window.addEventListener('beforeunload', stopMinsuPiercingTone);
 
         function triggerOfficeMinsuCurse() {
+            try { sessionStorage.setItem('gimyo_minsu_blackout', '1'); } catch (e) {}
             document.body.classList.add('phone-blood-mode');
             document.body.style.overflow = 'hidden';
             startMinsuPiercingTone();
@@ -2117,6 +2118,22 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
             triggerGlitchBeep();
             showRetroPopUp(`[구관 시설 안내 - ${code}]<br>현재 구관은 완전 봉쇄되어 있습니다.<br>지하 1층 및 지하시설은 열쇠가 철거되었으며 내부에 침입할 경우 외부에서 문이 닫힙니다.`, '구관 봉쇄 안내', 'fa-solid fa-ban text-red-600');
         }
+        // Keep the Minsu curse after refreshes in this tab. A fresh visit or browser Back/Forward clears it.
+        (function restoreMinsuBlackoutAfterReload() {
+            let curseActive = false;
+            let navigationType = 'navigate';
+            try {
+                curseActive = sessionStorage.getItem('gimyo_minsu_blackout') === '1';
+                const navigation = performance.getEntriesByType('navigation')[0];
+                if (navigation && navigation.type) navigationType = navigation.type;
+                if (curseActive && navigationType === 'reload') {
+                    window.setTimeout(() => triggerOfficeMinsuCurse(), 0);
+                } else if (curseActive) {
+                    sessionStorage.removeItem('gimyo_minsu_blackout');
+                }
+            } catch (e) {}
+        })();
+
         showPrankWarningOnReturn();
     </script>
 </body>
