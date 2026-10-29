@@ -116,6 +116,14 @@
             background-color: #fee2e2;
         }
 
+        #finalMinsuOverlay {
+            position: fixed; inset: 0; z-index: 20000; display: none;
+            background: #000; color: #fff; align-items: center; justify-content: center;
+            flex-direction: column; text-align: center; padding: 24px;
+        }
+        #finalMinsuOverlay .smile { font-size: clamp(5rem, 20vw, 12rem); line-height: 1; }
+        #finalMinsuOverlay .final-message { font-family: 'Nanum Myeongjo', serif; font-size: clamp(1.25rem, 4vw, 2rem); margin-top: 2rem; }
+
         /* Custom Scrollbar */
         ::-webkit-scrollbar {
             width: 8px;
@@ -513,6 +521,7 @@
                     <button onclick="openNewQnaModal()" class="bg-slate-800 text-white text-xs px-3 py-1.5 rounded hover:bg-slate-700">글쓰기</button>
                 </h2>
 
+                <p class="text-[10px] text-slate-500 border-l-2 border-slate-300 pl-2">게시판 메모: 사라진 학생을 찾으려면, 그 아이의 이름을 이곳에 남겨 보라는 오래된 글이 있다. <span class="hidden-spoiler">세 글자면 충분하다.</span></p>
                 <div class="space-y-3" id="qnaList">
                     <!-- Populated via JS -->
                 </div>
@@ -546,6 +555,58 @@
                         <p class="text-slate-400">2학년 4반 김민수 학생 (10월 22일 야간 자율학습 중 화장실 이동 후 미귀가). CCTV 확인 결과 화장실 진입 기록은 있으나 나온 기록 없음.</p>
                     </div>
                 </div>
+            </div>
+
+            <!-- STAFF-ONLY PORTAL -->
+            <div id="tab-staff" class="hidden space-y-4 font-mono text-xs">
+                <div class="bg-slate-900 text-slate-100 p-5 rounded border border-blue-900 space-y-3">
+                    <div class="flex justify-between items-center border-b border-slate-700 pb-3">
+                        <div>
+                            <p class="text-blue-300 text-[10px] tracking-widest">GII INTERNAL NETWORK / STAFF</p>
+                            <h2 class="font-bold text-lg mt-1">교직원 내부 업무 포털</h2>
+                        </div>
+                        <span class="text-green-400 text-[10px] border border-green-900 px-2 py-1">AUTH: VERIFIED</span>
+                    </div>
+                    <p class="text-slate-300 leading-relaxed">접속 기록이 저장되었습니다. 외부 공유 금지. 일반 공지와 달리 이 화면은 교직원 전용 내부 지침을 표시합니다.</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div class="bg-slate-950 border border-slate-800 p-3 space-y-2">
+                            <p class="text-blue-200 font-bold">■ 야간 근무 지침</p>
+                            <p class="text-slate-400">21:30 이후 구관에서 이름을 부르는 소리가 들려도 응답하지 말 것. 복도 CCTV에 본인의 뒷모습이 먼저 찍히면 즉시 보안실에 보고할 것.</p>
+                        </div>
+                        <div class="bg-slate-950 border border-slate-800 p-3 space-y-2">
+                            <p class="text-blue-200 font-bold">■ 출결 정정 안내</p>
+                            <p class="text-slate-400">1998년 10월 24일자 출석부 원본은 폐기된 것으로 처리한다. 해당 날짜에 대한 문의는 교장실로 이관하며, 학생에게는 시설 안전사고로 안내할 것.</p>
+                        </div>
+                    </div>
+                    <button onclick="openStudentRecords()" class="bg-blue-900 hover:bg-blue-800 text-white px-4 py-2 rounded font-bold">학생기록부 열람 시스템 →</button>
+                </div>
+            </div>
+
+            <!-- RESTRICTED STUDENT RECORDS -->
+            <div id="tab-records" class="hidden space-y-4 font-mono text-xs bg-stone-950 text-stone-200 p-5 rounded border border-amber-900">
+                <div class="flex justify-between items-center border-b border-amber-900 pb-3">
+                    <div>
+                        <p class="text-amber-500 text-[10px] tracking-widest">KMS ARCHIVE / STUDENT RECORD</p>
+                        <h2 class="font-bold text-lg text-amber-100 mt-1">학생기록부 · 열람 제한</h2>
+                    </div>
+                    <span class="text-red-400 text-[10px] border border-red-900 px-2 py-1">RECORD LOCKED</span>
+                </div>
+                <p class="text-red-300 font-bold">주의: 아래 기록은 학교 홈페이지의 공식 공개 자료와 일치하지 않습니다.</p>
+                <div class="border border-stone-800 bg-black/40 p-4 space-y-2">
+                    <p class="text-amber-300 font-bold">학적 정보 — 김민수</p>
+                    <p>학년/반: 2학년 4반</p>
+                    <p>상태: <span class="text-red-400">2026년 10월 22일 이후 출결 기록 없음</span></p>
+                    <p>마지막 확인 위치: 신관 3층 화장실 복도</p>
+                    <p>개인 소지품: 가방 1개, 교과서 4권, 학생증 1매 — 모두 교실에 보관</p>
+                </div>
+                <div class="border border-stone-800 bg-black/40 p-4 space-y-2">
+                    <p class="text-amber-300 font-bold">기록 변경 이력</p>
+                    <p>10/22 21:42 — 담임이 결석 처리 시도</p>
+                    <p>10/22 21:43 — 학적 서버가 자동으로 '재실' 상태로 복구</p>
+                    <p>10/23 00:01 — 학생 수 1명 증가. 학급 명부에는 변화 없음.</p>
+                    <p class="text-red-400 mt-2">비고: 김민수 학생의 기록을 삭제할 때마다 다른 학생의 이름이 한 줄씩 지워진다.</p>
+                </div>
+                <button onclick="switchTab('staff')" class="border border-stone-700 px-3 py-1.5 text-stone-300 hover:bg-stone-900">교직원 포털로 돌아가기</button>
             </div>
 
         </section>
@@ -609,6 +670,60 @@
                 <button onclick="verifySecretCode()" class="w-1/2 bg-red-900 text-white py-1.5 rounded hover:bg-red-800 font-bold">인증하기</button>
             </div>
         </div>
+    </div>
+
+    <!-- STAFF LOGIN MODAL -->
+    <div id="staffLoginModal" class="fixed inset-0 bg-black/80 z-[60] flex items-center justify-center hidden p-4">
+        <div class="bg-slate-900 border border-slate-600 text-slate-200 rounded max-w-sm w-full p-5 space-y-4 font-mono text-xs">
+            <div class="text-center space-y-1">
+                <i class="fa-solid fa-id-card text-blue-300 text-2xl mb-2"></i>
+                <h3 class="font-bold text-sm text-white">기이고등학교 교직원 인증</h3>
+                <p class="text-[11px] text-slate-400">내부 교직원 시스템 · 인가된 계정만 접근 가능</p>
+            </div>
+            <label class="block text-slate-400" for="staffCodeInput">교직원 인증 코드</label>
+            <input type="password" id="staffCodeInput" placeholder="인증 코드를 입력하세요"
+                onkeydown="if(event.key === 'Enter') verifyStaffLogin()"
+                class="w-full bg-slate-950 border border-slate-700 rounded px-3 py-2 text-center text-blue-200 font-bold outline-none focus:border-blue-500">
+            <p class="text-[10px] text-slate-500">힌트: 교내 시스템에서 반복해서 보이는 세 글자.</p>
+            <div class="flex gap-2">
+                <button onclick="closeStaffLogin()" class="w-1/2 bg-slate-800 text-slate-400 py-1.5 rounded hover:bg-slate-700">취소</button>
+                <button onclick="verifyStaffLogin()" class="w-1/2 bg-blue-900 text-white py-1.5 rounded hover:bg-blue-800 font-bold">로그인</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- NEW STUDENT POST MODAL -->
+    <div id="newQnaModal" class="fixed inset-0 bg-black/70 z-[60] flex items-center justify-center hidden p-4">
+        <div class="bg-white border border-slate-300 shadow-2xl max-w-lg w-full rounded p-5 space-y-4">
+            <div class="flex justify-between items-center border-b border-slate-200 pb-3">
+                <div>
+                    <h3 class="font-bold text-slate-900">학생 익명 게시판 · 새 글</h3>
+                    <p class="text-[10px] text-slate-500 mt-1">작성 내용은 교내 서버에 자동 저장됩니다.</p>
+                </div>
+                <button onclick="closeNewQnaModal()" class="text-slate-500 hover:text-red-700 text-xl" aria-label="닫기">×</button>
+            </div>
+            <form onsubmit="submitNewQna(event)" class="space-y-3">
+                <label class="block text-xs font-bold text-slate-700" for="newQnaTitle">제목</label>
+                <input id="newQnaTitle" maxlength="100" required placeholder="제목을 입력하세요 (힌트: 무서워...)"
+                    class="w-full border border-slate-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-slate-600">
+                <p class="text-[10px] text-slate-500 -mt-1">※ 특정 표현이 포함된 제목은 서버 오류를 일으킬 수 있습니다.</p>
+                <label class="block text-xs font-bold text-slate-700" for="newQnaText">내용</label>
+                <textarea id="newQnaText" maxlength="1200" required rows="5" placeholder="무슨 일이 있었는지 적어주세요."
+                    class="w-full border border-slate-300 rounded px-3 py-2 text-sm resize-y focus:outline-none focus:border-slate-600"></textarea>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeNewQnaModal()" class="px-4 py-2 text-xs rounded bg-slate-100 hover:bg-slate-200">취소</button>
+                    <button type="submit" class="px-4 py-2 text-xs rounded bg-slate-800 text-white hover:bg-slate-700">게시하기</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- FINAL MINSU EVENT -->
+    <div id="finalMinsuOverlay" role="alertdialog" aria-modal="true">
+        <div class="smile" aria-label="웃는 얼굴">😊</div>
+        <div class="final-message">찾아줘서 고마워, 내가 갈게</div>
+        <p class="text-xs text-slate-500 mt-5 font-mono">SESSION TERMINATED</p>
+        <button onclick="leaveMinsuPage()" class="mt-8 border border-slate-600 px-5 py-2 text-sm hover:bg-white hover:text-black">확인</button>
     </div>
 
     <!-- Application Engine JavaScript -->
@@ -834,7 +949,7 @@
             }
 
             // Hide all tabs
-            const tabs = ['home', 'notice', 'principal', 'lunch', 'gallery', 'qna', 'secret'];
+            const tabs = ['home', 'notice', 'principal', 'lunch', 'gallery', 'qna', 'secret', 'staff', 'records'];
             tabs.forEach(t => {
                 const el = document.getElementById(`tab-${t}`);
                 if (el) el.classList.add('hidden');
@@ -959,57 +1074,114 @@
 
         // Render QnA Board
         let qnaPosts = [
-            { id: 3, title: "2학년 4반 김민수 어디 갔는지 아는 사람?", author: "익명", date: "23:14", text: "어제 야자 할 때 화장실 간다 그러고 가방도 그대로 두고 안 돌아옴... 담임선생님도 계속 피하시는데 진짜 무슨 일 있음?" },
-            { id: 2, title: "밤 9시 반쯤 구관 쪽에서 창문 두드리는 소리 들림", author: "야자생", date: "21:40", text: "신관 3층 화장실에서 구관 쪽 바라보는데 지하 창문 안쪽에서 손바닥으로 유리창 계속 치는 소리 남. 경비 아저씨한테 말하니까 그냥 집에 가래." },
-            { id: 1, title: "오늘 급식에 나온 배추김치 맛이 좀 이상하지 않았냐", author: "익명", date: "13:20", text: "쇠 맛 같은 거 나던데 나만 그럼?" }
+            { id: 5, title: "2학년 4반 김민수 어디 갔는지 아는 사람?", author: "익명", date: "23:14", text: "어제 야자 때 화장실 간다 그러고 가방도 그대로 두고 안 돌아옴. 담임선생님도 계속 피하시는데 진짜 무슨 일 있음?", comments: [{author:"야자생",text:"그날 복도 CCTV 점검한다고 했어. 왜 하필 그 시간이지?"}] },
+            { id: 4, title: "밤 9시 반쯤 구관 쪽에서 창문 두드리는 소리 들림", author: "야자생", date: "21:40", text: "신관 3층 화장실에서 구관 쪽 바라보는데 지하 창문 안쪽에서 손바닥으로 유리창 계속 치는 소리 남. 경비 아저씨한테 말하니까 그냥 집에 가래.", comments: [{author:"익명",text:"나도 들었어. 근데 창문은 지하에만 있는 게 아니잖아."}] },
+            { id: 3, title: "오늘 급식 김치에서 쇠 맛 안 났냐", author: "익명", date: "13:20", text: "쇠 맛 같은 거 나던데 나만 그럼? 조리실에 물어보니까 오늘 김치 납품 안 됐대.", comments: [{author:"2-1",text:"그럼 우리가 먹은 건 뭐였는데?"}] },
+            { id: 2, title: "학교 홈페이지 출석 인원 숫자 이상함", author: "2학년", date: "어제", text: "우리 반 오늘 27명인데 홈페이지에는 계속 28명으로 떠. 새로고침해도 똑같음.", comments: [{author:"익명",text:"숫자 세지 마. 세면 한 명이 뒤에 서 있다는 말 들었어."}] },
+            { id: 1, title: "구관 복도에서 내 이름 부르는 소리", author: "익명", date: "월요일", text: "야자 끝나고 혼자 내려오는데 뒤에서 내 이름을 부르더라. 돌아보니까 아무도 없었음. 다음 날 담임이 어제 결석했다고 하던데 나 학교 왔었거든.", comments: [{author:"졸업생",text:"이 글 지워. 나도 같은 일 겪었어."}] }
         ];
+
+        function escapeQnaHtml(value) {
+            return String(value).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+        }
 
         function renderQnaBoard() {
             const container = document.getElementById('qnaList');
+            if (!container) return;
             container.innerHTML = '';
 
             qnaPosts.forEach(post => {
                 const card = document.createElement('div');
-                card.className = "border border-slate-200 rounded p-3 bg-slate-50 space-y-1 text-xs";
+                card.className = "border border-slate-200 rounded p-3 bg-slate-50 space-y-3 text-xs";
+                const comments = (post.comments || []).map(comment => `
+                    <div class="border-l-2 border-slate-300 pl-2 py-1">
+                        <span class="font-bold text-slate-500">${escapeQnaHtml(comment.author)}</span>
+                        <span class="text-slate-600">${escapeQnaHtml(comment.text)}</span>
+                    </div>`).join('');
                 card.innerHTML = `
-                    <div class="flex justify-between items-center font-bold text-slate-800">
-                        <span>${post.title}</span>
-                        <span class="font-mono text-[10px] text-slate-400">${post.author} | ${post.date}</span>
+                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 font-bold text-slate-800">
+                        <span>${escapeQnaHtml(post.title)}</span>
+                        <span class="font-mono text-[10px] text-slate-400">${escapeQnaHtml(post.author)} | ${escapeQnaHtml(post.date)}</span>
                     </div>
-                    <p class="text-slate-600 leading-relaxed">${post.text}</p>
+                    <p class="text-slate-600 leading-relaxed whitespace-pre-wrap">${escapeQnaHtml(post.text)}</p>
+                    <div class="border-t border-slate-200 pt-2 space-y-2">
+                        <p class="text-[10px] text-slate-400">댓글 ${(post.comments || []).length}개</p>
+                        <div class="space-y-1">${comments}</div>
+                        <form onsubmit="submitQnaComment(event, ${post.id})" class="flex gap-2">
+                            <input name="commentText" maxlength="300" required placeholder="댓글을 남겨주세요"
+                                class="min-w-0 flex-1 border border-slate-300 rounded px-2 py-1.5 bg-white focus:outline-none focus:border-slate-500">
+                            <button type="submit" class="shrink-0 bg-slate-700 text-white rounded px-3 py-1.5 hover:bg-slate-600">등록</button>
+                        </form>
+                    </div>
                 `;
                 container.appendChild(card);
             });
         }
 
         function openNewQnaModal() {
-            const title = prompt('글 제목을 입력하세요:');
-            if(!title) return;
+            document.getElementById('newQnaModal').classList.remove('hidden');
+            setTimeout(() => document.getElementById('newQnaTitle').focus(), 50);
+        }
 
-            // Trigger "무서워" Easter Egg
-            if(title.includes('무서워')) {
+        function closeNewQnaModal() {
+            document.getElementById('newQnaModal').classList.add('hidden');
+        }
+
+        function submitNewQna(event) {
+            event.preventDefault();
+            const title = document.getElementById('newQnaTitle').value.trim();
+            const text = document.getElementById('newQnaText').value.trim();
+            if (!title || !text) return;
+
+            if (title.includes('무서워')) {
+                closeNewQnaModal();
                 triggerMinsuJumpscare(title);
                 return;
             }
 
-            const text = prompt('내용을 입력하세요:');
-            if(!text) return;
-
-            qnaPosts.unshift({
-                id: Date.now(),
-                title: title,
-                author: '익명',
-                date: '방금',
-                text: text
-            });
-
-            // Check trigger keyword
-            if(title.includes('1998') || text.includes('구관') || text.includes('김민수')) {
+            qnaPosts.unshift({ id: Date.now(), title, author: '익명', date: '방금', text, comments: [] });
+            closeNewQnaModal();
+            document.getElementById('newQnaTitle').value = '';
+            document.getElementById('newQnaText').value = '';
+            if (title.includes('1998') || text.includes('구관') || text.includes('김민수')) {
                 triggerGlitchBeep();
                 showRetroPopUp('게시물이 등록되었으나 교내 필터링 정책에 의해 검토 대기 상태로 전환되었습니다.', '검토 대기', 'fa-solid fa-filter text-amber-600');
             }
-
             renderQnaBoard();
+        }
+
+        function submitQnaComment(event, postId) {
+            event.preventDefault();
+            const form = event.currentTarget;
+            const input = form.elements.commentText;
+            const commentText = input.value.trim();
+            if (!commentText) return;
+            if (commentText.includes('김민수')) {
+                triggerMinsuFinale();
+                return;
+            }
+            const post = qnaPosts.find(item => item.id === postId);
+            if (!post) return;
+            if (!post.comments) post.comments = [];
+            post.comments.push({author: '익명', text: commentText});
+            renderQnaBoard();
+        }
+
+        function triggerMinsuFinale() {
+            triggerStaticSound(0.5);
+            const overlay = document.getElementById('finalMinsuOverlay');
+            overlay.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+            document.querySelectorAll('button, input, textarea, a').forEach(el => {
+                if (!overlay.contains(el)) el.setAttribute('tabindex', '-1');
+            });
+        }
+
+        function leaveMinsuPage() {
+            document.body.innerHTML = '';
+            document.body.style.cssText = 'background:#000; margin:0; min-height:100vh;';
+            try { window.location.replace('about:blank'); }
+            catch (e) { document.body.style.background = '#000'; }
         }
 
         // MINSU JUMPSCARE TRIGGER
@@ -1075,7 +1247,7 @@
         function triggerEmblemGlitch() {
             triggerGlitchBeep();
             document.getElementById('emergencyBar').classList.remove('hidden');
-            showRetroPopUp('기이고등학교 교장에서 숨겨진 인과 코드가 감지되었습니다.<br>힌트: <b>"기이"를 찾아서...</b>', '인과 코드 감지', 'fa-solid fa-key text-red-600');
+            showRetroPopUp('기이고등학교 교장에서 숨겨진 인과 코드가 감지되었습니다.<br>힌트: "기이"를 찾아서...<br><br>기이고등학교의 '기이'를 찾아냈습니다...<br>[설립 연도 또는 그의 이니셜]', '인과 코드 감지', 'fa-solid fa-key text-red-600');
         }
 
         function triggerMealGlitch() {
@@ -1109,7 +1281,7 @@
             }, duration);
         }
 
-        // Secret Password Verification
+        // Secret Password Verification / Staff access
         function openSecretPrompt() {
             triggerStaticSound(0.1);
             document.getElementById('secretPromptModal').classList.remove('hidden');
@@ -1120,17 +1292,39 @@
         }
 
         function verifySecretCode() {
-            const input = document.getElementById('secretPassInput').value.trim();
-            if(input === '1998' || input === '김민수' || input === '204' || input === '기이') {
+            const input = document.getElementById('secretPassInput').value.trim().toUpperCase().replace(/[.\s]/g, '');
+            if (input === '1998' || input === 'PSC' || input === '박성철') {
                 closeSecretPrompt();
-                triggerGlitchFlash('기밀 문서 접근 권한 승인됨.<br>1998년 봉쇄 사건 기록을 불러옵니다...', 1200);
-                setTimeout(() => {
-                    switchTab('secret');
-                }, 1300);
+                document.getElementById('secretPassInput').value = '';
+                document.getElementById('staffLoginModal').classList.remove('hidden');
+                setTimeout(() => document.getElementById('staffCodeInput').focus(), 50);
             } else {
                 triggerGlitchBeep();
-                showRetroPopUp('접근 거부: 잘못된 인증 코드입니다.<br>힌트: "기이"를 찾아서...', '인증 실패', 'fa-solid fa-shield-halved text-red-600');
+                showRetroPopUp('접근 거부: 인증 코드가 일치하지 않습니다.<br>힌트: 설립 연도 또는 교장 박성철의 이니셜.', '인증 실패', 'fa-solid fa-shield-halved text-red-600');
             }
+        }
+
+        function closeStaffLogin() {
+            document.getElementById('staffLoginModal').classList.add('hidden');
+            document.getElementById('staffCodeInput').value = '';
+        }
+
+        function verifyStaffLogin() {
+            const code = document.getElementById('staffCodeInput').value.trim().toUpperCase();
+            if (code === 'KMS') {
+                closeStaffLogin();
+                triggerGlitchFlash('교직원 인증 완료.<br>내부 업무 포털을 불러옵니다...', 1000);
+                setTimeout(() => switchTab('staff'), 1050);
+            } else {
+                triggerGlitchBeep();
+                showRetroPopUp('인증 실패: 교직원 코드가 올바르지 않습니다.', '로그인 거부', 'fa-solid fa-shield-halved text-red-600');
+            }
+        }
+
+        function openStudentRecords() {
+            triggerGlitchBeep();
+            triggerGlitchFlash('KMS 인증 세션 유지 중.<br>학생기록부 원본을 불러옵니다...', 1100);
+            setTimeout(() => switchTab('records'), 1150);
         }
 
         // Header Search Input Handling
