@@ -1811,16 +1811,14 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
                     }
                 } else {
                     const wall=document.createElement('div');
-                    wall.style.cssText=stage===0
-                        ? 'position:absolute;inset:-2%;z-index:1;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;gap:0;color:#777;font-family:Share Tech Mono,monospace;font-size:clamp(7px,.72vw,10px);line-height:1.12;letter-spacing:.015em;overflow-wrap:anywhere;word-break:break-all;user-select:none;'
-                        : "position:absolute;inset:-2%;z-index:1;display:flex;flex-direction:column;justify-content:space-around;gap:0;overflow:hidden;color:#777;font-family:'Share Tech Mono',monospace;font-size:clamp(22px,3.6vw,48px);line-height:1.25;letter-spacing:.02em;overflow-wrap:anywhere;word-break:break-all;user-select:none;";
+                    // Keep the original typography, density, spacing and layout; only change the repeated phrase.
+                    wall.style.cssText='position:absolute;inset:-2%;z-index:1;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;gap:0;color:#777;font-family:Share Tech Mono,monospace;font-size:clamp(7px,.72vw,10px);line-height:1.12;letter-spacing:.015em;overflow-wrap:anywhere;word-break:break-all;user-select:none;';
                     const phrase=stage===1?'왜 도망가?':stage===2?'응? 왜 도망가냐고?':'나 안 보여?';
-                    const repeated=stage===0?phrase.repeat(55):phrase.repeat(5);
-                    const rows=stage===0?125:22;
-                    for(let row=0;row<rows;row++) {
+                    const repeated=phrase.repeat(55);
+                    for(let row=0;row<125;row++) {
                         const line=document.createElement('div');
                         line.textContent=repeated;
-                        line.style.cssText='flex:0 0 auto;white-space:nowrap;min-width:100%;margin-left:-1.5em;transform:translateX('+(row%2?'-1.4em':'0')+');';
+                        line.style.cssText='flex:0 0 auto;white-space:nowrap;margin-left:-1.5em;transform:translateX('+(row%2?'-1.4em':'0')+');';
                         wall.appendChild(line);
                     }
                     blackout.appendChild(wall);
