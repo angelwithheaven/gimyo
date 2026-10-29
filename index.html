@@ -405,19 +405,12 @@
         <div id="jumpscareContent" class="text-center p-4"></div>
     </div>
 
-    <!-- MINSU HORROR JUMPSCARE OVERLAY -->
-    <div id="minsuJumpscareOverlay">
+    <!-- MINSU HORROR JUMPSCARE OVERLAY: pixelated signal failure -->
+    <div id="minsuJumpscareOverlay" aria-hidden="true">
+        <canvas id="minsuScareCanvas"></canvas>
         <div class="minsu-monster relative flex flex-col items-center justify-center w-full">
-            <div class="minsu-eye-art" role="img" aria-label="검은 화면에 떠 있는 피눈물 흘리는 눈">
-  <div class="eye-glyph">𓁹</div>
-  <div class="eye-blood-trail"></div>
-  <div class="eye-blood-drop"></div>
-  <div class="eye-static-label">NO SIGNAL // 0x884F</div>
-</div>
-            <h1 class="text-4xl sm:text-6xl font-extrabold text-red-700 font-mono tracking-widest mt-2 select-none text-center" style="text-shadow:0 0 9px #a00000,0 0 30px #300;">
-                나도 무서워
-            </h1>
-            <p class="text-red-950 font-mono text-xs mt-3 tracking-[.35em]">SYS_ERR_MINSU_1998_HALLWAY</p>
+            <h1 class="font-extrabold font-mono tracking-widest select-none text-center">나도 무서워</h1>
+            <p class="font-mono text-xs mt-3 tracking-[.35em]">SIGNAL CORRUPTED // 0x884F</p>
         </div>
     </div>
 
@@ -1001,16 +994,10 @@
 
     <!-- FINAL MINSU EVENT -->
     <div id="finalMinsuOverlay" role="alertdialog" aria-modal="true">
-        <div class="minsu-eye-art" role="img" aria-label="검은 화면에 떠 있는 피눈물 흘리는 눈">
-  <div class="eye-glyph">𓁹</div>
-  <div class="eye-blood-trail"></div>
-  <div class="eye-blood-drop"></div>
-  <div class="eye-static-label">NO SIGNAL // 0x884F</div>
-</div>
-        <div class="final-message" style="font-family:'Nanum Myeongjo',serif;color:#a00000;text-shadow:0 0 12px #500;font-size:clamp(1.5rem,5vw,2.5rem);">찾아줘서 고마워, 이제 내가 갈게</div>
-        <p class="text-xs text-red-950 mt-5 font-mono tracking-[.4em]">SESSION TERMINATED</p>
-        <p class="text-xs text-red-950 mt-2 font-mono">너를 보고 있어</p>
-        
+        <canvas id="finalMinsuCanvas" aria-hidden="true"></canvas>
+        <div class="final-message" style="font-family:'Nanum Myeongjo',serif;font-size:clamp(1.5rem,5vw,2.5rem);opacity:0;">찾아줘서 고마워, 이제 내가 갈게</div>
+        <p class="text-xs mt-5 font-mono tracking-[.4em]" style="opacity:0;">SESSION TERMINATED</p>
+        <p class="text-xs mt-2 font-mono" style="opacity:0;">너를 보고 있어</p>
     </div>
 
     <!-- OFFICE PHONE CALL EVENT -->
@@ -1103,79 +1090,19 @@
             osc.stop(audioCtx.currentTime + 0.25);
         }
 
-        // 3. MINSU SCREAM SOUND EFFECT
+        // Minsu jumpscare sounds: the same four oscillator recipes as the supplied reference.
         function triggerMinsuScreamSound(type = 0) {
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-            const now = audioCtx.currentTime;
-
-            // Reference-style layered jumpscare: piercing frequency sweep + sub hit + harsh static.
-            // Synthesized locally; no external audio asset. Master compressor prevents runaway peaks.
-            const master = audioCtx.createGain();
-            const limiter = audioCtx.createDynamicsCompressor();
-            limiter.threshold.setValueAtTime(-8, now);
-            limiter.knee.setValueAtTime(4, now);
-            limiter.ratio.setValueAtTime(12, now);
-            limiter.attack.setValueAtTime(0.002, now);
-            limiter.release.setValueAtTime(0.16, now);
-            master.gain.setValueAtTime(0.92, now);
-            master.connect(limiter);
-            limiter.connect(audioCtx.destination);
-
-            const duration = type === 2 ? 1.5 : type === 3 ? 1.15 : 1.2;
-            const shriek = audioCtx.createOscillator();
-            const shriekGain = audioCtx.createGain();
-            const shriekFilter = audioCtx.createBiquadFilter();
-            shriek.type = type === 1 ? 'square' : 'sawtooth';
-            const startHz = type === 1 ? 800 : type === 2 ? 120 : type === 3 ? 1500 : 2200;
-            const peakHz = type === 1 ? 3200 : type === 2 ? 45 : type === 3 ? 2600 : 4200;
-            const endHz = type === 1 ? 150 : type === 2 ? 45 : type === 3 ? 300 : 100;
-            shriek.frequency.setValueAtTime(startHz, now);
-            if (type === 0) {
-                shriek.frequency.exponentialRampToValueAtTime(peakHz, now + 0.025);
-                shriek.frequency.setValueAtTime(2850, now + 0.075);
-                shriek.frequency.exponentialRampToValueAtTime(100, now + duration);
-            } else {
-                shriek.frequency.linearRampToValueAtTime(peakHz, now + 0.3);
-                shriek.frequency.linearRampToValueAtTime(endHz, now + duration);
+            if(audioCtx.state==='suspended') audioCtx.resume();
+            const now=audioCtx.currentTime;
+            if(type===0){
+                const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type='sawtooth';o.frequency.setValueAtTime(2200,now);o.frequency.exponentialRampToValueAtTime(100,now+1.2);g.gain.setValueAtTime(.9,now);g.gain.exponentialRampToValueAtTime(.01,now+1.2);o.connect(g);g.connect(audioCtx.destination);o.start(now);o.stop(now+1.2);
+            }else if(type===1){
+                const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type='square';o.frequency.setValueAtTime(800,now);o.frequency.linearRampToValueAtTime(3200,now+.3);o.frequency.linearRampToValueAtTime(150,now+1);g.gain.setValueAtTime(.95,now);g.gain.exponentialRampToValueAtTime(.01,now+1);o.connect(g);g.connect(audioCtx.destination);o.start(now);o.stop(now+1);
+            }else if(type===2){
+                const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type='sawtooth';o.frequency.setValueAtTime(120,now);o.frequency.linearRampToValueAtTime(45,now+1.5);g.gain.setValueAtTime(1,now);g.gain.exponentialRampToValueAtTime(.01,now+1.5);o.connect(g);g.connect(audioCtx.destination);o.start(now);o.stop(now+1.5);
+            }else{
+                for(let i=0;i<6;i++){const o=audioCtx.createOscillator(),g=audioCtx.createGain(),t=now+i*.15;o.type='triangle';o.frequency.setValueAtTime(1500-i*200,t);g.gain.setValueAtTime(.8,t);g.gain.exponentialRampToValueAtTime(.01,t+.2);o.connect(g);g.connect(audioCtx.destination);o.start(t);o.stop(t+.2);}
             }
-            shriekFilter.type = type === 2 ? 'lowpass' : 'highpass';
-            shriekFilter.frequency.setValueAtTime(type === 2 ? 260 : 1500, now);
-            shriekFilter.Q.setValueAtTime(1.5, now);
-            shriekGain.gain.setValueAtTime(0.0001, now);
-            shriekGain.gain.exponentialRampToValueAtTime(type === 2 ? 0.72 : 0.82, now + 0.008);
-            shriekGain.gain.setValueAtTime(type === 2 ? 0.58 : 0.62, now + 0.09);
-            shriekGain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
-            shriek.connect(shriekFilter); shriekFilter.connect(shriekGain); shriekGain.connect(master);
-            shriek.start(now); shriek.stop(now + duration + 0.02);
-
-            // Short sub-bass impact under the shriek.
-            const sub = audioCtx.createOscillator();
-            const subGain = audioCtx.createGain();
-            sub.type = 'sine';
-            sub.frequency.setValueAtTime(type === 2 ? 120 : 105, now);
-            sub.frequency.exponentialRampToValueAtTime(38, now + 0.32);
-            subGain.gain.setValueAtTime(0.0001, now);
-            subGain.gain.exponentialRampToValueAtTime(0.52, now + 0.012);
-            subGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.42);
-            sub.connect(subGain); subGain.connect(master);
-            sub.start(now); sub.stop(now + 0.44);
-
-            // Harsh, clipped broadband static burst, like damaged VHS audio.
-            const noiseLength = Math.floor(audioCtx.sampleRate * 0.24);
-            const noiseBuffer = audioCtx.createBuffer(1, noiseLength, audioCtx.sampleRate);
-            const noiseData = noiseBuffer.getChannelData(0);
-            for (let i = 0; i < noiseLength; i++) noiseData[i] = (Math.random() * 2 - 1) * (1 - i / noiseLength);
-            const noise = audioCtx.createBufferSource();
-            const noiseFilter = audioCtx.createBiquadFilter();
-            const noiseGain = audioCtx.createGain();
-            noise.buffer = noiseBuffer;
-            noiseFilter.type = 'highpass';
-            noiseFilter.frequency.setValueAtTime(1800, now);
-            noiseGain.gain.setValueAtTime(0.0001, now);
-            noiseGain.gain.exponentialRampToValueAtTime(0.32, now + 0.01);
-            noiseGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.24);
-            noise.connect(noiseFilter); noiseFilter.connect(noiseGain); noiseGain.connect(master);
-            noise.start(now + 0.012);
         }
 
         // 3. School Bell Simulation (Distorted)
@@ -1524,30 +1451,24 @@
             renderQnaBoard();
         }
 
-        function triggerMinsuFinale() {
-            triggerMinsuScreamSound();
-            const overlay = document.getElementById('finalMinsuOverlay');
-            overlay.style.display = 'flex';
-            document.body.style.overflow = 'hidden';
-            document.body.classList.add('shake-screen');
-            document.querySelectorAll('button, input, textarea, a').forEach(el => {
-                if (!overlay.contains(el)) el.setAttribute('tabindex', '-1');
-            });
-
-            // Fast stutter, then silence and the final message. No confirmation button.
-            const eye = overlay.querySelector('.minsu-face-art');
-            const message = overlay.querySelector('.final-message');
-            const status = overlay.querySelectorAll('p');
-            message.style.opacity = '0';
-            status.forEach(el => el.style.opacity = '0');
-            window.setTimeout(() => { message.style.opacity = '1'; }, 620);
-            window.setTimeout(() => { status.forEach(el => el.style.opacity = '1'); }, 1250);
-            window.setTimeout(() => {
-                document.body.classList.remove('shake-screen');
-                overlay.style.background = '#000';
-                if (eye) eye.style.animationDuration = '.8s';
-            }, 1850);
-            window.setTimeout(leaveMinsuPage, 5200);
+        function drawMinsuMosaic(canvas,intensity=1){
+            if(!canvas)return;const r=canvas.getBoundingClientRect(),w=Math.max(320,Math.floor(r.width||innerWidth)),h=Math.max(240,Math.floor(r.height||innerHeight));
+            canvas.width=Math.max(80,Math.floor(w*.075));canvas.height=Math.max(60,Math.floor(h*.075));
+            const c=canvas.getContext('2d',{alpha:false}),cw=canvas.width,ch=canvas.height;c.fillStyle='#000';c.fillRect(0,0,cw,ch);
+            for(let y=0;y<ch;y++)if(Math.random()<.18*intensity){c.fillStyle=Math.random()>.5?'#a60000':'#eee';c.globalAlpha=.25+Math.random()*.7;c.fillRect(0,y,cw,1+Math.random()*3);}
+            const colors=['#000','#080808','#1a0000','#4b0000','#a00000','#eee','#252525','#19302d'];
+            for(let i=0;i<cw*ch*(.28+Math.random()*.34)*intensity;i++){const x=Math.random()*cw|0,y=Math.random()*ch|0;c.globalAlpha=.35+Math.random()*.65;c.fillStyle=colors[Math.random()*colors.length|0];c.fillRect(x,y,1+(Math.random()*(cw>100?8:5)|0),1+(Math.random()*4|0));}
+            for(let i=0;i<7;i++){const y=Math.random()*ch|0,bh=1+Math.random()*5;c.globalAlpha=.5+Math.random()*.5;c.drawImage(canvas,0,y,cw,bh,(Math.random()-.5)*24|0,y,cw,bh);}
+            c.globalAlpha=1;canvas.style.imageRendering='pixelated';
+        }
+        let minsuNoiseLoop=null;
+        function startMinsuMosaic(canvas,interval=42,intensity=1){if(minsuNoiseLoop)clearInterval(minsuNoiseLoop);drawMinsuMosaic(canvas,intensity);minsuNoiseLoop=setInterval(()=>drawMinsuMosaic(canvas,intensity),interval);}
+        function triggerMinsuFinale(){
+            triggerMinsuScreamSound(0);const overlay=document.getElementById('finalMinsuOverlay');overlay.style.display='flex';document.body.style.overflow='hidden';document.body.classList.add('shake-screen');
+            document.querySelectorAll('button,input,textarea,a').forEach(el=>{if(!overlay.contains(el))el.setAttribute('tabindex','-1');});
+            const msg=overlay.querySelector('.final-message'),status=overlay.querySelectorAll('p');startMinsuMosaic(document.getElementById('finalMinsuCanvas'),1.25);
+            msg.style.opacity='0';status.forEach(el=>el.style.opacity='0');setTimeout(()=>msg.style.opacity='1',520);setTimeout(()=>status.forEach(el=>el.style.opacity='1'),1180);
+            setTimeout(()=>{document.body.classList.remove('shake-screen');overlay.style.background='#000';},1850);setTimeout(leaveMinsuPage,5200);
         }
 
         function leaveMinsuPage() {
@@ -1558,43 +1479,14 @@
         }
 
         // MINSU JUMPSCARE TRIGGER
-        function triggerMinsuJumpscare(userTitle) {
-            triggerMinsuScreamSound();
-
-            const jumpscareEl = document.getElementById('minsuJumpscareOverlay');
-            const monster = jumpscareEl.querySelector('.minsu-monster');
-            jumpscareEl.style.display = 'flex';
-            document.body.classList.add('shake-screen');
-
-            // Flash the eye at irregular intervals, then cut abruptly to black.
-            const flashTimes = [55, 115, 190, 245, 330, 405, 470, 610, 690, 760, 900, 1010, 1120, 1260, 1410, 1540, 1660, 1790, 1910, 2070, 2240];
-            const flashTimers = flashTimes.map((delay, index) => window.setTimeout(() => {
-                jumpscareEl.style.backgroundColor = index % 3 === 0 ? '#180000' : '#000';
-                monster.style.visibility = index % 4 === 1 ? 'hidden' : 'visible';
-                monster.style.transform = index % 2 === 0 ? 'translate(-2vw,1vh) scale(1.08)' : 'translate(2vw,-1vh) scale(.94)';
-            }, delay));
-
-            window.setTimeout(() => {
-                flashTimers.forEach(window.clearTimeout);
-                jumpscareEl.style.backgroundColor = '#000';
-                monster.style.visibility = 'visible';
-                monster.style.transform = '';
-                jumpscareEl.style.display = 'none';
-                document.body.classList.remove('shake-screen');
-
-                // Insert corrupted post to board.
-                qnaPosts.unshift({
-                    id: Date.now(),
-                    title: `[삭제된 글] ${userTitle}`,
-                    author: '???',
-                    date: '방금',
-                    text: '나 도 무 서 워 나 도 무 서 워 나 도 무 서 워',
-                    isMinsuCorrupt: true
-                });
-                renderQnaBoard();
-
-                showRetroPopUp('게시글 저장 중 예외 오류 발생. 사용자 통신 세션이 구관 서버에 연결되었습니다.', 'fatal error: minsu', 'fa-solid fa-bug text-red-600');
-            }, 2500);
+        function triggerMinsuJumpscare(userTitle){
+            triggerMinsuScreamSound(0);const overlay=document.getElementById('minsuJumpscareOverlay'),canvas=document.getElementById('minsuScareCanvas'),text=overlay.querySelector('.minsu-monster');
+            overlay.style.display='flex';document.body.classList.add('shake-screen');startMinsuMosaic(canvas,1.65);
+            const times=[32,71,104,168,212,281,337,403,477,531,612,701,783,849,932,1017,1094,1180,1261,1340,1422,1510,1600,1685,1770,1854,1940,2030,2110,2200];
+            const timers=times.map((delay,i)=>setTimeout(()=>{overlay.style.backgroundColor=i%4===0?'#eee':i%3===0?'#650000':'#000';overlay.style.filter=i%5===0?'invert(1) contrast(500%)':'contrast(250%)';text.style.transform=`translate(${(Math.random()-.5)*5}vw,${(Math.random()-.5)*4}vh) scale(${.92+Math.random()*.24})`;drawMinsuMosaic(canvas,2);},delay));
+            setTimeout(()=>{timers.forEach(clearTimeout);if(minsuNoiseLoop)clearInterval(minsuNoiseLoop);minsuNoiseLoop=null;overlay.style.filter='';overlay.style.backgroundColor='#000';text.style.transform='';overlay.style.display='none';document.body.classList.remove('shake-screen');
+                qnaPosts.unshift({id:Date.now(),title:`[삭제된 글] ${userTitle}`,author:'???',date:'방금',text:'나 도 무 서 워 나 도 무 서 워 나 도 무 서 워',isMinsuCorrupt:true});renderQnaBoard();showRetroPopUp('게시글 저장 중 예외 오류 발생. 사용자 통신 세션이 구관 서버에 연결되었습니다.','fatal error: minsu','fa-solid fa-bug text-red-600');
+            },2500);
         }
 
         // CCTV Camera Switching Simulation
