@@ -1666,14 +1666,67 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
         }
         let minsuNoiseLoop=null;
         function startMinsuMosaic(canvas,interval=42,intensity=1){if(minsuNoiseLoop)clearInterval(minsuNoiseLoop);drawMinsuMosaic(canvas,intensity);minsuNoiseLoop=setInterval(()=>drawMinsuMosaic(canvas,intensity),interval);}
-        function triggerMinsuFinale(){
-            triggerMinsuScreamSound(0);const overlay=document.getElementById('finalMinsuOverlay');overlay.style.display='flex';document.body.style.overflow='hidden';document.body.classList.add('shake-screen');
-            document.querySelectorAll('button,input,textarea,a').forEach(el=>{if(!overlay.contains(el))el.setAttribute('tabindex','-1');});
-            const msg=overlay.querySelector('.final-message'),status=overlay.querySelectorAll('p');startMinsuMosaic(document.getElementById('finalMinsuCanvas'),42,1.25);
-            msg.style.opacity='0';status.forEach(el=>el.style.opacity='0');setTimeout(()=>msg.style.opacity='1',520);setTimeout(()=>status.forEach(el=>el.style.opacity='1'),1180);
-            setTimeout(()=>{document.body.classList.remove('shake-screen');overlay.style.background='#000';},1850);setTimeout(leaveMinsuPage,5200);
+        let minsuAnnouncementActive = false;
+        function playMinsuWarningTone(){
+            try{
+                if(audioCtx.state==='suspended')audioCtx.resume();
+                const now=audioCtx.currentTime,len=Math.floor(audioCtx.sampleRate*.9);
+                const buffer=audioCtx.createBuffer(1,len,audioCtx.sampleRate),data=buffer.getChannelData(0);
+                for(let i=0;i<len;i++)data[i]=(Math.random()*2-1)*Math.pow(1-i/len,.35);
+                const src=audioCtx.createBufferSource(),band=audioCtx.createBiquadFilter(),gain=audioCtx.createGain();
+                src.buffer=buffer;band.type='bandpass';band.frequency.value=3100;band.Q.value=1.8;
+                gain.gain.setValueAtTime(.0001,now);gain.gain.exponentialRampToValueAtTime(.8,now+.025);gain.gain.setValueAtTime(.8,now+.62);gain.gain.exponentialRampToValueAtTime(.0001,now+.88);
+                src.connect(band);band.connect(gain);gain.connect(audioCtx.destination);src.start(now);src.stop(now+.9);
+            }catch(e){}
         }
-
+        function speakMinsuAnnouncement(line,second=false){
+            try{
+                if(!('speechSynthesis'in window))return null;
+                const u=new SpeechSynthesisUtterance(line);u.lang='ko-KR';u.rate=second?.76:.88;u.pitch=second?.48:.68;u.volume=1;
+                const ko=window.speechSynthesis.getVoices().find(v=>/^ko(-|_)/i.test(v.lang));if(ko)u.voice=ko;
+                window.speechSynthesis.speak(u);return u;
+            }catch(e){return null;}
+        }
+        function triggerMinsuFinale(){
+            if(minsuAnnouncementActive)return;
+            minsuAnnouncementActive=true;
+            try{if(audioCtx.state==='suspended')audioCtx.resume();window.speechSynthesis.cancel();}catch(e){}
+            document.getElementById('finalMinsuOverlay').style.display='none';
+            document.body.style.overflow='hidden';
+            document.body.style.transition='filter 1s linear';
+            document.body.style.filter='brightness(1)';
+            const bell=()=>{try{playSchoolBell();}catch(e){}};
+            bell();const bellTimer=setInterval(bell,1750);
+            const dimAndExit=()=>{
+                playMinsuWarningTone();
+                const start=Date.now();
+                const dimTimer=setInterval(()=>{
+                    const p=Math.min(1,(Date.now()-start)/2100);
+                    document.body.style.filter='brightness('+Math.max(.005,1-p)+') contrast('+(1+p*.65)+')';
+                    if(p>=1){clearInterval(dimTimer);clearInterval(bellTimer);document.body.style.filter='brightness(0)';setTimeout(leaveMinsuPage,900);}
+                },40);
+            };
+            const secondAnnouncement=()=>{
+                if(!minsuAnnouncementActive)return;
+                // Detune the existing school-bell motif into an unsettling dissonance under the second announcement.
+                [523.25,659.25,587.33,392.00].forEach((freq,i)=>setTimeout(()=>{
+                    if(!minsuAnnouncementActive)return;
+                    try{
+                        const now=audioCtx.currentTime,o=audioCtx.createOscillator(),g=audioCtx.createGain(),f=audioCtx.createBiquadFilter();
+                        o.type='sawtooth';o.frequency.setValueAtTime(freq*(i%2?.89:1.08),now);
+                        f.type='bandpass';f.frequency.value=850;f.Q.value=.8;
+                        g.gain.setValueAtTime(.0001,now);g.gain.exponentialRampToValueAtTime(.1,now+.03);g.gain.exponentialRampToValueAtTime(.0001,now+.8);
+                        o.connect(f);f.connect(g);g.connect(audioCtx.destination);o.start(now);o.stop(now+.82);
+                    }catch(e){}
+                },i*240));
+                try{window.speechSynthesis.cancel();}catch(e){}
+                const second=speakMinsuAnnouncement('다시 한번 말합니다. 김민수 학생, 서둘러 짐을 싸서 이곳을 나가.',true);
+                if(second)second.onend=dimAndExit;else setTimeout(dimAndExit,3500);
+            };
+            const first=speakMinsuAnnouncement('아직 하교하지 않은 학생은 서둘러 짐을 싸서 하교해 주시기 바랍니다.',false);
+            if(first)first.onend=()=>setTimeout(secondAnnouncement,450);
+            else setTimeout(secondAnnouncement,4000);
+        }
         function leaveMinsuPage() {
             try { window.speechSynthesis.cancel(); } catch(e) {}
             document.body.innerHTML = '';
