@@ -589,8 +589,8 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
                 </div>
             </div>
 
-            <div id="cctv123Overlay" class="hidden fixed inset-0 z-[20000] bg-black flex items-center justify-center" style="background:#000;">
-        <img src="CCTV3.png" alt="" class="max-w-[92vw] max-h-[92vh] object-contain" style="filter:grayscale(1) contrast(1.15);">
+            <div id="cctv123Overlay" class="hidden fixed inset-0 z-[60000] bg-black flex items-center justify-center" style="background:#000;pointer-events:none;">
+        <img src="CCTV3.png" alt="" style="display:block;width:100vw;height:100vh;object-fit:cover;filter:grayscale(1) contrast(1.15);">
     </div>
 
     <!-- REAL-TIME SCHOOL CCTV WIDGET (EASTER EGG) -->
@@ -1775,47 +1775,39 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
             if (cctv123Triggered) return;
             cctv123Triggered = true;
             const overlay = document.getElementById('cctv123Overlay');
+            if (!overlay) return;
             overlay.classList.remove('hidden');
-            playCCTVSharpBeep();
-
-            // Android-like Korean speech synthesis; the greeting starts with the beep.
             try {
-                if ('speechSynthesis' in window) {
-                    window.speechSynthesis.cancel();
-                    const greeting = new SpeechSynthesisUtterance('안녕?');
-                    greeting.lang = 'ko-KR';
-                    greeting.rate = 0.92;
-                    greeting.pitch = 0.82;
-                    greeting.volume = 1;
-                    window.speechSynthesis.speak(greeting);
-                }
-            } catch (e) {}
-
-            setTimeout(() => {
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+                triggerGlitchBeep();
+                minsuSpeak('안녕?', 0.72, 0.62, 0.9);
+            } catch (e) {
+                playCCTVSharpBeep();
+            }
+            window.setTimeout(() => {
                 overlay.classList.add('hidden');
-                if ('speechSynthesis' in window) window.speechSynthesis.cancel();
-                // Restore CAM-03's original warning state; the photo easter egg stays disabled this visit.
+                try { window.speechSynthesis.cancel(); } catch (e) {}
                 const warning = document.getElementById('cctvGlitchText');
-                warning.classList.remove('hidden');
-                warning.innerHTML = '[경고]<br>감시 구역 내<br>승인되지 않은 사람 형태 감지됨.<br>복도 접근 금지.';
+                if (warning) {
+                    warning.classList.remove('hidden');
+                    warning.innerHTML = '[경고]<br>감시 구역 내<br>승인되지 않은 사람 형태 감지됨.<br>복도 접근 금지.';
+                }
             }, 2000);
         }
 
+        // Capture phase allows the easter egg to receive keys before other page handlers.
         document.addEventListener('keydown', (event) => {
             if (event.repeat || event.ctrlKey || event.altKey || event.metaKey) return;
-            if (/INPUT|TEXTAREA|SELECT/.test(event.target.tagName)) return;
-            const key = event.key;
-            if (key === '1' || key === '2' || key === '3') {
-                cctv123Sequence.push(key);
-                if (cctv123Sequence.length > 3) cctv123Sequence.shift();
-                if (cctv123Sequence.join('') === '123') {
-                    cctv123Sequence = [];
-                    triggerCCTV123();
-                }
-            } else {
+            const digit = /^[123]$/.test(event.key) ? event.key :
+                (event.code === 'Numpad1' ? '1' : event.code === 'Numpad2' ? '2' : event.code === 'Numpad3' ? '3' : '');
+            if (!digit) return;
+            cctv123Sequence.push(digit);
+            if (cctv123Sequence.length > 3) cctv123Sequence.shift();
+            if (cctv123Sequence.join('') === '123') {
                 cctv123Sequence = [];
+                triggerCCTV123();
             }
-        });
+        }, true);
 
         function cycleCCTVCam() {
             triggerStaticSound(0.2);
