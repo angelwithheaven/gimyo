@@ -247,6 +247,16 @@
         #phoneFadeOverlay { position:fixed; inset:0; z-index:19000; background:#000; opacity:0; pointer-events:none; transition:opacity 1.4s ease; }
         #phoneFadeOverlay.active { opacity:1; }
         #prankWarningOverlay { position:fixed; inset:0; z-index:40000; display:none; align-items:center; justify-content:center; overflow:hidden; background:#000; opacity:1; }
+        /* 1974 archive corruption: preserve the existing school page. */
+        body.prank-cursed { background:#111 !important; filter:grayscale(1) contrast(1.5) brightness(.7); }
+        body.prank-cursed .crt-overlay { opacity:1 !important; background:repeating-linear-gradient(0deg,rgba(0,0,0,.5) 0 2px,transparent 2px 4px),repeating-linear-gradient(90deg,rgba(255,255,255,.05) 0 1px,transparent 1px 5px) !important; }
+        body.prank-cursed main,body.prank-cursed header,body.prank-cursed section,body.prank-cursed footer,body.prank-cursed nav,body.prank-cursed article,body.prank-cursed button,body.prank-cursed img { image-rendering:pixelated; }
+        #prankBloodCurtain { position:fixed; inset:0; z-index:50000; pointer-events:none; display:none; background:#a00000; clip-path:polygon(0 0,100% 0,100% 0,0 0); }
+        #prankBloodCurtain::before { content:""; position:absolute; inset:0; background:radial-gradient(ellipse at 18% 0%,#6d0000 0 7%,transparent 23%),radial-gradient(ellipse at 52% 0%,#8a0000 0 12%,transparent 30%),radial-gradient(ellipse at 82% 0%,#520000 0 9%,transparent 25%),linear-gradient(#600000,#b00000 55%,#e00000); filter:contrast(1.7); }
+        #prankBloodCurtain.spread { display:block; animation:prankBloodSpread 1.45s steps(7,end) forwards; }
+        #prankBloodCurtain.full { clip-path:polygon(0 0,100% 0,100% 100%,0 100%); }
+        @keyframes prankBloodSpread { 0%{clip-path:polygon(0 0,100% 0,100% 0,0 0)} 28%{clip-path:polygon(0 0,100% 0,100% 28%,92% 23%,84% 36%,72% 25%,63% 42%,52% 27%,43% 39%,31% 23%,19% 35%,9% 24%,0 33%)} 65%{clip-path:polygon(0 0,100% 0,100% 65%,89% 58%,78% 72%,66% 59%,54% 76%,42% 61%,31% 73%,18% 60%,8% 71%,0 64%)} 100%{clip-path:polygon(0 0,100% 0,100% 100%,0 100%)} }
+        body.prank-blood-final { background:#a00000 !important; }
         .melt-warning { white-space:pre-line; color:#ff0000; font-family:'Nanum Myeongjo',serif; font-weight:900; font-size:calc(clamp(2rem,8vw,6.5rem) - 5pt); letter-spacing:.04em; line-height:1.65; text-align:center; padding:1.5rem; text-shadow:0 0 2px #f00,0 0 14px #900; opacity:1; } .melt-warning .warning-char { display:inline-block; color:#ff0000; opacity:0; visibility:hidden; } .melt-warning .warning-char.visible { opacity:1; visibility:visible; animation:warningCharIn .08s steps(1,end) both; } @keyframes warningCharIn { from { transform:translateY(-3px); } to { transform:translateY(0); } }
         @keyframes warningImpact { 0% { transform:scale(1.08); filter:blur(4px); } 12% { transform:scale(1); filter:blur(0); } 28% { transform:translateX(-8px) scale(1.02); text-shadow:5px 0 #5b0000,-5px 0 #f00; } 29% { transform:translateX(7px) scale(.99); } 30% { transform:translateX(0) scale(1); } 72% { filter:contrast(180%); } 100% { transform:scale(.92); filter:blur(4px); } }
         #phoneLockOverlay { position:fixed; inset:0; z-index:25000; display:none; background:transparent; pointer-events:auto; cursor:wait; touch-action:none; }
@@ -1024,7 +1034,8 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
         </div>
     </div>
     <div id="phoneFadeOverlay" aria-hidden="true"></div>
-    <div id="prankWarningOverlay" aria-hidden="true"><div class="melt-warning">너 들어올 때\n혼자 아니었어.</div></div>
+    <div id="prankWarningOverlay" aria-hidden="true"><div class="melt-warning">다시는 그런 장난 치지 마...</div></div>
+    <div id="prankBloodCurtain" aria-hidden="true"></div>
     <div id="phoneBloodWash" aria-hidden="true"></div>
     <div id="phoneLockOverlay" aria-hidden="true"></div>
     <div id="phoneJumpOverlay" aria-hidden="true"><div class="phone-jump-text">니 옆에</div></div>
