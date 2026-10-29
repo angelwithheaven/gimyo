@@ -1634,6 +1634,7 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
                 return;
             }
             minsuSpeak('김민수... 나 안 보여?', 0.68, 0.42, 1);
+            document.querySelector('#phoneJumpOverlay .phone-jump-text').textContent='나 안 보여?';
             setTimeout(()=>{triggerMinsuScreamSound(1);triggerOfficeMinsuCurse();},650);
         }
 
