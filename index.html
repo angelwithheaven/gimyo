@@ -247,8 +247,8 @@
         #phoneFadeOverlay { position:fixed; inset:0; z-index:19000; background:#000; opacity:0; pointer-events:none; transition:opacity 1.4s ease; }
         #phoneFadeOverlay.active { opacity:1; }
         #prankWarningOverlay { position:fixed; inset:0; z-index:40000; display:none; align-items:center; justify-content:center; overflow:hidden; background:#000; opacity:1; }
-        .melt-warning { white-space:pre-line; color:#ff0000; font-family:'Nanum Myeongjo',serif; font-weight:900; font-size:calc(clamp(2rem,8vw,6.5rem) - 5pt); letter-spacing:.04em; line-height:1.65; text-align:center; padding:1.5rem; text-shadow:0 0 2px #f00,0 0 14px #900; animation:warningImpact 3.6s steps(1,end) forwards; } .melt-warning .warning-char { display:inline-block; color:#ff0000; opacity:0; animation:warningCharIn .08s steps(1,end) forwards; } @keyframes warningCharIn { from { opacity:0; transform:translateY(-3px); } to { opacity:1; transform:translateY(0); } }
-        @keyframes warningImpact { 0% { opacity:0; transform:scale(1.7); filter:blur(12px); } 8% { opacity:1; transform:scale(1); filter:blur(0); } 13% { opacity:.12; } 17% { opacity:1; } 28% { transform:translateX(-8px) scale(1.02); text-shadow:5px 0 #5b0000,-5px 0 #f00; } 29% { transform:translateX(7px) scale(.99); } 30% { transform:translateX(0) scale(1); } 72% { opacity:1; filter:contrast(180%); } 100% { opacity:0; transform:scale(.92); filter:blur(18px); } }
+        .melt-warning { white-space:pre-line; color:#ff0000; font-family:'Nanum Myeongjo',serif; font-weight:900; font-size:calc(clamp(2rem,8vw,6.5rem) - 5pt); letter-spacing:.04em; line-height:1.65; text-align:center; padding:1.5rem; text-shadow:0 0 2px #f00,0 0 14px #900; opacity:1; } .melt-warning .warning-char { display:inline-block; color:#ff0000; opacity:0; visibility:hidden; } .melt-warning .warning-char.visible { opacity:1; visibility:visible; animation:warningCharIn .08s steps(1,end) both; } @keyframes warningCharIn { from { transform:translateY(-3px); } to { transform:translateY(0); } }
+        @keyframes warningImpact { 0% { transform:scale(1.08); filter:blur(4px); } 12% { transform:scale(1); filter:blur(0); } 28% { transform:translateX(-8px) scale(1.02); text-shadow:5px 0 #5b0000,-5px 0 #f00; } 29% { transform:translateX(7px) scale(.99); } 30% { transform:translateX(0) scale(1); } 72% { filter:contrast(180%); } 100% { transform:scale(.92); filter:blur(4px); } }
         #phoneLockOverlay { position:fixed; inset:0; z-index:25000; display:none; background:transparent; pointer-events:auto; cursor:wait; touch-action:none; }
         #phoneBloodWash { position:fixed; inset:0; z-index:17000; display:none; background:rgba(180,0,0,.94); mix-blend-mode:multiply; pointer-events:none; animation:bloodPulse .22s infinite alternate; }
         @keyframes bloodPulse { from { background-color:rgba(120,0,0,.92); } to { background-color:rgba(210,0,0,.97); } }
@@ -1689,36 +1689,90 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
 
         let warningHeartbeatActive = false;
         let warningHeartbeatTimer = null;
+        let warningAudioUnlockHandler = null;
+
         function playWarningHeartbeat() {
             warningHeartbeatActive = true;
+
             const beat = () => {
                 if (!warningHeartbeatActive) return;
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume().then(() => {
+                        if (warningHeartbeatActive) beat();
+                    }).catch(() => {});
+                    return;
+                }
+
                 try {
-                    if (audioCtx.state === 'suspended') audioCtx.resume();
                     const now = audioCtx.currentTime;
+                    // Layer a short, low thud with filtered noise so it sounds like a heavy knock,
+                    // not a quiet pure-tone heartbeat.
                     const osc = audioCtx.createOscillator();
-                    const gain = audioCtx.createGain();
+                    const bass = audioCtx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(88 + Math.random() * 22, now);
+                    osc.frequency.exponentialRampToValueAtTime(38, now + 0.16);
+                    bass.gain.setValueAtTime(0.0001, now);
+                    bass.gain.exponentialRampToValueAtTime(1.0, now + 0.012);
+                    bass.gain.exponentialRampToValueAtTime(0.0001, now + 0.2);
+                    osc.connect(bass);
+                    bass.connect(audioCtx.destination);
+                    osc.start(now);
+                    osc.stop(now + 0.21);
+
+                    const length = Math.floor(audioCtx.sampleRate * 0.11);
+                    const buffer = audioCtx.createBuffer(1, length, audioCtx.sampleRate);
+                    const data = buffer.getChannelData(0);
+                    for (let i = 0; i < length; i++) {
+                        const fade = 1 - i / length;
+                        data[i] = (Math.random() * 2 - 1) * fade * fade;
+                    }
+                    const noise = audioCtx.createBufferSource();
+                    noise.buffer = buffer;
                     const filter = audioCtx.createBiquadFilter();
-                    osc.type = 'sine';
-                    osc.frequency.setValueAtTime(72 + Math.random() * 24, now);
-                    osc.frequency.exponentialRampToValueAtTime(34, now + 0.13);
-                    filter.type = 'lowpass'; filter.frequency.value = 115;
-                    gain.gain.setValueAtTime(0.0001, now);
-                    gain.gain.exponentialRampToValueAtTime(0.72 + Math.random() * 0.22, now + 0.012);
-                    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.17);
-                    osc.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination);
-                    osc.start(now); osc.stop(now + 0.18);
-                } catch(e) {}
-                const interval = Math.random() < 0.28 ? 58 + Math.random() * 24 : 95 + Math.random() * 42;
+                    filter.type = 'lowpass';
+                    filter.frequency.setValueAtTime(260 + Math.random() * 100, now);
+                    const noiseGain = audioCtx.createGain();
+                    noiseGain.gain.setValueAtTime(0.0001, now);
+                    noiseGain.gain.exponentialRampToValueAtTime(0.8, now + 0.008);
+                    noiseGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.12);
+                    noise.connect(filter);
+                    filter.connect(noiseGain);
+                    noiseGain.connect(audioCtx.destination);
+                    noise.start(now);
+                } catch (e) {}
+
+                // Uneven, rapid double-knocks.
+                const interval = Math.random() < 0.42 ? 62 + Math.random() * 25 : 105 + Math.random() * 48;
                 warningHeartbeatTimer = window.setTimeout(beat, interval);
             };
-            beat();
+
+            if (audioCtx.state === 'suspended') {
+                // Browsers may block audio on page load. Start it on the first interaction
+                // while the warning is still visible.
+                warningAudioUnlockHandler = () => {
+                    audioCtx.resume().then(() => {
+                        if (warningHeartbeatActive) beat();
+                    }).catch(() => {});
+                };
+                document.addEventListener('pointerdown', warningAudioUnlockHandler, { once: true });
+                document.addEventListener('keydown', warningAudioUnlockHandler, { once: true });
+            } else {
+                beat();
+            }
         }
+
         function stopWarningHeartbeat() {
             warningHeartbeatActive = false;
             if (warningHeartbeatTimer) window.clearTimeout(warningHeartbeatTimer);
             warningHeartbeatTimer = null;
+            if (warningAudioUnlockHandler) {
+                document.removeEventListener('pointerdown', warningAudioUnlockHandler);
+                document.removeEventListener('keydown', warningAudioUnlockHandler);
+            }
+            warningAudioUnlockHandler = null;
         }
+
         function showPrankWarningOnReturn() {
             let shouldWarn = false;
             try {
@@ -1726,25 +1780,29 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
                 if (shouldWarn) localStorage.removeItem('gimyo_prank_warning_once');
             } catch (e) {}
             if (!shouldWarn) return;
+
             const overlay = document.getElementById('prankWarningOverlay');
             const warning = overlay.querySelector('.melt-warning');
             const message = '다시는 그런 장난 치지 마...';
+
             if (warning) {
                 warning.textContent = '';
+                warning.style.animation = 'none';
                 Array.from(message).forEach((char, index) => {
                     const span = document.createElement('span');
                     span.className = 'warning-char';
-                    span.textContent = char === ' ' ? '\u00a0' : char;
-                    span.style.animationDelay = (index * 105) + 'ms';
+                    span.textContent = char === ' ' ? '\\u00a0' : char;
                     warning.appendChild(span);
+                    window.setTimeout(() => span.classList.add('visible'), index * 105);
                 });
-                warning.style.animation = 'none';
                 void warning.offsetWidth;
-                warning.style.animation = '';
+                warning.style.animation = 'warningImpact 3.6s linear forwards';
             }
+
             overlay.style.display = 'flex';
             overlay.style.opacity = '1';
             playWarningHeartbeat();
+
             window.setTimeout(() => {
                 stopWarningHeartbeat();
                 overlay.style.transition = 'opacity .75s ease';
