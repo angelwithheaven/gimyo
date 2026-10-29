@@ -1705,73 +1705,95 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
                 }
                 loopStarted = true;
 
+                // Heavy, irregular door-banging clusters: "KUNG, kung-kung!!! KUNG-kung-kung-kung!!!"
                 const knock = () => {
                     if (!warningHeartbeatActive) return;
                     try {
                         const now = audioCtx.currentTime;
+                        const strength = 0.82 + Math.random() * 0.18;
 
-                        // Main wooden impact: audible midrange plus a deep, descending rumble.
-                        const body = audioCtx.createOscillator();
-                        const bodyGain = audioCtx.createGain();
-                        body.type = 'triangle';
-                        body.frequency.setValueAtTime(155 + Math.random() * 25, now);
-                        body.frequency.exponentialRampToValueAtTime(52, now + 0.2);
-                        bodyGain.gain.setValueAtTime(0.0001, now);
-                        bodyGain.gain.exponentialRampToValueAtTime(0.85, now + 0.009);
-                        bodyGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.32);
-                        body.connect(bodyGain);
-                        bodyGain.connect(audioCtx.destination);
-                        body.start(now);
-                        body.stop(now + 0.33);
+                        // Sharp initial impact, with a short pitch drop for a hard wooden-door hit.
+                        const impact = audioCtx.createOscillator();
+                        const impactGain = audioCtx.createGain();
+                        const impactFilter = audioCtx.createBiquadFilter();
+                        impact.type = 'sawtooth';
+                        impact.frequency.setValueAtTime(190 + Math.random() * 55, now);
+                        impact.frequency.exponentialRampToValueAtTime(58 + Math.random() * 12, now + 0.105);
+                        impactFilter.type = 'lowpass';
+                        impactFilter.frequency.setValueAtTime(950, now);
+                        impactFilter.frequency.exponentialRampToValueAtTime(180, now + 0.16);
+                        impactGain.gain.setValueAtTime(0.0001, now);
+                        impactGain.gain.exponentialRampToValueAtTime(1.0 * strength, now + 0.004);
+                        impactGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.22);
+                        impact.connect(impactFilter);
+                        impactFilter.connect(impactGain);
+                        impactGain.connect(audioCtx.destination);
+                        impact.start(now);
+                        impact.stop(now + 0.23);
 
-                        const sub = audioCtx.createOscillator();
-                        const subGain = audioCtx.createGain();
-                        sub.type = 'sine';
-                        sub.frequency.setValueAtTime(64, now);
-                        sub.frequency.exponentialRampToValueAtTime(27, now + 0.34);
-                        subGain.gain.setValueAtTime(0.0001, now);
-                        subGain.gain.exponentialRampToValueAtTime(0.9, now + 0.015);
-                        subGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.42);
-                        sub.connect(subGain);
-                        subGain.connect(audioCtx.destination);
-                        sub.start(now);
-                        sub.stop(now + 0.43);
+                        // Deep body resonance: less "drum", more a huge door/wall vibrating.
+                        const resonance = audioCtx.createOscillator();
+                        const resonanceGain = audioCtx.createGain();
+                        resonance.type = 'sine';
+                        resonance.frequency.setValueAtTime(72 + Math.random() * 12, now);
+                        resonance.frequency.exponentialRampToValueAtTime(34, now + 0.28);
+                        resonanceGain.gain.setValueAtTime(0.0001, now);
+                        resonanceGain.gain.exponentialRampToValueAtTime(1.0 * strength, now + 0.008);
+                        resonanceGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.36);
+                        resonance.connect(resonanceGain);
+                        resonanceGain.connect(audioCtx.destination);
+                        resonance.start(now);
+                        resonance.stop(now + 0.38);
 
-                        const length = Math.floor(audioCtx.sampleRate * 0.18);
+                        // Broadband impact transient, filtered to avoid a synthetic cymbal/drum sound.
+                        const length = Math.floor(audioCtx.sampleRate * 0.14);
                         const buffer = audioCtx.createBuffer(1, length, audioCtx.sampleRate);
                         const data = buffer.getChannelData(0);
                         for (let i = 0; i < length; i++) {
-                            data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / length, 2.4);
+                            const envelope = Math.pow(1 - i / length, 4);
+                            data[i] = (Math.random() * 2 - 1) * envelope;
                         }
                         const noise = audioCtx.createBufferSource();
-                        const filter = audioCtx.createBiquadFilter();
+                        const noiseFilter = audioCtx.createBiquadFilter();
                         const noiseGain = audioCtx.createGain();
                         noise.buffer = buffer;
-                        filter.type = 'lowpass';
-                        filter.frequency.setValueAtTime(650, now);
-                        filter.frequency.exponentialRampToValueAtTime(130, now + 0.18);
+                        noiseFilter.type = 'bandpass';
+                        noiseFilter.frequency.setValueAtTime(380 + Math.random() * 120, now);
+                        noiseFilter.Q.setValueAtTime(0.75, now);
                         noiseGain.gain.setValueAtTime(0.0001, now);
-                        noiseGain.gain.exponentialRampToValueAtTime(0.62, now + 0.004);
-                        noiseGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.19);
-                        noise.connect(filter);
-                        filter.connect(noiseGain);
+                        noiseGain.gain.exponentialRampToValueAtTime(0.68 * strength, now + 0.003);
+                        noiseGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.14);
+                        noise.connect(noiseFilter);
+                        noiseFilter.connect(noiseGain);
                         noiseGain.connect(audioCtx.destination);
                         noise.start(now);
                     } catch (e) {
                         console.warn('Warning knock sound failed:', e);
                     }
-
-                    const roll = Math.random();
-                    const interval = roll < 0.36 ? 90 + Math.random() * 35
-                        : roll < 0.82 ? 160 + Math.random() * 55
-                        : 260 + Math.random() * 90;
-                    warningHeartbeatTimer = window.setTimeout(knock, interval);
                 };
 
-                knock();
+                const scheduleCluster = () => {
+                    if (!warningHeartbeatActive) return;
+                    // Alternate a single heavy hit and fast, panicked multi-hit bursts.
+                    const pattern = Math.random();
+                    const gaps = pattern < 0.25 ? [0, 250, 390]
+                        : pattern < 0.62 ? [0, 330, 455, 580]
+                        : pattern < 0.82 ? [0, 175]
+                        : [0];
+                    const startAt = audioCtx.currentTime;
+                    gaps.forEach((delay, index) => {
+                        window.setTimeout(() => {
+                            if (warningHeartbeatActive) knock();
+                        }, delay);
+                    });
+                    const clusterDuration = gaps[gaps.length - 1] || 0;
+                    const pause = 220 + Math.random() * 260;
+                    warningHeartbeatTimer = window.setTimeout(scheduleCluster, clusterDuration + pause);
+                };
+
+                scheduleCluster();
             };
 
-            // Try immediately, then retry on a real user gesture if autoplay is blocked.
             beat();
             warningAudioUnlockHandler = () => {
                 if (!warningHeartbeatActive || loopStarted) return;
