@@ -1,0 +1,1167 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>기이고등학교 - 바른 인성과 창의성을 갖춘 인재 육성</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Nanum+Myeongjo:wght@700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'school-blue': '#2B4C7E',
+                        'school-grey': '#E2E8F0',
+                        'school-darkgrey': '#475569',
+                        'school-red': '#991B1B',
+                        'school-crimson': '#8B0000',
+                    },
+                    fontFamily: {
+                        'sans': ['Noto Sans KR', 'sans-serif'],
+                        'myeongjo': ['Nanum Myeongjo', 'serif'],
+                        'mono': ['Share Tech Mono', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #f8fafc;
+            user-select: text;
+        }
+
+        /* CRT/VHS Glitch Overlays */
+        .crt-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.2) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+            background-size: 100% 3px, 6px 100%;
+            pointer-events: none;
+            z-index: 999;
+            opacity: 0.6;
+        }
+
+        /* Subtle Static Noise Background canvas */
+        #staticCanvas {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            opacity: 0.03;
+            z-index: 998;
+        }
+
+        /* Flash Jumpscare Canvas Overlay */
+        #glitchFlashOverlay {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background-color: #000;
+            z-index: 9999;
+            display: none;
+            pointer-events: none;
+        }
+
+        /* Minsu Jumpscare Overlay */
+        #minsuJumpscareOverlay {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background-color: #050000;
+            z-index: 10000;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @keyframes creepShake {
+            0% { transform: translate(0, 0) scale(1) rotate(0deg); filter: contrast(200%) invert(0); }
+            20% { transform: translate(-8px, 6px) scale(1.05) rotate(-1deg); filter: contrast(300%) invert(0.2); }
+            40% { transform: translate(6px, -8px) scale(0.98) rotate(1deg); filter: contrast(400%) invert(0.8); }
+            60% { transform: translate(-10px, -4px) scale(1.1) rotate(-2deg); filter: contrast(250%) invert(0.1); }
+            80% { transform: translate(8px, 10px) scale(1.02) rotate(2deg); filter: contrast(500%) invert(0.9); }
+            100% { transform: translate(0, 0) scale(1) rotate(0deg); filter: contrast(200%) invert(0); }
+        }
+
+        .minsu-monster {
+            animation: creepShake 0.08s infinite;
+        }
+
+        .glitch-text-hover:hover {
+            animation: glitchText 0.2s infinite;
+            color: #991B1B !important;
+        }
+
+        @keyframes glitchText {
+            0% { transform: translate(0); }
+            20% { transform: translate(-2px, 1px); }
+            40% { transform: translate(-1px, -1px); }
+            60% { transform: translate(2px, 0); }
+            80% { transform: translate(1px, 2px); }
+            100% { transform: translate(0); }
+        }
+
+        .hidden-spoiler {
+            color: transparent;
+            background-color: transparent;
+            transition: all 0.2s ease;
+        }
+        .hidden-spoiler:hover {
+            color: #8B0000;
+            background-color: #fee2e2;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #94a3b8;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+    </style>
+</head>
+<body class="text-slate-800 font-sans flex flex-col min-h-screen relative">
+
+    <!-- CRT & Noise Effects Layer -->
+    <div class="crt-overlay"></div>
+    <canvas id="staticCanvas"></canvas>
+    <div id="glitchFlashOverlay" class="flex flex-col items-center justify-center text-red-600 font-mono text-xs sm:text-lg">
+        <div id="jumpscareContent" class="text-center p-4"></div>
+    </div>
+
+    <!-- MINSU HORROR JUMPSCARE OVERLAY -->
+    <div id="minsuJumpscareOverlay">
+        <div class="minsu-monster relative flex flex-col items-center justify-center">
+            <!-- Distorted Creepy Face SVG Art -->
+            <svg class="w-72 h-72 sm:w-96 sm:h-96 text-red-700" viewBox="0 0 200 200" fill="currentColor">
+                <circle cx="100" cy="100" r="90" fill="#110000" stroke="#880000" stroke-width="4"/>
+                <!-- Hollow Eyes -->
+                <ellipse cx="65" cy="75" rx="22" ry="35" fill="#000" stroke="#ff0000" stroke-width="3"/>
+                <ellipse cx="135" cy="75" rx="22" ry="35" fill="#000" stroke="#ff0000" stroke-width="3"/>
+                <circle cx="62" cy="80" r="4" fill="#ffffff"/>
+                <circle cx="138" cy="70" r="3" fill="#ffffff"/>
+                <!-- Blood Tears / Drips -->
+                <path d="M 65 110 L 60 170 L 70 140 Z" fill="#990000"/>
+                <path d="M 135 110 L 140 180 L 130 150 Z" fill="#990000"/>
+                <!-- Distorted Screaming Mouth -->
+                <path d="M 50 135 Q 100 210 150 135 Q 100 110 50 135 Z" fill="#000000" stroke="#cc0000" stroke-width="4"/>
+                <path d="M 70 145 L 80 165 L 90 148 L 110 168 L 120 145" fill="none" stroke="#ffffff" stroke-width="2"/>
+            </svg>
+            <h1 class="text-4xl sm:text-6xl font-extrabold text-red-600 font-mono tracking-widest mt-6 animate-pulse select-none text-center">
+                나도 무서워
+            </h1>
+            <p class="text-red-900 font-mono text-xs mt-2">SYS_ERR_MINSU_1998_HALLWAY</p>
+        </div>
+    </div>
+
+    <!-- VINTAGE POPUP ALERT WINDOW MODAL -->
+    <div id="retroPopUpModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-slate-200 border-2 border-slate-400 rounded-sm shadow-2xl max-w-sm w-full font-sans text-xs text-slate-800">
+            <!-- Titlebar -->
+            <div class="bg-gradient-to-r from-slate-800 to-slate-900 text-white px-2 py-1 font-bold flex justify-between items-center select-none">
+                <span flex items-center gap-1.5 id="retroPopUpTitle">
+                    <i class="fa-solid fa-triangle-exclamation text-amber-400"></i> 시스템 경고
+                </span>
+                <button onclick="closeRetroPopUp()" class="hover:bg-red-700 px-1.5 py-0.5 rounded text-xs font-mono">✕</button>
+            </div>
+            <!-- Body -->
+            <div class="p-4 space-y-3 bg-slate-100 flex items-start gap-3">
+                <div id="retroPopUpIcon" class="text-2xl text-red-600 shrink-0 mt-1">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
+                <div id="retroPopUpMessage" class="text-xs text-slate-800 leading-relaxed font-medium">
+                    경고 메세지 내용
+                </div>
+            </div>
+            <!-- Footer Buttons -->
+            <div class="bg-slate-200 px-3 py-2 flex justify-end gap-2 border-t border-slate-300">
+                <button onclick="closeRetroPopUp()" class="bg-slate-300 hover:bg-slate-400 border border-slate-400 text-slate-800 px-4 py-1 rounded-sm text-xs font-bold active:translate-y-0.5">
+                    확인
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Emergency Announcement Bar (Triggered on easter eggs) -->
+    <div id="emergencyBar" class="hidden bg-red-950 text-red-200 text-xs py-1.5 px-4 font-mono border-b border-red-800">
+        <div class="max-w-6xl mx-auto flex justify-between items-center animate-pulse">
+            <span>⚠️ [경고] 기이고등학교 내부 서버 인가되지 않은 인원 접근 감지. 즉시 이 페이지를 닫으십시오.</span>
+            <span id="emergencyCode">ERR_CODE: 1998_HALL_B</span>
+        </div>
+    </div>
+
+    <!-- Top Utility Navigation -->
+    <div class="bg-slate-100 border-b border-slate-200 text-xs text-slate-600">
+        <div class="max-w-6xl mx-auto px-4 py-1.5 flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <span>경기도 교육청 지정 자율형 공립고등학교</span>
+                <span class="text-slate-300">|</span>
+                <button onclick="playSchoolBell()" class="hover:text-slate-900 flex items-center gap-1 transition">
+                    <i class="fa-solid fa-bell text-[10px]"></i> 교가 및 차임벨 소리
+                </button>
+            </div>
+            <div class="flex items-center gap-3">
+                <a href="#" onclick="switchTab('loginModal')" class="hover:underline">교직원 로그인</a>
+                <span>|</span>
+                <a href="#" onclick="openSecretPrompt()" class="hover:underline text-slate-500">학생기록부(열람제한)</a>
+                <span>|</span>
+                <a href="#" onclick="switchTab('sitemap')" class="hover:underline">사이트맵</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header & Main Banner Logo -->
+    <header class="bg-white border-b-2 border-slate-700 sticky top-0 z-40 shadow-sm">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+            
+            <!-- School Emblem Logo -->
+            <div class="flex items-center gap-3 cursor-pointer select-none" onclick="switchTab('home')">
+                <div class="relative w-12 h-12 bg-slate-800 rounded-full flex items-center justify-center border-2 border-slate-600 text-white font-myeongjo font-bold text-xl shadow" id="schoolLogo">
+                    기이
+                    <!-- Hidden Easter Egg Hotspot on Emblem -->
+                    <div onclick="event.stopPropagation(); triggerEmblemGlitch();" class="absolute inset-0 rounded-full hover:bg-red-900/20 cursor-crosshair" title="학교 교장(校章)"></div>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold font-myeongjo tracking-tight text-slate-900 flex items-center gap-2">
+                        기이고등학교 
+                        <span class="text-xs font-sans font-normal text-slate-500 border border-slate-300 px-1.5 py-0.5 rounded">GII HIGH SCHOOL</span>
+                    </h1>
+                    <p class="text-xs text-slate-500">지혜(智惠) · 성실(誠實) · 규율(規律)</p>
+                </div>
+            </div>
+
+            <!-- Header Quick Search -->
+            <div class="w-full sm:w-auto flex items-center gap-2">
+                <div class="relative w-full sm:w-64">
+                    <input type="text" id="searchInput" placeholder="검색어를 입력하세요 (예: 공지, 급식)" 
+                        onkeydown="if(event.key === 'Enter') handleSearch()"
+                        class="w-full bg-slate-50 border border-slate-300 rounded px-3 py-1.5 text-xs focus:outline-none focus:border-slate-600">
+                    <button onclick="handleSearch()" class="absolute right-2 top-2 text-slate-400 hover:text-slate-700 text-xs">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Navigation Bar -->
+        <nav class="bg-slate-800 text-white text-sm font-medium">
+            <div class="max-w-6xl mx-auto px-4 flex flex-wrap items-center justify-between">
+                <div class="flex space-x-1 sm:space-x-4 overflow-x-auto py-1">
+                    <button onclick="switchTab('home')" class="nav-btn px-3 py-2 hover:bg-slate-700 rounded transition" id="nav-home">학교소개</button>
+                    <button onclick="switchTab('notice')" class="nav-btn px-3 py-2 hover:bg-slate-700 rounded transition" id="nav-notice">공지사항</button>
+                    <button onclick="switchTab('principal')" class="nav-btn px-3 py-2 hover:bg-slate-700 rounded transition" id="nav-principal">학교장 인사말</button>
+                    <button onclick="switchTab('lunch')" class="nav-btn px-3 py-2 hover:bg-slate-700 rounded transition" id="nav-lunch">오늘의 급식</button>
+                    <button onclick="switchTab('gallery')" class="nav-btn px-3 py-2 hover:bg-slate-700 rounded transition" id="nav-gallery">학교 갤러리</button>
+                    <button onclick="switchTab('qna')" class="nav-btn px-3 py-2 hover:bg-slate-700 rounded transition" id="nav-qna">학생 게시판</button>
+                </div>
+                <div class="hidden md:block text-xs text-slate-300 font-mono" id="liveClock">
+                    2026.10.29 (목) 14:40:00
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-1 max-w-6xl w-full mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- Left Sidebar / Widgets -->
+        <aside class="lg:col-span-3 space-y-5">
+            
+            <!-- Quick Link Panel -->
+            <div class="bg-white p-4 border border-slate-200 rounded shadow-sm">
+                <h2 class="font-bold text-sm text-slate-800 pb-2 border-b border-slate-200 mb-3 flex items-center justify-between">
+                    <span>빠른 서비스</span>
+                    <i class="fa-solid fa-link text-xs text-slate-400"></i>
+                </h2>
+                <div class="grid grid-cols-2 gap-2 text-xs">
+                    <button onclick="switchTab('lunch')" class="p-2.5 bg-slate-50 border border-slate-200 hover:bg-slate-100 rounded text-center transition">
+                        <i class="fa-solid fa-utensils text-slate-600 text-base mb-1 block"></i> 식단표
+                    </button>
+                    <button onclick="switchTab('notice')" class="p-2.5 bg-slate-50 border border-slate-200 hover:bg-slate-100 rounded text-center transition">
+                        <i class="fa-solid fa-bullhorn text-slate-600 text-base mb-1 block"></i> 가정통신문
+                    </button>
+                    <button onclick="openClassifiedModal('1998_B1')" class="p-2.5 bg-slate-50 border border-slate-200 hover:bg-slate-100 rounded text-center transition text-slate-700">
+                        <i class="fa-solid fa-building text-slate-600 text-base mb-1 block"></i> 구관 시설안내
+                    </button>
+                    <button onclick="triggerStaticSound(0.4)" class="p-2.5 bg-slate-50 border border-slate-200 hover:bg-slate-100 rounded text-center transition">
+                        <i class="fa-solid fa-phone text-slate-600 text-base mb-1 block"></i> 교무실 연결
+                    </button>
+                </div>
+            </div>
+
+            <!-- REAL-TIME SCHOOL CCTV WIDGET (EASTER EGG) -->
+            <div class="bg-white p-3 border border-slate-200 rounded shadow-sm">
+                <div class="flex items-center justify-between mb-2">
+                    <h3 class="font-bold text-xs text-slate-800 flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-red-600 animate-pulse"></span>
+                        <span>실시간 교내 CCTV (보안용)</span>
+                    </h3>
+                    <span id="cctvCamName" class="font-mono text-[10px] text-slate-400">CAM-01 중앙현관</span>
+                </div>
+                
+                <!-- CCTV View Box -->
+                <div class="relative bg-slate-900 rounded overflow-hidden aspect-video border border-slate-800 cursor-pointer group" onclick="cycleCCTVCam()">
+                    <img id="cctvImage" src="https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=600&auto=format&fit=crop&q=80" 
+                         class="w-full h-full object-cover opacity-80 mix-blend-luminosity filter contrast-125">
+                    
+                    <!-- Timestamp & Noise Overlay -->
+                    <div class="absolute top-2 left-2 font-mono text-[10px] text-green-400 bg-black/60 px-1.5 py-0.5 rounded">
+                        REC <span id="cctvTime">14:40:02</span>
+                    </div>
+                    <div id="cctvGlitchText" class="hidden absolute inset-0 bg-red-950/80 text-white font-mono text-[11px] p-3 flex items-center justify-center text-center">
+                        [경고] 감시 구역 내 승인되지 않은 사람 형태 감지됨.<br>복도 접근 금지.
+                    </div>
+                    <div class="absolute bottom-1 right-2 text-[9px] text-slate-400 font-mono">클릭하여 카메라 전환</div>
+                </div>
+            </div>
+
+            <!-- Today's Meal Mini Card -->
+            <div class="bg-slate-50 p-3.5 border border-slate-200 rounded shadow-sm">
+                <h3 class="font-bold text-xs text-slate-700 mb-2 flex items-center justify-between">
+                    <span>🍱 오늘의 중식 (10월 29일)</span>
+                    <a href="#" onclick="switchTab('lunch')" class="text-[10px] text-slate-500 hover:underline">전체보기</a>
+                </h3>
+                <ul class="text-xs text-slate-600 space-y-1 bg-white p-2.5 rounded border border-slate-200 font-mono">
+                    <li>· 현미찹쌀밥</li>
+                    <li>· 쇠고기 탕국</li>
+                    <li>· 돈육불고기</li>
+                    <li id="secretMealItem" class="cursor-pointer hover:text-red-700 font-bold" onclick="triggerMealGlitch()">· [삭제된 메뉴]</li>
+                    <li>· 배추김치 / 귤</li>
+                </ul>
+            </div>
+
+            <!-- Attendance Counter -->
+            <div class="bg-white p-3.5 border border-slate-200 rounded text-xs space-y-1.5">
+                <div class="flex justify-between text-slate-600">
+                    <span>전체 재학생:</span>
+                    <span class="font-mono font-bold">512명</span>
+                </div>
+                <div class="flex justify-between text-slate-600">
+                    <span>금일 출석 학생:</span>
+                    <span class="font-mono font-bold text-slate-800">511명</span>
+                </div>
+                <div class="flex justify-between text-slate-500 hover:text-red-700 cursor-pointer transition" onclick="triggerMissingStudentPopup()">
+                    <span>사유 미상 결석:</span>
+                    <span class="font-mono font-bold text-red-600 hover:underline">1명 (2학년 4반)</span>
+                </div>
+            </div>
+
+        </aside>
+
+        <!-- Center Content Area (Tab Switched) -->
+        <section class="lg:col-span-9 bg-white p-5 border border-slate-200 rounded shadow-sm min-h-[500px]" id="mainContentArea">
+            
+            <!-- HOME TAB (Default) -->
+            <div id="tab-home" class="space-y-6">
+                <!-- Banner Carousel -->
+                <div class="relative bg-slate-800 text-white rounded overflow-hidden h-48 sm:h-64 flex items-center justify-center border border-slate-700">
+                    <img id="bannerImg" src="https://images.unsplash.com/photo-1562774053-701939374585?w=1000&auto=format&fit=crop&q=80" class="w-full h-full object-cover opacity-50">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent flex flex-col justify-end p-5">
+                        <span class="text-xs text-slate-300 font-semibold uppercase tracking-wider mb-1">기이고등학교 교육목표</span>
+                        <h2 class="text-xl sm:text-2xl font-bold font-myeongjo text-white" id="bannerTitle">"올바른 정신과 규율 속에서 미래를 개척하는 기인(奇人)"</h2>
+                    </div>
+                </div>
+
+                <!-- Recent Notices & Student News Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- 공지사항 요약 -->
+                    <div>
+                        <div class="flex justify-between items-center border-b-2 border-slate-700 pb-2 mb-3">
+                            <h3 class="font-bold text-slate-800 text-sm flex items-center gap-2">
+                                <i class="fa-solid fa-bullhorn text-slate-600"></i> 주요 공지사항
+                            </h3>
+                            <button onclick="switchTab('notice')" class="text-xs text-slate-500 hover:underline">+ 더보기</button>
+                        </div>
+                        <ul class="text-xs space-y-2.5">
+                            <li class="flex justify-between items-center border-b border-slate-100 pb-1.5 cursor-pointer hover:text-slate-900" onclick="openNoticeModal(1)">
+                                <span class="truncate font-medium text-slate-700">[안내] 2026학년도 2학기 야간 자율학습 수강 및 하교 수칙</span>
+                                <span class="text-[10px] text-slate-400 font-mono shrink-0 ml-2">10.27</span>
+                            </li>
+                            <li class="flex justify-between items-center border-b border-slate-100 pb-1.5 cursor-pointer hover:text-slate-900" onclick="openNoticeModal(2)">
+                                <span class="truncate font-medium text-slate-700">[경고] 구관(1998년 봉쇄 건물) 무단 출입 엄금 안내</span>
+                                <span class="text-[10px] text-red-600 font-mono shrink-0 ml-2 font-bold">10.24</span>
+                            </li>
+                            <li class="flex justify-between items-center border-b border-slate-100 pb-1.5 cursor-pointer hover:text-slate-900" onclick="openNoticeModal(3)">
+                                <span class="truncate font-medium text-slate-700">[보건] 최근 교내 환각 및 이상 행동 증상 보고에 따른 보건 지침</span>
+                                <span class="text-[10px] text-slate-400 font-mono shrink-0 ml-2">10.19</span>
+                            </li>
+                            <li class="flex justify-between items-center border-b border-slate-100 pb-1.5 cursor-pointer hover:text-slate-900" onclick="openNoticeModal(4)">
+                                <span class="truncate font-medium text-slate-700">[행사] 제24회 기이 예술제 전시 작품 모집 안내</span>
+                                <span class="text-[10px] text-slate-400 font-mono shrink-0 ml-2">10.12</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- 가정통신문 요약 -->
+                    <div>
+                        <div class="flex justify-between items-center border-b-2 border-slate-700 pb-2 mb-3">
+                            <h3 class="font-bold text-slate-800 text-sm flex items-center gap-2">
+                                <i class="fa-solid fa-envelope-open-text text-slate-600"></i> 가정통신문
+                            </h3>
+                            <button onclick="switchTab('notice')" class="text-xs text-slate-500 hover:underline">+ 더보기</button>
+                        </div>
+                        <ul class="text-xs space-y-2.5">
+                            <li class="flex justify-between items-center border-b border-slate-100 pb-1.5 cursor-pointer hover:text-slate-900" onclick="openNoticeModal(5)">
+                                <span class="truncate font-medium text-slate-700">[가정통신문] 학생 안전귀가 지도를 위한 학부모 협조 요청</span>
+                                <span class="text-[10px] text-slate-400 font-mono shrink-0 ml-2">10.25</span>
+                            </li>
+                            <li class="flex justify-between items-center border-b border-slate-100 pb-1.5 cursor-pointer hover:text-slate-900" onclick="openNoticeModal(6)">
+                                <span class="truncate font-medium text-slate-700">[가정통신문] 2학년 4반 학생 개별 면담 실시 건</span>
+                                <span class="text-[10px] text-slate-400 font-mono shrink-0 ml-2">10.15</span>
+                            </li>
+                            <li class="flex justify-between items-center border-b border-slate-100 pb-1.5 cursor-pointer hover:text-slate-900" onclick="openNoticeModal(7)">
+                                <span class="truncate font-medium text-slate-700">[가정통신문] 2026학년도 동복 착용 안내</span>
+                                <span class="text-[10px] text-slate-400 font-mono shrink-0 ml-2">10.01</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Principal Message Preview -->
+                <div class="bg-slate-50 border border-slate-200 p-4 rounded flex flex-col sm:flex-row gap-4 items-center">
+                    <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=300&auto=format&fit=crop&q=80" 
+                         class="w-20 h-24 object-cover rounded border border-slate-300 filter grayscale">
+                    <div class="text-xs text-slate-600 space-y-1.5 flex-1">
+                        <p class="font-bold text-slate-800 text-sm font-myeongjo">"전통과 질서 속에 미래를 열어가는 기이고등학교"</p>
+                        <p class="leading-relaxed">본교는 1974년 개교 이래 수많은 인재를 배출해온 전통의 명문고입니다. 우리 학생들이 바른 인성을 바탕으로 학업에 정진할 수 있도록 최선의 환경을 제공하겠습니다.</p>
+                        <p class="text-right font-bold text-slate-700 mt-1">- 기이고등학교 교장 박성철 -</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- NOTICE BOARD TAB -->
+            <div id="tab-notice" class="hidden space-y-4">
+                <h2 class="font-bold text-lg text-slate-800 border-b-2 border-slate-700 pb-2 flex justify-between items-center">
+                    <span>공지사항 및 가정통신문</span>
+                    <span class="text-xs font-normal text-slate-500">총 24건의 게시물이 있습니다.</span>
+                </h2>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-xs text-left text-slate-600 border-collapse">
+                        <thead class="bg-slate-100 text-slate-700 uppercase font-bold border-y border-slate-200">
+                            <tr>
+                                <th class="py-2.5 px-3 text-center w-12">번호</th>
+                                <th class="py-2.5 px-3">제목</th>
+                                <th class="py-2.5 px-3 text-center w-20">작성자</th>
+                                <th class="py-2.5 px-3 text-center w-20">작성일</th>
+                                <th class="py-2.5 px-3 text-center w-16">조회</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100" id="noticeTableBody">
+                            <!-- Populated via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- PRINCIPAL GREETING TAB -->
+            <div id="tab-principal" class="hidden space-y-4 text-xs text-slate-700 leading-relaxed">
+                <h2 class="font-bold text-lg text-slate-800 border-b-2 border-slate-700 pb-2">학교장 인사말</h2>
+                <div class="flex flex-col md:flex-row gap-6 my-4 items-start">
+                    <div class="text-center shrink-0">
+                        <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&auto=format&fit=crop&q=80" 
+                             class="w-36 h-48 object-cover rounded border border-slate-300 filter grayscale mx-auto">
+                        <p class="font-bold text-slate-800 mt-2">제14대 교장 박성철</p>
+                    </div>
+                    <div class="space-y-3 font-myeongjo text-sm">
+                        <p class="font-bold text-base text-slate-900">안녕하십니까. 기이고등학교 홈페이지 방문을 진심으로 환영합니다.</p>
+                        <p>우리 기이고등학교는 학생들이 올바른 도덕적 가치관과 엄격한 규율을 배우는 배움의 터전입니다.</p>
+                        <p>최근 인터넷상에 본교 구관(1998년 봉쇄 구역) 및 과거 사고와 관련된 확인되지 않은 루머와 허위 사실이 유포되고 있습니다. 학부모님과 학생 여러분께서는 이러한 미확인 소문에 동요하지 마시기를 당부드립니다.</p>
+                        <p class="glitch-text-hover cursor-pointer" onclick="triggerStaticSound(0.5)">
+                            본교는 모든 학생의 안전을 최우선으로 관리하고 있으며, 밤 10시 이후 교내 잔류는 철저히 통제되고 있습니다. <span class="hidden-spoiler">(거짓말. 통제할 수 없다.)</span>
+                        </p>
+                        <p class="pt-4 text-right font-bold">- 기이고등학교 교장 박성철 올림 -</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SCHOOL LUNCH TAB -->
+            <div id="tab-lunch" class="hidden space-y-4">
+                <h2 class="font-bold text-lg text-slate-800 border-b-2 border-slate-700 pb-2 flex justify-between items-center">
+                    <span>2026년 10월 영양 식단표</span>
+                    <span class="text-xs font-normal text-slate-500">※ 식재료 사정에 따라 메뉴가 변경될 수 있습니다.</span>
+                </h2>
+
+                <div class="grid grid-cols-1 sm:grid-cols-5 gap-3 text-xs" id="lunchCalendarGrid">
+                    <!-- Dynamic Days Inserted Here -->
+                </div>
+            </div>
+
+            <!-- GALLERY TAB -->
+            <div id="tab-gallery" class="hidden space-y-4">
+                <h2 class="font-bold text-lg text-slate-800 border-b-2 border-slate-700 pb-2">학교 갤러리</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4" id="galleryGrid">
+                    <!-- Populated via JS -->
+                </div>
+            </div>
+
+            <!-- QNA / STUDENT BOARD TAB -->
+            <div id="tab-qna" class="hidden space-y-4">
+                <h2 class="font-bold text-lg text-slate-800 border-b-2 border-slate-700 pb-2 flex justify-between items-center">
+                    <span>학생 익명 소통 게시판</span>
+                    <button onclick="openNewQnaModal()" class="bg-slate-800 text-white text-xs px-3 py-1.5 rounded hover:bg-slate-700">글쓰기</button>
+                </h2>
+
+                <div class="space-y-3" id="qnaList">
+                    <!-- Populated via JS -->
+                </div>
+            </div>
+
+            <!-- SECRET CLASSIFIED INCIDENT LOG TAB (LOCKED UNTIL UNLOCKED) -->
+            <div id="tab-secret" class="hidden space-y-4 font-mono text-xs bg-slate-950 text-slate-200 p-5 rounded border border-red-900">
+                <div class="flex justify-between items-center border-b border-red-800 pb-2">
+                    <h2 class="font-bold text-sm text-red-500 flex items-center gap-2">
+                        <i class="fa-solid fa-user-shield"></i>
+                        <span>[기밀] 기이고등학교 학생지도 및 미해결 사고 기록 (1998-2026)</span>
+                    </h2>
+                    <span class="text-[10px] text-red-400 bg-red-950 border border-red-800 px-2 py-0.5 rounded">CLEARANCE LEVEL 4</span>
+                </div>
+
+                <div class="space-y-3 leading-relaxed text-slate-300">
+                    <p class="text-red-400 font-bold">⚠️ 경고: 본 문서 내용을 외부에 유출할 경우 국가보안 및 교내 징계 법률에 따라 처벌받을 수 있습니다.</p>
+                    
+                    <div class="border border-slate-800 p-3 rounded bg-slate-900/80 space-y-1">
+                        <p class="text-amber-400 font-bold">■ 기록 01: 1998년 10월 24일 구관 봉쇄건</p>
+                        <p class="text-slate-400">사유: 밤 10시 이후 2학년 4반 학생 4명 구관 지하실 진입 후 행방불명. 수색 작업 중 구관 지하 계단에서 소음 발생. 폐쇄 명령 발령 및 신관 신축.</p>
+                    </div>
+
+                    <div class="border border-slate-800 p-3 rounded bg-slate-900/80 space-y-1">
+                        <p class="text-amber-400 font-bold">■ 기록 02: 2014년 수경지 소동</p>
+                        <p class="text-slate-400">학교 뒷편 인공 연못 '수경지'에서 야간 야자 중 학생 다수가 수면 위 형태 목격 주장. 연못 수심 1m 미만이나 수심 측정 불가 현상 발생. 펜스 설치 완료.</p>
+                    </div>
+
+                    <div class="border border-slate-800 p-3 rounded bg-slate-900/80 space-y-1">
+                        <p class="text-amber-400 font-bold">■ 기록 03: 2026년 10월 현재 상황</p>
+                        <p class="text-slate-400">2학년 4반 김민수 학생 (10월 22일 야간 자율학습 중 화장실 이동 후 미귀가). CCTV 확인 결과 화장실 진입 기록은 있으나 나온 기록 없음.</p>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 text-xs py-8 border-t border-slate-800">
+        <div class="max-w-6xl mx-auto px-4 grid grid-cols-1 md:grid-cols-12 gap-6">
+            <div class="md:col-span-8 space-y-2">
+                <p class="font-bold text-slate-200 text-sm">기이고등학교 (奇異高等學校)</p>
+                <p>주소: 경기도 기이시 구관길 104-2 (우: 18402) | 교무실: 031-740-0000 | 행정실: 031-740-0001</p>
+                <p>팩스: 031-740-0099 | 당직실: 031-740-0004 (야간 연결 전용)</p>
+                <p class="text-[11px] text-slate-600">Copyright © 2026 GII HIGH SCHOOL. All rights reserved.</p>
+            </div>
+            <div class="md:col-span-4 flex flex-col justify-between items-start md:items-end space-y-2">
+                <div class="flex gap-2">
+                    <button onclick="triggerStaticSound(0.8)" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded border border-slate-700">개인정보처리방침</button>
+                    <button onclick="openSecretPrompt()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded border border-slate-700">관리자 인증</button>
+                </div>
+                <span class="text-[10px] font-mono text-slate-600">SERVER STATUS: NORMAL (PORT 1998)</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- NOTICE DETAIL MODAL -->
+    <div id="noticeModal" class="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-white rounded max-w-lg w-full p-6 space-y-4 border border-slate-300 shadow-xl relative max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-start border-b border-slate-200 pb-3">
+                <h3 id="modalNoticeTitle" class="font-bold text-base text-slate-900">공지사항</h3>
+                <button onclick="closeNoticeModal()" class="text-slate-400 hover:text-slate-700 font-bold">✕</button>
+            </div>
+            <div class="text-xs text-slate-500 flex justify-between border-b border-slate-100 pb-2 font-mono">
+                <span id="modalNoticeAuthor">작성자: 교무기획부</span>
+                <span id="modalNoticeDate">작성일: 2026-10-27</span>
+            </div>
+            <div id="modalNoticeBody" class="text-xs text-slate-700 leading-relaxed space-y-2 font-sans">
+                <!-- Content inserted dynamically -->
+            </div>
+            <div class="pt-3 border-t border-slate-200 flex justify-end">
+                <button onclick="closeNoticeModal()" class="bg-slate-800 text-white text-xs px-4 py-1.5 rounded hover:bg-slate-700">닫기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECRET PASSWORD PROMPT MODAL -->
+    <div id="secretPromptModal" class="fixed inset-0 bg-black/80 z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-slate-900 border border-slate-700 text-slate-200 rounded max-w-sm w-full p-5 space-y-4 font-mono text-xs">
+            <div class="text-center space-y-1">
+                <i class="fa-solid fa-lock text-red-500 text-2xl mb-2"></i>
+                <h3 class="font-bold text-sm text-white">기이고등학교 학적 및 기밀 서버</h3>
+                <p class="text-[11px] text-slate-400">인과 코드 또는 학생 비밀번호를 입력하십시오.</p>
+            </div>
+
+            <input type="password" id="secretPassInput" placeholder="'기이'를 찾아서..." 
+                onkeydown="if(event.key === 'Enter') verifySecretCode()"
+                class="w-full bg-slate-950 border border-slate-700 rounded px-3 py-2 text-center text-red-400 font-bold outline-none focus:border-red-600">
+
+            <div class="flex gap-2">
+                <button onclick="closeSecretPrompt()" class="w-1/2 bg-slate-800 text-slate-400 py-1.5 rounded hover:bg-slate-700">취소</button>
+                <button onclick="verifySecretCode()" class="w-1/2 bg-red-900 text-white py-1.5 rounded hover:bg-red-800 font-bold">인증하기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application Engine JavaScript -->
+    <script>
+        // Web Audio API Sound Synthesizer (No external audio links required)
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        // RETRO POPUP SYSTEM (Replaces alert)
+        function showRetroPopUp(message, title = "기이고등학교 안내", iconClass = "fa-solid fa-triangle-exclamation text-amber-500") {
+            triggerStaticSound(0.15);
+            document.getElementById('retroPopUpTitle').innerHTML = title;
+            document.getElementById('retroPopUpMessage').innerHTML = message;
+            document.getElementById('retroPopUpIcon').innerHTML = `<i class="${iconClass}"></i>`;
+            document.getElementById('retroPopUpModal').classList.remove('hidden');
+        }
+
+        function closeRetroPopUp() {
+            document.getElementById('retroPopUpModal').classList.add('hidden');
+        }
+
+        // 1. CRT Static Sound Effect
+        function triggerStaticSound(duration = 0.3) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            
+            const bufferSize = audioCtx.sampleRate * duration;
+            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+            const output = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) {
+                output[i] = Math.random() * 2 - 1;
+            }
+
+            const whiteNoise = audioCtx.createBufferSource();
+            whiteNoise.buffer = buffer;
+
+            const filter = audioCtx.createBiquadFilter();
+            filter.type = 'bandpass';
+            filter.frequency.value = 1000;
+
+            const gain = audioCtx.createGain();
+            gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+
+            whiteNoise.connect(filter);
+            filter.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            whiteNoise.start();
+        }
+
+        // 2. Glitch Drone High Pitch Beep
+        function triggerGlitchBeep() {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+            osc.frequency.setValueAtTime(880, audioCtx.currentTime + 0.05);
+            osc.frequency.setValueAtTime(220, audioCtx.currentTime + 0.1);
+
+            gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.25);
+
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.25);
+        }
+
+        // 3. MINSU SCREAM SOUND EFFECT
+        function triggerMinsuScreamSound() {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+
+            // Low frequency rumble oscillator
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(110, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.3);
+            osc.frequency.exponentialRampToValueAtTime(55, audioCtx.currentTime + 1.2);
+
+            gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 1.5);
+
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            osc.start();
+            osc.stop(audioCtx.currentTime + 1.5);
+
+            // Additional Static Distortion
+            triggerStaticSound(1.5);
+        }
+
+        // 3. School Bell Simulation (Distorted)
+        function playSchoolBell() {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const notes = [523.25, 659.25, 587.33, 392.00]; // C E D G
+            notes.forEach((freq, idx) => {
+                setTimeout(() => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                    
+                    // Distort last note eerily
+                    if(idx === 3) osc.frequency.setValueAtTime(freq - 40, audioCtx.currentTime + 0.3);
+
+                    gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.8);
+
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.8);
+                }, idx * 400);
+            });
+        }
+
+        // Static Noise Canvas Renderer
+        const canvas = document.getElementById('staticCanvas');
+        const ctx = canvas.getContext('2d');
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        function renderStatic() {
+            const w = canvas.width;
+            const h = canvas.height;
+            if(w > 0 && h > 0) {
+                const imgData = ctx.createImageData(w, h);
+                const buffer = new Uint32Array(imgData.data.buffer);
+                for (let i = 0; i < buffer.length; i++) {
+                    if (Math.random() < 0.05) {
+                        buffer[i] = 0xffffffff;
+                    }
+                }
+                ctx.putImageData(imgData, 0, 0);
+            }
+            requestAnimationFrame(renderStatic);
+        }
+        renderStatic();
+
+        // Data Models
+        const noticeData = {
+            1: {
+                title: "[안내] 2026학년도 2학기 야간 자율학습 수강 및 하교 수칙",
+                author: "학생안전지도부",
+                date: "2026-10-27",
+                body: `<p>학부모님 안녕하십니까.</p>
+                       <p>최근 하교 시간 이후 학교 주변 안전 강화를 위해 야간 자율학습 조기 귀가 수칙을 안내합니다.</p>
+                       <p class="font-bold text-red-800">1. 밤 10시 정각 최종 퇴교 조치 (이후 교내 잔류 절대 불가)</p>
+                       <p>2. 구관(1998년 봉쇄 구역) 방면 출입문은 오후 6시 이후 완전 폐쇄됩니다.</p>
+                       <p class="glitch-text-hover cursor-pointer" onclick="triggerGlitchBeep()">3. 복도 끝에서 누군가 이름을 부르더라도 돌아보지 말고 정문으로 직진하십시오. <span class="hidden-spoiler">(대답하면 안 됨)</span></p>`
+            },
+            2: {
+                title: "[경고] 구관(1998년 봉쇄 건물) 무단 출입 엄금 안내",
+                author: "행정실",
+                date: "2026-10-24",
+                body: `<p>학생 여러분께 경고합니다.</p>
+                       <p>본교 구관 건물은 1998년 시설 노후화 및 안전상의 이유로 완전 봉쇄된 구역입니다.</p>
+                       <p>최근 일부 학생들이 호기심으로 구관 지하 창문 틈으로 침입을 시도하는 사례가 적발되었습니다.</p>
+                       <p class="font-bold text-red-900">구관 내부는 붕괴 위험이 있을 뿐만 아니라 무전 및 통신이 차단되는 위험 구역입니다.</p>
+                       <p>적발 시 이유 불문 퇴학에 준하는 중징계 처리되며, 구관 내부에서 소리가 들리더라도 절대 접근하지 마십시오.</p>`
+            },
+            3: {
+                title: "[보건] 최근 교내 환각 및 이상 행동 증상 보고에 따른 보건 지침",
+                author: "보건실",
+                date: "2026-10-19",
+                body: `<p>교내 보건실에서 알려드립니다.</p>
+                       <p>최근 야간 자율학습 참여 학생 중 '검은 형체가 벽을 따라 이동한다'거나 '종소리가 멈추지 않는다'는 환각 및 이명 증상을 호소하는 학생이 증가하고 있습니다.</p>
+                       <p>해당 증상은 학업 스트레스로 인한 일시적 수면 장애로 판단되오니, 보건실에서 안정을 취하시기 바랍니다.</p>
+                       <p class="text-slate-400">※ 단, 2학년 4반 학생 중 동일 증상 발생 시 즉시 담임교사에게 보고할 것.</p>`
+            },
+            4: {
+                title: "[행사] 제24회 기이 예술제 전시 작품 모집 안내",
+                author: "예술체육부",
+                date: "2026-10-12",
+                body: `<p>학생들의 창의성과 예술적 감성을 발휘할 제24회 기이 예술제가 개최됩니다.</p>
+                       <p>미술, 사진, 공예 등 다양한 작품을 모집하오니 많은 참여 바랍니다.</p>
+                       <p class="text-slate-500">※ 1998년 이전 기이산 주변을 촬영한 사진은 전시 대상에서 제외됩니다.</p>`
+            },
+            5: {
+                title: "[가정통신문] 학생 안전귀가 지도를 위한 학부모 협조 요청",
+                author: "학생지적부",
+                date: "2026-10-25",
+                body: `<p>학부모님께 드립니다.</p>
+                       <p>최근 자녀들의 귀가 시간이 늦어지는 경우가 발생하고 있습니다.</p>
+                       <p>특히 2학년 학생들의 경우 귀가 시간이 지연될 경우 즉시 학교 당직실(031-740-0004)로 연락 주시기 바랍니다.</p>`
+            },
+            6: {
+                title: "[가정통신문] 2학년 4반 학생 개별 면담 실시 건",
+                author: "2학년부",
+                date: "2026-10-15",
+                body: `<p>2학년 4반 학부모님 대상입니다.</p>
+                       <p>학급 내 환경 재정비 및 심리 상담을 위한 개별 면담이 진행될 예정입니다.</p>`
+            },
+            7: {
+                title: "[가정통신문] 2026학년도 동복 착용 안내",
+                author: "학생생활부",
+                date: "2026-10-01",
+                body: `<p>기온 차가 심해짐에 따라 10월 13일부터 동복 착용을 권장합니다.</p>`
+            }
+        };
+
+        // Navigation Switching
+        function switchTab(tabId) {
+            triggerStaticSound(0.1);
+
+            if(tabId === 'sitemap') {
+                showRetroPopUp('<b>기이고등학교 사이트맵:</b><br>- 학교소개<br>- 공지사항<br>- 오늘의 급식<br>- 학교 갤러리<br>- 학생 익명 게시판<br>- [비밀] 학적부 조회', '사이트맵 안내', 'fa-solid fa-sitemap text-blue-600');
+                return;
+            }
+            if(tabId === 'loginModal') {
+                openSecretPrompt();
+                return;
+            }
+
+            // Hide all tabs
+            const tabs = ['home', 'notice', 'principal', 'lunch', 'gallery', 'qna', 'secret'];
+            tabs.forEach(t => {
+                const el = document.getElementById(`tab-${t}`);
+                if (el) el.classList.add('hidden');
+            });
+
+            // Show selected
+            const activeTab = document.getElementById(`tab-${tabId}`);
+            if (activeTab) activeTab.classList.remove('hidden');
+
+            // Render contents if applicable
+            if (tabId === 'notice') renderNoticeTable();
+            if (tabId === 'lunch') renderLunchCalendar();
+            if (tabId === 'gallery') renderGallery();
+            if (tabId === 'qna') renderQnaBoard();
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Render Notice Table
+        function renderNoticeTable() {
+            const tbody = document.getElementById('noticeTableBody');
+            tbody.innerHTML = '';
+            
+            Object.keys(noticeData).forEach(id => {
+                const item = noticeData[id];
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 cursor-pointer transition border-b border-slate-100";
+                tr.onclick = () => openNoticeModal(id);
+                tr.innerHTML = `
+                    <td class="py-2.5 px-3 text-center font-mono">${id}</td>
+                    <td class="py-2.5 px-3 font-medium text-slate-800">${item.title}</td>
+                    <td class="py-2.5 px-3 text-center text-slate-500">${item.author}</td>
+                    <td class="py-2.5 px-3 text-center font-mono text-slate-400">${item.date}</td>
+                    <td class="py-2.5 px-3 text-center font-mono text-slate-400">${Math.floor(Math.random()*200)+50}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Notice Modal Handlers
+        function openNoticeModal(id) {
+            triggerStaticSound(0.15);
+            const data = noticeData[id];
+            if(!data) return;
+
+            document.getElementById('modalNoticeTitle').innerText = data.title;
+            document.getElementById('modalNoticeAuthor').innerText = `작성자: ${data.author}`;
+            document.getElementById('modalNoticeDate').innerText = `작성일: ${data.date}`;
+            document.getElementById('modalNoticeBody').innerHTML = data.body;
+
+            document.getElementById('noticeModal').classList.remove('hidden');
+        }
+
+        function closeNoticeModal() {
+            document.getElementById('noticeModal').classList.add('hidden');
+        }
+
+        // Render Lunch Calendar
+        function renderLunchCalendar() {
+            const grid = document.getElementById('lunchCalendarGrid');
+            grid.innerHTML = '';
+
+            const lunches = [
+                { day: '10.26 (월)', menu: ['카레라이스', '팽이버섯국', '오징어튀김', '포도'] },
+                { day: '10.27 (화)', menu: ['점보돈까스', '스프', '양배추샐러드', '모닝빵'] },
+                { day: '10.28 (수)', menu: ['비빔밥', '콩나물국', '계란후라이', '식혜'] },
+                { day: '10.29 (목) [오늘]', menu: ['현미찹쌀밥', '쇠고기탕국', '돈육불고기', '배추김치'], special: true },
+                { day: '10.30 (금)', menu: ['[내용 없음]', '기록 삭제됨', '제공 불가'], eerie: true }
+            ];
+
+            lunches.forEach(item => {
+                const box = document.createElement('div');
+                box.className = `p-3 rounded border font-mono ${item.special ? 'bg-slate-100 border-slate-400' : 'bg-white border-slate-200'} ${item.eerie ? 'hover:border-red-600 cursor-pointer' : ''}`;
+                if(item.eerie) {
+                    box.onclick = () => triggerLunchJumpscare();
+                }
+
+                box.innerHTML = `
+                    <div class="font-bold text-xs border-b pb-1 mb-1.5 ${item.eerie ? 'text-red-700' : 'text-slate-700'}">${item.day}</div>
+                    <ul class="space-y-1 text-[11px] text-slate-600">
+                        ${item.menu.map(m => `<li>· ${m}</li>`).join('')}
+                    </ul>
+                `;
+                grid.appendChild(box);
+            });
+        }
+
+        // Render Gallery
+        function renderGallery() {
+            const grid = document.getElementById('galleryGrid');
+            grid.innerHTML = '';
+
+            const photos = [
+                { title: '2026 체육대회 개막식', img: 'https://images.unsplash.com/photo-1526676037777-05a232554f77?w=500&auto=format&fit=crop&q=80' },
+                { title: '과학실험실 탐구활동', img: 'https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=500&auto=format&fit=crop&q=80' },
+                { title: '구관 방면 펜스 정비 (접근금지)', img: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=500&auto=format&fit=crop&q=80', corrupt: true },
+                { title: '도서관 야간 자율학습', img: 'https://images.unsplash.com/photo-1521587760476-6c12a4b040da?w=500&auto=format&fit=crop&q=80' },
+                { title: '제23회 졸업식 기념사진', img: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=500&auto=format&fit=crop&q=80' },
+                { title: '2학년 4반 단체사진 (2026)', img: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=500&auto=format&fit=crop&q=80', corruptFace: true }
+            ];
+
+            photos.forEach(item => {
+                const div = document.createElement('div');
+                div.className = "bg-white border border-slate-200 rounded overflow-hidden group cursor-pointer hover:shadow-md transition";
+                if(item.corrupt) {
+                    div.onclick = () => triggerPhotoGlitch();
+                }
+                if(item.corruptFace) {
+                    div.onclick = () => showRetroPopUp('사진 속 2학년 4반 학생 중 1명의 얼굴이 피사체 분석 불가 상태입니다.', '보안 오류', 'fa-solid fa-user-slash text-red-600');
+                }
+
+                div.innerHTML = `
+                    <div class="aspect-video bg-slate-900 overflow-hidden relative">
+                        <img src="${item.img}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300 filter grayscale">
+                        ${item.corrupt ? `<div class="absolute inset-0 bg-red-950/30 flex items-center justify-center font-mono text-red-200 text-xs font-bold">WARNING</div>` : ''}
+                    </div>
+                    <div class="p-2.5 text-xs font-medium text-slate-800">${item.title}</div>
+                `;
+                grid.appendChild(div);
+            });
+        }
+
+        // Render QnA Board
+        let qnaPosts = [
+            { id: 3, title: "2학년 4반 김민수 어디 갔는지 아는 사람?", author: "익명", date: "23:14", text: "어제 야자 할 때 화장실 간다 그러고 가방도 그대로 두고 안 돌아옴... 담임선생님도 계속 피하시는데 진짜 무슨 일 있음?" },
+            { id: 2, title: "밤 9시 반쯤 구관 쪽에서 창문 두드리는 소리 들림", author: "야자생", date: "21:40", text: "신관 3층 화장실에서 구관 쪽 바라보는데 지하 창문 안쪽에서 손바닥으로 유리창 계속 치는 소리 남. 경비 아저씨한테 말하니까 그냥 집에 가래." },
+            { id: 1, title: "오늘 급식에 나온 배추김치 맛이 좀 이상하지 않았냐", author: "익명", date: "13:20", text: "쇠 맛 같은 거 나던데 나만 그럼?" }
+        ];
+
+        function renderQnaBoard() {
+            const container = document.getElementById('qnaList');
+            container.innerHTML = '';
+
+            qnaPosts.forEach(post => {
+                const card = document.createElement('div');
+                card.className = "border border-slate-200 rounded p-3 bg-slate-50 space-y-1 text-xs";
+                card.innerHTML = `
+                    <div class="flex justify-between items-center font-bold text-slate-800">
+                        <span>${post.title}</span>
+                        <span class="font-mono text-[10px] text-slate-400">${post.author} | ${post.date}</span>
+                    </div>
+                    <p class="text-slate-600 leading-relaxed">${post.text}</p>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function openNewQnaModal() {
+            const title = prompt('글 제목을 입력하세요:');
+            if(!title) return;
+
+            // Trigger "무서워" Easter Egg
+            if(title.includes('무서워')) {
+                triggerMinsuJumpscare(title);
+                return;
+            }
+
+            const text = prompt('내용을 입력하세요:');
+            if(!text) return;
+
+            qnaPosts.unshift({
+                id: Date.now(),
+                title: title,
+                author: '익명',
+                date: '방금',
+                text: text
+            });
+
+            // Check trigger keyword
+            if(title.includes('1998') || text.includes('구관') || text.includes('김민수')) {
+                triggerGlitchBeep();
+                showRetroPopUp('게시물이 등록되었으나 교내 필터링 정책에 의해 검토 대기 상태로 전환되었습니다.', '검토 대기', 'fa-solid fa-filter text-amber-600');
+            }
+
+            renderQnaBoard();
+        }
+
+        // MINSU JUMPSCARE TRIGGER
+        function triggerMinsuJumpscare(userTitle) {
+            triggerMinsuScreamSound();
+
+            const jumpscareEl = document.getElementById('minsuJumpscareOverlay');
+            jumpscareEl.style.display = 'flex';
+
+            setTimeout(() => {
+                jumpscareEl.style.display = 'none';
+
+                // Insert corrupted post to board
+                qnaPosts.unshift({
+                    id: Date.now(),
+                    title: `[삭제된 글] ${userTitle}`,
+                    author: '???',
+                    date: '방금',
+                    text: '<span class="text-red-700 font-mono font-bold">나 도 무 서 워 나 도 무 서 워 나 도 무 서 워</span>'
+                });
+                renderQnaBoard();
+
+                showRetroPopUp('게시글 저장 중 예외 오류 발생. 사용자 통신 세션이 구관 서버에 연결되었습니다.', 'fatal error: minsu', 'fa-solid fa-bug text-red-600');
+            }, 2500);
+        }
+
+        // CCTV Camera Switching Simulation
+        const cctvCams = [
+            { name: "CAM-01 중앙현관", img: "https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=600&auto=format&fit=crop&q=80" },
+            { name: "CAM-02 2층 복도 (2학년 4반 앞)", img: "https://images.unsplash.com/photo-1509062522246-3755977927d7?w=600&auto=format&fit=crop&q=80" },
+            { name: "CAM-03 구관 연결 통로 (폐쇄)", img: "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=600&auto=format&fit=crop&q=80", glitch: true }
+        ];
+        let currentCamIdx = 0;
+
+        function cycleCCTVCam() {
+            triggerStaticSound(0.2);
+            currentCamIdx = (currentCamIdx + 1) % cctvCams.length;
+            const cam = cctvCams[currentCamIdx];
+
+            document.getElementById('cctvCamName').innerText = cam.name;
+            document.getElementById('cctvImage').src = cam.img;
+
+            const glitchOverlay = document.getElementById('cctvGlitchText');
+            if(cam.glitch) {
+                glitchOverlay.classList.remove('hidden');
+                triggerGlitchBeep();
+            } else {
+                glitchOverlay.classList.add('hidden');
+            }
+        }
+
+        // Live Clock
+        setInterval(() => {
+            const now = new Date();
+            const timeStr = now.toTimeString().split(' ')[0];
+            document.getElementById('cctvTime').innerText = timeStr;
+            const dateStr = `2026.10.29 (목) ${timeStr}`;
+            const clockEl = document.getElementById('liveClock');
+            if(clockEl) clockEl.innerText = dateStr;
+        }, 1000);
+
+        // EASTER EGGS & HORROR TRIGGERS
+        function triggerEmblemGlitch() {
+            triggerGlitchBeep();
+            document.getElementById('emergencyBar').classList.remove('hidden');
+            showRetroPopUp('기이고등학교 교장에서 숨겨진 인과 코드가 감지되었습니다.<br>힌트: <b>"기이"를 찾아서...</b>', '인과 코드 감지', 'fa-solid fa-key text-red-600');
+        }
+
+        function triggerMealGlitch() {
+            triggerStaticSound(0.4);
+            showRetroPopUp('삭제된 급식 메뉴:<br>[인육 및 미확인 육류 공급 시도 적발로 인한 전량 폐기건 (1998)]', '급식 기록 보존', 'fa-solid fa-skull text-red-700');
+        }
+
+        function triggerMissingStudentPopup() {
+            triggerGlitchBeep();
+            openNoticeModal(1);
+            showRetroPopUp('2학년 4반 김민수 학생은 10월 22일 이후 학교 공식 기록에서 말소되었습니다.', '출석 기록 경고', 'fa-solid fa-user-xmark text-red-600');
+        }
+
+        function triggerLunchJumpscare() {
+            triggerGlitchFlash('10월 30일에는 급식이 제공되지 않습니다.<br>이미 모두 구관 지하실로 내려갔습니다.', 2000);
+        }
+
+        function triggerPhotoGlitch() {
+            triggerGlitchFlash('구관 내부 촬영 불가.<br>렌즈 너머로 누군가 당신을 바라보고 있습니다.', 1800);
+        }
+
+        function triggerGlitchFlash(messageHtml, duration = 1500) {
+            triggerStaticSound(duration / 1000);
+            const overlay = document.getElementById('glitchFlashOverlay');
+            const content = document.getElementById('jumpscareContent');
+            content.innerHTML = `<h1 class="text-xl sm:text-3xl font-mono font-bold leading-relaxed">${messageHtml}</h1>`;
+            overlay.style.display = 'flex';
+
+            setTimeout(() => {
+                overlay.style.display = 'none';
+            }, duration);
+        }
+
+        // Secret Password Verification
+        function openSecretPrompt() {
+            triggerStaticSound(0.1);
+            document.getElementById('secretPromptModal').classList.remove('hidden');
+        }
+
+        function closeSecretPrompt() {
+            document.getElementById('secretPromptModal').classList.add('hidden');
+        }
+
+        function verifySecretCode() {
+            const input = document.getElementById('secretPassInput').value.trim();
+            if(input === '1998' || input === '김민수' || input === '204' || input === '기이') {
+                closeSecretPrompt();
+                triggerGlitchFlash('기밀 문서 접근 권한 승인됨.<br>1998년 봉쇄 사건 기록을 불러옵니다...', 1200);
+                setTimeout(() => {
+                    switchTab('secret');
+                }, 1300);
+            } else {
+                triggerGlitchBeep();
+                showRetroPopUp('접근 거부: 잘못된 인증 코드입니다.<br>힌트: "기이"를 찾아서...', '인증 실패', 'fa-solid fa-shield-halved text-red-600');
+            }
+        }
+
+        // Header Search Input Handling
+        function handleSearch() {
+            const query = document.getElementById('searchInput').value.trim();
+            if(!query) return;
+
+            if(query === '김민수' || query === '1998' || query === '구관' || query === '기이') {
+                verifySecretCodeQuery(query);
+            } else if(query.includes('급식')) {
+                switchTab('lunch');
+            } else if(query.includes('공지')) {
+                switchTab('notice');
+            } else {
+                showRetroPopUp(`'${query}'에 대한 검색 결과가 없습니다.`, '검색 결과 없음', 'fa-solid fa-magnifying-glass text-slate-500');
+            }
+        }
+
+        function verifySecretCodeQuery(code) {
+            triggerGlitchFlash(`검색어 [${code}] 관련 보안 등급 4급 문서 감지됨.`, 1000);
+            setTimeout(() => {
+                document.getElementById('secretPassInput').value = code;
+                openSecretPrompt();
+            }, 1100);
+        }
+
+        // Classified Facility Modal
+        function openClassifiedModal(code) {
+            triggerGlitchBeep();
+            showRetroPopUp(`[구관 시설 안내 - ${code}]<br>현재 구관은 완전 봉쇄되어 있습니다.<br>지하 1층 및 지하시설은 열쇠가 철거되었으며 내부에 침입할 경우 외부에서 문이 닫힙니다.`, '구관 봉쇄 안내', 'fa-solid fa-ban text-red-600');
+        }
+    </script>
+</body>
+</html>
