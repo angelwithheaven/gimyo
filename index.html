@@ -462,7 +462,7 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
 
     <!-- VINTAGE POPUP ALERT WINDOW MODAL -->
     <div id="retroPopUpModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center hidden p-4">
-        <div class="bg-slate-200 border-2 border-slate-400 rounded-sm shadow-2xl max-w-sm w-full font-sans text-xs text-slate-800">
+        <div id="retroPopUpWindow" class="relative overflow-hidden bg-slate-200 border-2 border-slate-400 rounded-sm shadow-2xl max-w-sm w-full font-sans text-xs text-slate-800">
             <!-- Titlebar -->
             <div class="bg-gradient-to-r from-slate-800 to-slate-900 text-white px-2 py-1 font-bold flex justify-between items-center select-none">
                 <span flex items-center gap-1.5 id="retroPopUpTitle">
@@ -1082,7 +1082,18 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
         }
 
         function closeRetroPopUp() {
-            document.getElementById('retroPopUpModal').classList.add('hidden');
+            if (mealGlitchTimeout) {
+                clearTimeout(mealGlitchTimeout);
+                mealGlitchTimeout = null;
+            }
+            const modal = document.getElementById('retroPopUpModal');
+            if (modal) {
+                modal.classList.add('hidden');
+                const wall = modal.querySelector('#mealGlitchWordWall');
+                if (wall) wall.remove();
+                const closeButton = modal.querySelector('button[onclick="closeRetroPopUp()"]');
+                if (closeButton) closeButton.style.zIndex = '';
+            }
         }
 
         // 1. CRT Static Sound Effect
@@ -2032,9 +2043,30 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
             showRetroPopUp("기이고등학교의 '기이'를 찾아냈습니다...<br>[설립 연도 또는 그의 이니셜]", '인과 코드 감지', 'fa-solid fa-key text-red-600');
         }
 
+        let mealGlitchTimeout = null;
+
         function triggerMealGlitch() {
             triggerStaticSound(0.4);
-            showRetroPopUp('삭제된 급식 메뉴:<br>[인육 및 미확인 육류 공급 시도 적발로 인한 전량 폐기건 (1998)]', '급식 기록 보존', 'fa-solid fa-skull text-red-700');
+            showRetroPopUp('삭제된 급식 메뉴:<br>미확인 육류 공급 시도 적발로 인한 전량 폐기건', '급식 기록 보존', 'fa-solid fa-skull text-red-700');
+            if (mealGlitchTimeout) clearTimeout(mealGlitchTimeout);
+            mealGlitchTimeout = window.setTimeout(() => {
+                const modal = document.getElementById('retroPopUpModal');
+                const popup = modal && modal.querySelector('#retroPopUpWindow');
+                if (!modal || modal.classList.contains('hidden') || !popup) return;
+                const wall = document.createElement('div');
+                wall.id = 'mealGlitchWordWall';
+                wall.setAttribute('aria-hidden', 'true');
+                wall.style.cssText = 'position:absolute;inset:0;z-index:5;overflow:hidden;display:flex;flex-direction:column;justify-content:space-around;gap:0;background:rgba(15,0,0,.97);color:#ff1717;font-family:monospace;font-size:clamp(13px,3.3vw,20px);font-weight:900;line-height:1.35;letter-spacing:.04em;overflow-wrap:anywhere;word-break:break-all;text-shadow:0 0 5px #ff0000;pointer-events:none;';
+                for (let row = 0; row < 14; row++) {
+                    const line = document.createElement('div');
+                    line.textContent = '인육'.repeat(24);
+                    line.style.cssText = 'flex:0 0 auto;white-space:nowrap;margin-left:-.5em;transform:translateX(' + (row % 2 ? '-.6em' : '0') + ');';
+                    wall.appendChild(line);
+                }
+                popup.appendChild(wall);
+                const closeButton = popup.querySelector('button[onclick="closeRetroPopUp()"]');
+                if (closeButton) closeButton.style.zIndex = '10';
+            }, 2000);
         }
 
         function triggerMissingStudentPopup() {
