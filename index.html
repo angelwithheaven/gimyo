@@ -1822,11 +1822,12 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
                         wall.appendChild(line);
                     }
                     blackout.appendChild(wall);
-                    if(stage===0) {
+                    if(stage<=2) {
                         const photo=document.createElement('img');
                         photo.src='https://angelwithheaven.github.io/gimyo/1793265706938.png';
                         photo.alt='김민수의 증명사진';
-                        photo.style.cssText='position:absolute;z-index:2;left:50%;top:50%;transform:translate(-50%,-50%);width:min(66vw,calc(66vh * 2 / 3),420px);max-height:90vh;object-fit:contain;background:#000;';
+                        const photoSize=stage===0?'width:min(66vw,calc(66vh * 2 / 3),420px);':stage===1?'width:min(74vw,calc(74vh * 2 / 3),470px);':'width:min(82vw,calc(82vh * 2 / 3),520px);';
+                        photo.style.cssText='position:absolute;z-index:2;left:50%;top:50%;transform:translate(-50%,-50%);'+photoSize+'max-height:90vh;object-fit:contain;background:#000;';
                         blackout.appendChild(photo);
                     }
                 }
