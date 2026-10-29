@@ -1951,7 +1951,8 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
                                     hand.remove();
                                 }
                             };
-                            hand.src = handSources[Math.random() < .5 ? 0 : 1];
+                            const selectedHand = handSources[Math.random() < .5 ? 0 : 1];
+                            hand.src = 'https://angelwithheaven.github.io/gimyo/' + selectedHand.split('/').map(part => encodeURIComponent(part)).join('/');
                             overlay.appendChild(hand);
                             document.body.classList.add('minsu-impact');
                             window.setTimeout(() => document.body.classList.remove('minsu-impact'), 95);
@@ -2013,6 +2014,23 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
                 startPrankHandAttack();
             }, 5000);
         }
+
+        // Reduce accidental refreshes while either horror lock is active.
+        // Browsers do not allow websites to disable their own toolbar refresh button.
+        document.addEventListener('keydown', event => {
+            let locked = false;
+            try {
+                locked = sessionStorage.getItem('gimyo_minsu_blackout') === '1' ||
+                    sessionStorage.getItem('gimyo_prank_hands_reload') === '1';
+            } catch (e) {}
+            if (!locked) return;
+            const key = String(event.key || '').toLowerCase();
+            if (key === 'f5' || ((event.ctrlKey || event.metaKey) && key === 'r')) {
+                event.preventDefault();
+                event.stopPropagation();
+                if (event.stopImmediatePropagation) event.stopImmediatePropagation();
+            }
+        }, true);
 
         // EASTER EGGS & HORROR TRIGGERS
         function triggerEmblemGlitch() {
