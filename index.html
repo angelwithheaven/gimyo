@@ -1410,43 +1410,45 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
         }
 
         // Render Lunch Calendar
-        let lunchGlitchInterval = null;
+        let lunchGlitchTimeout = null;
+        let lunchGlitchResetTimeout = null;
 
         function renderLunchCalendar() {
             const grid = document.getElementById('lunchCalendarGrid');
             grid.innerHTML = '';
-            if (lunchGlitchInterval) clearInterval(lunchGlitchInterval);
+            clearTimeout(lunchGlitchTimeout);
+            clearTimeout(lunchGlitchResetTimeout);
 
             const lunches = [
                 { day: '10.01 (목)', menu: ['현미밥', '소고기미역국', '미역볶음', '닭갈비', '배추김치'] },
                 { day: '10.02 (금)', menu: ['차조밥', '얼큰콩나물국', '생선까스', '타르타르소스', '깍두기'] },
-                { day: '10.05 (월)', menu: ['기장밥', '된장찌개', '제육볶음', '상추쌈', '배추김치'] },
-                { day: '10.06 (화)', menu: ['흑미밥', '닭곰탕', '미역볶음', '두부조림', '깍두기'] },
+                { day: '10.05 (월)', menu: ['기장밥', '된장찌개', '코다리찜', '시금치나물', '배추김치'] },
+                { day: '10.06 (화)', menu: ['흑미밥', '닭곰탕', '돈육불고기', '두부조림', '깍두기'] },
                 { day: '10.07 (수)', menu: ['잔치국수', '김가루주먹밥', '고구마맛탕', '단무지', '요구르트'] },
                 { day: '10.08 (목)', menu: ['현미찹쌀밥', '순두부찌개', '간장불고기', '미역볶음', '배추김치'] },
-                { day: '10.09 (금)', menu: ['한글날 대체 급식 기록', '흰쌀밥', '어묵국', '떡갈비', '깍두기'], eerie: true },
-                { day: '10.12 (월)', menu: ['보리밥', '감자수제비국', '고등어구이', '콩나물무침', '배추김치'] },
-                { day: '10.13 (화)', menu: ['차수수밥', '육개장', '미역볶음', '계란말이', '깍두기'] },
+                { day: '10.12 (월)', menu: ['보리밥', '감자수제비국', '고등어구이', '콩나물무침', '깍두기'] },
+                { day: '10.13 (화)', menu: ['차수수밥', '육개장', '코다리찜', '계란말이', '배추김치'] },
                 { day: '10.14 (수)', menu: ['김치볶음밥', '유부장국', '새우튀김', '양배추샐러드', '귤'] },
-                { day: '10.15 (목)', menu: ['현미밥', '북엇국', '돈육불고기', '미역볶음', '배추김치'] },
+                { day: '10.15 (목)', menu: ['현미밥', '북엇국', '돈육불고기', '미역볶음', '깍두기'] },
                 { day: '10.16 (금)', menu: ['짜장밥', '짬뽕국', '군만두', '단무지', '요구르트'] },
-                { day: '10.19 (월)', menu: ['기장밥', '김치찌개', '간장찜닭', '미역볶음', '깍두기'] },
-                { day: '10.20 (화)', menu: ['흑미밥', '들깨무채국', '돈까스', '양배추샐러드', '배추김치'] },
+                { day: '10.19 (월)', menu: ['기장밥', '김치찌개', '간장찜닭', '코다리찜', '배추김치'] },
+                { day: '10.20 (화)', menu: ['흑미밥', '들깨무채국', '돈까스', '양배추샐러드', '귤'] },
                 { day: '10.21 (수)', menu: ['비빔밥', '미소장국', '계란후라이', '미역볶음', '식혜'] },
-                { day: '10.22 (목)', menu: ['현미찹쌀밥', '쇠고기탕국', '돈육불고기', '미역볶음', '배추김치'], eerie: true },
-                { day: '10.23 (금)', menu: ['카레라이스', '팽이버섯국', '오징어튀김', '포도', '기록상 결식자: 1명'], eerie: true },
-                { day: '10.26 (월)', menu: ['카레라이스', '팽이버섯국', '오징어튀김', '포도'] },
-                { day: '10.27 (화)', menu: ['점보돈까스', '스프', '양배추샐러드', '모닝빵'] },
-                { day: '10.28 (수)', menu: ['비빔밥', '콩나물국', '계란후라이', '식혜'] },
-                { day: '10.29 (목) [오늘]', menu: ['현미찹쌀밥', '쇠고기탕국', '돈육불고기', '배추김치'], special: true },
-                { day: '10.30 (금)', menu: ['[내용 없음]', '기록 삭제됨', '제공 불가'], eerie: true }
+                { day: '10.22 (목)', menu: ['현미찹쌀밥', '쇠고기탕국', '돈육불고기', '감자채볶음', '배추김치'] },
+                { day: '10.23 (금)', menu: ['카레라이스', '팽이버섯국', '오징어튀김', '코다리찜', '포도'] },
+                { day: '10.26 (월)', menu: ['수수밥', '얼갈이된장국', '고추장불고기', '미역볶음', '깍두기'] },
+                { day: '10.27 (화)', menu: ['차조밥', '만둣국', '생선까스', '모닝빵', '배추김치'] },
+                { day: '10.28 (수)', menu: ['오므라이스', '맑은우동국물', '치킨너겟', '마카로니샐러드', '귤'] },
+                { day: '10.29 (목) [오늘]', menu: ['현미찹쌀밥', '쇠고기탕국', '돈육불고기', '미역줄기볶음', '깍두기'], special: true },
+                { day: '10.30 (금)', menu: ['기록 확인 불가', '제공 메뉴 미등록', '급식실 확인 요망'], eerie: true }
             ];
 
             const corruptedMenus = {
                 '미역볶음': '머리카락볶음',
-                '소고기미역국': '소고기… 미확인 국물',
-                '배추김치': '검은 종이 조각',
-                '포도': '작은 보랏빛 눈알'
+                '코다리찜': '다리찜',
+                '돈육불고기': '인육불고기',
+                '모닝빵': '눈알빵',
+                '귤': '땀'
             };
 
             lunches.forEach(item => {
@@ -1468,18 +1470,23 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
                 grid.appendChild(box);
             });
 
-            let glitchOn = false;
-            lunchGlitchInterval = setInterval(() => {
-                glitchOn = !glitchOn;
-                document.querySelectorAll('.lunch-menu-glitch').forEach(el => {
-                    const normal = el.dataset.normal;
-                    const corrupt = el.dataset.corrupt;
-                    el.textContent = '· ' + (glitchOn ? corrupt : normal);
-                    el.classList.toggle('text-red-700', glitchOn);
-                    el.classList.toggle('font-bold', glitchOn);
-                    el.classList.toggle('animate-pulse', glitchOn);
-                });
-            }, 10000);
+            const runRandomMenuGlitch = () => {
+                const candidates = Array.from(grid.querySelectorAll('.lunch-menu-glitch'))
+                    .filter(el => el.dataset.normal && el.dataset.corrupt);
+                if (!candidates.length) return;
+
+                const chosen = candidates[Math.floor(Math.random() * candidates.length)];
+                chosen.textContent = '· ' + chosen.dataset.corrupt;
+                chosen.classList.add('text-red-700', 'font-bold');
+
+                lunchGlitchResetTimeout = setTimeout(() => {
+                    chosen.textContent = '· ' + chosen.dataset.normal;
+                    chosen.classList.remove('text-red-700', 'font-bold');
+                    lunchGlitchTimeout = setTimeout(runRandomMenuGlitch, 5000 + Math.random() * 7000);
+                }, 3000);
+            };
+
+            lunchGlitchTimeout = setTimeout(runRandomMenuGlitch, 5000 + Math.random() * 7000);
         }
 
         // Render Gallery
