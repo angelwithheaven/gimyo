@@ -89,37 +89,76 @@
         }
 
         .minsu-monster {
-            animation: creepShake 0.08s infinite;
+            width: 100%;
+            min-height: 100vh;
+            animation: scareJolt .055s steps(2,end) infinite;
         }
-        /* Original CSS/SVG creature: no emoji, stock art, or borrowed character design. */
+        /* Original SVG eyeball + deliberately abrupt, full-screen analog-horror motion. */
+        #minsuJumpscareOverlay {
+            background: #000;
+            overflow: hidden;
+            isolation: isolate;
+        }
+        #minsuJumpscareOverlay::before {
+            content: "";
+            position: absolute; inset: -20%;
+            z-index: -1;
+            background: repeating-linear-gradient(0deg, transparent 0 3px, rgba(255,0,0,.22) 4px, transparent 5px);
+            animation: redSignal 0.075s steps(2,end) infinite;
+        }
         .minsu-face-art {
             position: relative;
-            width: clamp(19rem, 78vw, 48rem);
+            width: min(118vw, 118vh);
             aspect-ratio: 1 / 1;
-            filter: contrast(1.7) drop-shadow(0 0 35px #5c0000);
-            animation: eyeLurch .09s steps(2,end) infinite;
+            flex: 0 0 auto;
+            filter: contrast(2.2) brightness(.88) drop-shadow(0 0 42px #a00000);
+            animation: eyeLurch .16s steps(2,end) infinite;
             transform-origin: center;
         }
-        .minsu-face-art svg { display:block; width:100%; height:100%; overflow:visible; }
-        .minsu-face-art .rolling-pupil { transform-origin: 50% 50%; animation: pupilRoll .42s steps(5,end) infinite; }
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        @keyframes eyeLurch {
-            0% { transform:translate(0,0) rotate(0deg) scale(1); filter:contrast(1.5); }
-            25% { transform:translate(-3px,2px) rotate(-.7deg) scale(1.015); filter:contrast(2.2) brightness(.82); }
-            50% { transform:translate(2px,-1px) rotate(.5deg) scale(.99); filter:contrast(1.7); }
-            100% { transform:translate(1px,1px) rotate(-.2deg) scale(1.025); filter:contrast(2.4) brightness(.7); }
+        #finalMinsuOverlay .minsu-face-art {
+            width: min(76vw, 76vh);
+            animation: finalEyePulse .22s steps(2,end) infinite;
         }
-        @keyframes pupilRoll { 0% { transform:translate(-43px,-12px) rotate(-20deg); } 24% { transform:translate(38px,-20px) rotate(65deg); } 49% { transform:translate(18px,35px) rotate(160deg); } 73% { transform:translate(-35px,20px) rotate(245deg); } 100% { transform:translate(-43px,-12px) rotate(340deg); } }
+        .minsu-face-art svg { display:block; width:100%; height:100%; overflow:visible; }
+        .minsu-face-art .rolling-pupil { transform-origin: 50% 50%; animation: pupilRoll .27s steps(4,end) infinite; }
+        @keyframes scareJolt {
+            0% { transform: translate(0,0) scale(1); }
+            20% { transform: translate(-12px,8px) scale(1.025); }
+            40% { transform: translate(15px,-10px) scale(1.045); }
+            60% { transform: translate(-8px,-13px) scale(1.015); }
+            80% { transform: translate(11px,12px) scale(1.04); }
+            100% { transform: translate(0,0) scale(1); }
+        }
+        @keyframes eyeLurch {
+            0% { transform: translate(0,0) scale(.38) rotate(-9deg); filter: contrast(3) brightness(.45); }
+            12% { transform: translate(-4vw,2vh) scale(1.12) rotate(3deg); filter: contrast(2.8) brightness(1.2); }
+            25% { transform: translate(3vw,-2vh) scale(.94) rotate(-2deg); filter: contrast(3.2) invert(.18); }
+            42% { transform: translate(-2vw,1vh) scale(1.18) rotate(4deg); filter: contrast(2.6) brightness(.65); }
+            60% { transform: translate(2vw,2vh) scale(1.03) rotate(-3deg); filter: contrast(3.4) invert(.35); }
+            78% { transform: translate(-3vw,-1vh) scale(1.2) rotate(2deg); filter: contrast(2.8) brightness(1.1); }
+            100% { transform: translate(0,0) scale(1.08) rotate(-1deg); filter: contrast(3) brightness(.7); }
+        }
+        @keyframes finalEyePulse {
+            0%,100% { transform: scale(.96) translate(0,0); filter: contrast(2.4) brightness(.7); }
+            45% { transform: scale(1.08) translate(-5px,4px); filter: contrast(3) brightness(1.15); }
+            50% { transform: scale(.82) translate(3px,-4px); filter: contrast(3.5) invert(.2); }
+        }
+        @keyframes redSignal {
+            0% { opacity:.1; transform:translateY(-2%); }
+            50% { opacity:.65; transform:translateY(2%); }
+            100% { opacity:.2; transform:translateY(-1%); }
+        }
+        @keyframes pupilRoll {
+            0% { transform:translate(-43px,-12px) rotate(-20deg) scale(1); }
+            22% { transform:translate(42px,-26px) rotate(80deg) scale(1.12); }
+            47% { transform:translate(8px,39px) rotate(175deg) scale(.88); }
+            71% { transform:translate(-39px,16px) rotate(270deg) scale(1.08); }
+            100% { transform:translate(-43px,-12px) rotate(340deg) scale(1); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .minsu-monster, .minsu-face-art, .minsu-face-art .rolling-pupil,
+            #finalMinsuOverlay .minsu-face-art { animation-duration: .35s; }
+        }
         
         
         .blood-drip {
@@ -978,39 +1017,71 @@
             if (audioCtx.state === 'suspended') audioCtx.resume();
             const now = audioCtx.currentTime;
 
-            // Original synthesized alarm shriek + jagged static burst; no external audio asset.
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            const filter = audioCtx.createBiquadFilter();
-            osc.type = 'sawtooth';
-            osc.frequency.setValueAtTime(1850, now);
-            osc.frequency.exponentialRampToValueAtTime(4600, now + 0.035);
-            osc.frequency.setValueAtTime(3100, now + 0.075);
-            osc.frequency.exponentialRampToValueAtTime(1250, now + 0.19);
-            osc.frequency.setValueAtTime(3900, now + 0.235);
-            osc.frequency.exponentialRampToValueAtTime(2100, now + 0.31);
-            filter.type = 'highpass';
-            filter.frequency.setValueAtTime(1750, now);
-            filter.Q.value = 1.1;
-            gain.gain.setValueAtTime(0.0001, now);
-            gain.gain.exponentialRampToValueAtTime(0.52, now + 0.006);
-            gain.gain.setValueAtTime(0.42, now + 0.12);
-            gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.34);
-            osc.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination);
-            osc.start(now); osc.stop(now + 0.35);
+            // Abrupt original synthesized shriek, low impact, and a short static burst.
+            const master = audioCtx.createGain();
+            const limiter = audioCtx.createDynamicsCompressor();
+            limiter.threshold.setValueAtTime(-10, now);
+            limiter.knee.setValueAtTime(8, now);
+            limiter.ratio.setValueAtTime(8, now);
+            limiter.attack.setValueAtTime(0.003, now);
+            limiter.release.setValueAtTime(0.12, now);
+            master.gain.setValueAtTime(0.72, now);
+            master.connect(limiter);
+            limiter.connect(audioCtx.destination);
 
-            const second = audioCtx.createOscillator();
-            const secondGain = audioCtx.createGain();
-            second.type = 'square';
-            second.frequency.setValueAtTime(5200, now + 0.025);
-            second.frequency.exponentialRampToValueAtTime(2600, now + 0.11);
-            secondGain.gain.setValueAtTime(0.0001, now);
-            secondGain.gain.exponentialRampToValueAtTime(0.16, now + 0.03);
-            secondGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.16);
-            second.connect(secondGain); secondGain.connect(audioCtx.destination);
-            second.start(now + 0.02); second.stop(now + 0.17);
+            const shriek = audioCtx.createOscillator();
+            const shriekGain = audioCtx.createGain();
+            const shriekFilter = audioCtx.createBiquadFilter();
+            shriek.type = 'sawtooth';
+            shriek.frequency.setValueAtTime(1700, now);
+            shriek.frequency.exponentialRampToValueAtTime(4900, now + 0.045);
+            shriek.frequency.setValueAtTime(2850, now + 0.085);
+            shriek.frequency.exponentialRampToValueAtTime(1050, now + 0.2);
+            shriek.frequency.exponentialRampToValueAtTime(3900, now + 0.255);
+            shriek.frequency.exponentialRampToValueAtTime(1700, now + 0.43);
+            shriekFilter.type = 'highpass';
+            shriekFilter.frequency.setValueAtTime(1450, now);
+            shriekFilter.Q.setValueAtTime(1.4, now);
+            shriekGain.gain.setValueAtTime(0.0001, now);
+            shriekGain.gain.exponentialRampToValueAtTime(0.72, now + 0.008);
+            shriekGain.gain.setValueAtTime(0.48, now + 0.12);
+            shriekGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.44);
+            shriek.connect(shriekFilter); shriekFilter.connect(shriekGain); shriekGain.connect(master);
+            shriek.start(now); shriek.stop(now + 0.45);
+
+            const sub = audioCtx.createOscillator();
+            const subGain = audioCtx.createGain();
+            sub.type = 'sine';
+            sub.frequency.setValueAtTime(105, now);
+            sub.frequency.exponentialRampToValueAtTime(38, now + 0.32);
+            subGain.gain.setValueAtTime(0.0001, now);
+            subGain.gain.exponentialRampToValueAtTime(0.5, now + 0.012);
+            subGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.38);
+            sub.connect(subGain); subGain.connect(master);
+            sub.start(now); sub.stop(now + 0.39);
+
+            const noiseLength = Math.floor(audioCtx.sampleRate * 0.19);
+            const noiseBuffer = audioCtx.createBuffer(1, noiseLength, audioCtx.sampleRate);
+            const noiseData = noiseBuffer.getChannelData(0);
+            for (let i = 0; i < noiseLength; i++) {
+                noiseData[i] = (Math.random() * 2 - 1) * (1 - i / noiseLength);
+            }
+            const noise = audioCtx.createBufferSource();
+            const noiseFilter = audioCtx.createBiquadFilter();
+            const noiseGain = audioCtx.createGain();
+            noise.buffer = noiseBuffer;
+            noiseFilter.type = 'highpass';
+            noiseFilter.frequency.setValueAtTime(2300, now);
+            noiseGain.gain.setValueAtTime(0.0001, now);
+            noiseGain.gain.exponentialRampToValueAtTime(0.22, now + 0.012);
+            noiseGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.19);
+            noise.connect(noiseFilter); noiseFilter.connect(noiseGain); noiseGain.connect(master);
+            noise.start(now + 0.015); noise.stop(now + 0.2);
+
+            window.setTimeout(() => {
+                try { master.disconnect(); limiter.disconnect(); } catch (e) {}
+            }, 800);
         }
-
         // 3. School Bell Simulation (Distorted)
         function playSchoolBell() {
             if (audioCtx.state === 'suspended') audioCtx.resume();
@@ -1362,11 +1433,25 @@
             const overlay = document.getElementById('finalMinsuOverlay');
             overlay.style.display = 'flex';
             document.body.style.overflow = 'hidden';
+            document.body.classList.add('shake-screen');
             document.querySelectorAll('button, input, textarea, a').forEach(el => {
                 if (!overlay.contains(el)) el.setAttribute('tabindex', '-1');
             });
-            // Leave automatically after the message; the button exits immediately.
-            window.setTimeout(leaveMinsuPage, 4500);
+
+            // Fast stutter, then silence and the final message. No confirmation button.
+            const eye = overlay.querySelector('.minsu-face-art');
+            const message = overlay.querySelector('.final-message');
+            const status = overlay.querySelectorAll('p');
+            message.style.opacity = '0';
+            status.forEach(el => el.style.opacity = '0');
+            window.setTimeout(() => { message.style.opacity = '1'; }, 620);
+            window.setTimeout(() => { status.forEach(el => el.style.opacity = '1'); }, 1250);
+            window.setTimeout(() => {
+                document.body.classList.remove('shake-screen');
+                overlay.style.background = '#000';
+                if (eye) eye.style.animationDuration = '.8s';
+            }, 1850);
+            window.setTimeout(leaveMinsuPage, 5200);
         }
 
         function leaveMinsuPage() {
@@ -1381,12 +1466,27 @@
             triggerMinsuScreamSound();
 
             const jumpscareEl = document.getElementById('minsuJumpscareOverlay');
+            const monster = jumpscareEl.querySelector('.minsu-monster');
             jumpscareEl.style.display = 'flex';
+            document.body.classList.add('shake-screen');
 
-            setTimeout(() => {
+            // Flash the eye at irregular intervals, then cut abruptly to black.
+            const flashTimes = [55, 115, 190, 245, 330, 405, 470, 610, 690, 760, 900, 1010, 1120, 1260, 1410, 1540, 1660, 1790, 1910, 2070, 2240];
+            const flashTimers = flashTimes.map((delay, index) => window.setTimeout(() => {
+                jumpscareEl.style.backgroundColor = index % 3 === 0 ? '#180000' : '#000';
+                monster.style.visibility = index % 4 === 1 ? 'hidden' : 'visible';
+                monster.style.transform = index % 2 === 0 ? 'translate(-2vw,1vh) scale(1.08)' : 'translate(2vw,-1vh) scale(.94)';
+            }, delay));
+
+            window.setTimeout(() => {
+                flashTimers.forEach(window.clearTimeout);
+                jumpscareEl.style.backgroundColor = '#000';
+                monster.style.visibility = 'visible';
+                monster.style.transform = '';
                 jumpscareEl.style.display = 'none';
+                document.body.classList.remove('shake-screen');
 
-                // Insert corrupted post to board
+                // Insert corrupted post to board.
                 qnaPosts.unshift({
                     id: Date.now(),
                     title: `[삭제된 글] ${userTitle}`,
