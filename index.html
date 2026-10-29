@@ -713,7 +713,7 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
                                 <span class="truncate font-medium text-slate-700">[가정통신문] 2026학년도 동복 착용 안내</span>
                                 <span class="text-[10px] text-slate-400 font-mono shrink-0 ml-2">10.01</span>
                             </li>
-                            <li class="flex justify-between items-center border-b border-slate-100 pb-1.5 cursor-pointer hover:text-red-700" onclick="openPhantomPhoneNotice()">
+                            <li class="flex justify-between items-center border-b border-slate-100 pb-1.5 cursor-pointer hover:text-red-700" onclick="openNoticeModal(8)">
                                 <span class="truncate font-medium text-slate-700">[가정통신문] 교내 전화번호 사칭 주의 안내</span>
                                 <span class="text-[10px] text-red-600 font-mono shrink-0 ml-2">10.33</span>
                             </li>
@@ -1266,6 +1266,14 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
                 author: "학생생활부",
                 date: "2026-10-01",
                 body: `<p>기온 차가 심해짐에 따라 10월 13일부터 동복 착용을 권장합니다.</p>`
+            },
+            8: {
+                title: "[가정통신문] 교내 전화번호 사칭 주의 안내",
+                author: '<span class="micro-glitch">교무기획부</span>',
+                date: "2026-10-33",
+                body: `<p>최근 본교 전화번호를 사칭하는 전화가 발생하고 있습니다.</p>
+                       <p>교무실 및 당직실의 공식 전화번호는 <strong class="text-red-700">031-999-9999</strong> 하나뿐입니다. 이외의 번호는 본교에서 사용하지 않습니다.</p>
+                       <p>번호로 연결했을 때는 반드시 본인의 신원을 먼저 밝혀주시기 바랍니다. 김민수의 전화에 응답하지 마. 신원을 밝혀야 응대가 가능합니다.</p>`
             }
         };
 
@@ -1307,7 +1315,7 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
             const tbody = document.getElementById('noticeTableBody');
             tbody.innerHTML = '';
             
-            Object.keys(noticeData).forEach(id => {
+            Object.keys(noticeData).sort((a, b) => noticeData[b].date.localeCompare(noticeData[a].date)).forEach(id => {
                 const item = noticeData[id];
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-slate-50 cursor-pointer transition border-b border-slate-100";
@@ -1323,20 +1331,10 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
             });
         }
 
-        // This notice appears only in the home-page family-letter preview, not in the official notice board.
-        function openPhantomPhoneNotice() {
-            triggerStaticSound(0.15);
-            document.getElementById('modalNoticeTitle').innerText = '[가정통신문] 교내 전화번호 사칭 주의 안내';
-            document.getElementById('modalNoticeAuthor').innerText = '작성자: 교무기획부';
-            document.getElementById('modalNoticeDate').innerText = '작성일: 2026-10-33';
-            document.getElementById('modalNoticeBody').innerHTML = `
-                <p>최근 본교 전화번호를 사칭하는 전화가 발생하고 있습니다.</p>
-                <p>교무실 및 당직실의 공식 전화번호는 <strong class="text-red-700">031-999-9999</strong> 하나뿐입니다. 이외의 번호는 본교에서 사용하지 않습니다.</p>
-                <p>다른 번호로 연결했을 때 '김민수'라는 이름이 들리더라도 대답하지 마십시오. 상대방이 먼저 말을 걸어도 마찬가지입니다.</p>
-                <p class="text-slate-400">※ 본 안내문은 별도 게시판에서 확인할 수 없습니다.</p>
-            `;
-            document.getElementById('noticeModal').classList.remove('hidden');
-        }
+        // Keep the author label's glitch almost imperceptible.
+        const microGlitchStyle = document.createElement('style');
+        microGlitchStyle.textContent = `@keyframes microGlitch { 0%, 94%, 100% { transform: translateX(0); text-shadow: none; } 95% { transform: translateX(.25px); text-shadow: .3px 0 rgba(180,0,0,.45); } 97% { transform: translateX(-.2px); text-shadow: -.3px 0 rgba(0,0,0,.35); } } .micro-glitch { display:inline-block; animation: microGlitch 7s steps(1,end) infinite; }`;
+        document.head.appendChild(microGlitchStyle);
 
         // Notice Modal Handlers
         function openNoticeModal(id) {
@@ -1345,7 +1343,7 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
             if(!data) return;
 
             document.getElementById('modalNoticeTitle').innerText = data.title;
-            document.getElementById('modalNoticeAuthor').innerText = `작성자: ${data.author}`;
+            document.getElementById('modalNoticeAuthor').innerHTML = `작성자: ${data.author}`;
             document.getElementById('modalNoticeDate').innerText = `작성일: ${data.date}`;
             document.getElementById('modalNoticeBody').innerHTML = data.body;
 
