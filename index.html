@@ -844,6 +844,21 @@
             osc.start();
             osc.stop(audioCtx.currentTime + 1.5);
 
+            // Piercing electronic shriek layered over the distorted rumble.
+            const shriek = audioCtx.createOscillator();
+            const shriekGain = audioCtx.createGain();
+            shriek.type = 'square';
+            shriek.frequency.setValueAtTime(2100, audioCtx.currentTime);
+            shriek.frequency.exponentialRampToValueAtTime(720, audioCtx.currentTime + 0.22);
+            shriek.frequency.exponentialRampToValueAtTime(1850, audioCtx.currentTime + 0.55);
+            shriekGain.gain.setValueAtTime(0.0001, audioCtx.currentTime);
+            shriekGain.gain.exponentialRampToValueAtTime(0.16, audioCtx.currentTime + 0.025);
+            shriekGain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.72);
+            shriek.connect(shriekGain);
+            shriekGain.connect(audioCtx.destination);
+            shriek.start();
+            shriek.stop(audioCtx.currentTime + 0.75);
+
             // Additional Static Distortion
             triggerStaticSound(1.5);
         }
@@ -1195,7 +1210,7 @@
         }
 
         function triggerMinsuFinale() {
-            triggerStaticSound(0.5);
+            triggerMinsuScreamSound();
             const overlay = document.getElementById('finalMinsuOverlay');
             overlay.style.display = 'flex';
             document.body.style.overflow = 'hidden';
