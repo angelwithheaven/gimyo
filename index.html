@@ -701,6 +701,10 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
                             <button onclick="switchTab('notice')" class="text-xs text-slate-500 hover:underline">+ 더보기</button>
                         </div>
                         <ul class="text-xs space-y-2.5">
+                            <li class="flex justify-between items-center border-b border-slate-100 pb-1.5 cursor-pointer hover:text-red-700" onclick="openNoticeModal(8)">
+                                <span class="truncate font-medium text-slate-700">[가정통신문] 교내 전화번호 사칭 주의 안내</span>
+                                <span class="text-[10px] text-red-600 font-mono shrink-0 ml-2">10.33</span>
+                            </li>
                             <li class="flex justify-between items-center border-b border-slate-100 pb-1.5 cursor-pointer hover:text-slate-900" onclick="openNoticeModal(5)">
                                 <span class="truncate font-medium text-slate-700">[가정통신문] 학생 안전귀가 지도를 위한 학부모 협조 요청</span>
                                 <span class="text-[10px] text-slate-400 font-mono shrink-0 ml-2">10.25</span>
@@ -712,10 +716,6 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
                             <li class="flex justify-between items-center border-b border-slate-100 pb-1.5 cursor-pointer hover:text-slate-900" onclick="openNoticeModal(7)">
                                 <span class="truncate font-medium text-slate-700">[가정통신문] 2026학년도 동복 착용 안내</span>
                                 <span class="text-[10px] text-slate-400 font-mono shrink-0 ml-2">10.01</span>
-                            </li>
-                            <li class="flex justify-between items-center border-b border-slate-100 pb-1.5 cursor-pointer hover:text-red-700" onclick="openNoticeModal(8)">
-                                <span class="truncate font-medium text-slate-700">[가정통신문] 교내 전화번호 사칭 주의 안내</span>
-                                <span class="text-[10px] text-red-600 font-mono shrink-0 ml-2">10.33</span>
                             </li>
                         </ul>
                     </div>
@@ -1315,7 +1315,7 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
             const tbody = document.getElementById('noticeTableBody');
             tbody.innerHTML = '';
             
-            Object.keys(noticeData).sort((a, b) => noticeData[b].date.localeCompare(noticeData[a].date)).forEach(id => {
+            Object.keys(noticeData).filter(id => id !== '8').sort((a, b) => noticeData[b].date.localeCompare(noticeData[a].date)).forEach(id => {
                 const item = noticeData[id];
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-slate-50 cursor-pointer transition border-b border-slate-100";
@@ -1331,9 +1331,9 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
             });
         }
 
-        // Keep the author label's glitch almost imperceptible.
+        // 작성자 이름에 짧고 눈에 띄는 미세 글리치 적용.
         const microGlitchStyle = document.createElement('style');
-        microGlitchStyle.textContent = `@keyframes microGlitch { 0%, 94%, 100% { transform: translateX(0); text-shadow: none; } 95% { transform: translateX(.25px); text-shadow: .3px 0 rgba(180,0,0,.45); } 97% { transform: translateX(-.2px); text-shadow: -.3px 0 rgba(0,0,0,.35); } } .micro-glitch { display:inline-block; animation: microGlitch 7s steps(1,end) infinite; }`;
+        microGlitchStyle.textContent = `@keyframes microGlitch { 0%, 89%, 100% { transform: translate(0,0); text-shadow: none; filter: none; clip-path: inset(0); } 90% { transform: translate(2px,-1px) skewX(-5deg); text-shadow: -1.5px 0 rgba(190,0,0,.9), 1.5px 0 rgba(0,75,255,.75); clip-path: inset(0 0 42% 0); } 91% { transform: translate(-2px,1px) skewX(4deg); text-shadow: 1.5px 0 rgba(190,0,0,.9), -1px 0 rgba(0,75,255,.75); clip-path: inset(48% 0 0 0); } 92% { transform: translate(1px,0); text-shadow: -1px 0 rgba(190,0,0,.8); clip-path: inset(0); } 93%, 99% { transform: translate(0,0); text-shadow: none; clip-path: inset(0); } } .micro-glitch { display:inline-block; animation: microGlitch 5s steps(1,end) infinite; will-change: transform, text-shadow; }`;
         document.head.appendChild(microGlitchStyle);
 
         // Notice Modal Handlers
