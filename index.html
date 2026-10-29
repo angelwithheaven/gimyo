@@ -1877,6 +1877,7 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
         }
 
         function startPrankHandAttack() {
+            try { sessionStorage.setItem('gimyo_prank_hands_reload', '1'); } catch (e) {}
             const overlay = document.getElementById('prankHandAttack');
             if (!overlay) return;
             overlay.innerHTML = '';
@@ -2130,6 +2131,20 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
                     window.setTimeout(() => triggerOfficeMinsuCurse(), 0);
                 } else if (curseActive) {
                     sessionStorage.removeItem('gimyo_minsu_blackout');
+                }
+            } catch (e) {}
+        })();
+
+        // Restore the palm-strike screen only on a page refresh; a fresh visit clears this lock.
+        (function restorePrankHandsAfterReload() {
+            try {
+                const active = sessionStorage.getItem('gimyo_prank_hands_reload') === '1';
+                const navigation = performance.getEntriesByType('navigation')[0];
+                const navigationType = navigation && navigation.type ? navigation.type : 'navigate';
+                if (active && navigationType === 'reload') {
+                    window.setTimeout(() => startPrankHandAttack(), 0);
+                } else if (active) {
+                    sessionStorage.removeItem('gimyo_prank_hands_reload');
                 }
             } catch (e) {}
         })();
