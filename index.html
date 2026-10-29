@@ -190,14 +190,14 @@
         @keyframes phoneRing { from { transform:rotate(-12deg); } to { transform:rotate(12deg); } }
         #phoneFadeOverlay { position:fixed; inset:0; z-index:19000; background:#000; opacity:0; pointer-events:none; transition:opacity 1.4s ease; }
         #phoneFadeOverlay.active { opacity:1; }
-        #prankWarningOverlay { position:fixed; inset:0; z-index:18000; display:none; align-items:center; justify-content:center; overflow:hidden; background:#030000; }
-        .melt-warning { color:#b00000; font-family:'Nanum Myeongjo',serif; font-weight:900; font-size:clamp(2.2rem,9vw,7rem); letter-spacing:.1em; text-align:center; text-shadow:0 0 8px #f00,0 0 30px #700; animation:meltLetters 2.8s ease-in forwards; }
-        @keyframes meltLetters { 0% { opacity:0; transform:translateY(-10px) scaleY(.7); filter:blur(8px); } 15% { opacity:1; transform:translateY(0) scaleY(1); filter:blur(0); } 45% { letter-spacing:.18em; filter:blur(1px); } 100% { opacity:0; transform:translateY(45vh) scaleY(2.4); filter:blur(12px); } }
+        #prankWarningOverlay { position:fixed; inset:0; z-index:40000; display:none; align-items:center; justify-content:center; overflow:hidden; background:#000; opacity:1; }
+        .melt-warning { white-space:pre-line; color:#a00000; font-family:'Nanum Myeongjo',serif; font-weight:900; font-size:clamp(2rem,8vw,6.5rem); letter-spacing:.04em; line-height:1.65; text-align:center; padding:1.5rem; text-shadow:0 0 2px #f00,0 0 14px #900; animation:warningImpact 3.6s steps(1,end) forwards; }
+        @keyframes warningImpact { 0% { opacity:0; transform:scale(1.7); filter:blur(12px); } 8% { opacity:1; transform:scale(1); filter:blur(0); } 13% { opacity:.12; } 17% { opacity:1; } 28% { transform:translateX(-8px) scale(1.02); text-shadow:5px 0 #5b0000,-5px 0 #f00; } 29% { transform:translateX(7px) scale(.99); } 30% { transform:translateX(0) scale(1); } 72% { opacity:1; filter:contrast(180%); } 100% { opacity:0; transform:scale(.92); filter:blur(18px); } }
+        #phoneLockOverlay { position:fixed; inset:0; z-index:25000; display:none; background:transparent; pointer-events:auto; cursor:wait; touch-action:none; }
         #phoneBloodWash { position:fixed; inset:0; z-index:17000; display:none; background:rgba(180,0,0,.94); mix-blend-mode:multiply; pointer-events:none; animation:bloodPulse .22s infinite alternate; }
         @keyframes bloodPulse { from { background-color:rgba(120,0,0,.92); } to { background-color:rgba(210,0,0,.97); } }
         #phoneJumpOverlay { position:fixed; inset:0; z-index:30000; display:none; align-items:center; justify-content:center; flex-direction:column; overflow:hidden; background:#8b0000; color:#fff; }
         .phone-jump-text { font-family:'Nanum Myeongjo',serif; font-size:clamp(4rem,17vw,13rem); font-weight:900; line-height:1; text-shadow:0 0 20px #000; animation:jumpSlam .12s steps(2,end) infinite; }
-        .phone-jump-face { position:absolute; right:-4vw; bottom:-14vh; font-family:Arial,sans-serif; font-size:clamp(15rem,55vw,42rem); line-height:1; color:#080000; opacity:.8; transform:rotate(90deg); }
         @keyframes jumpSlam { 0% { transform:translate(-12px,4px) scale(1.08); } 50% { transform:translate(9px,-6px) scale(.98); } 100% { transform:translate(0,0) scale(1.12); } }
         body.phone-blood-mode { background:#850000 !important; }
         body.phone-blood-mode * { transition:none !important; }
@@ -845,9 +845,10 @@
         </div>
     </div>
     <div id="phoneFadeOverlay" aria-hidden="true"></div>
-    <div id="prankWarningOverlay" aria-hidden="true"><div class="melt-warning">장난치면 혼난다.</div></div>
+    <div id="prankWarningOverlay" aria-hidden="true"><div class="melt-warning">너 들어올 때\n혼자 아니었어.</div></div>
     <div id="phoneBloodWash" aria-hidden="true"></div>
-    <div id="phoneJumpOverlay" aria-hidden="true"><div class="phone-jump-text">니 옆에</div><div class="phone-jump-face">☺̸̢</div></div>
+    <div id="phoneLockOverlay" aria-hidden="true"></div>
+    <div id="phoneJumpOverlay" aria-hidden="true"><div class="phone-jump-text">니 옆에</div></div>
 
     <!-- Application Engine JavaScript -->
     <script>
@@ -922,41 +923,27 @@
         function triggerMinsuScreamSound() {
             if (audioCtx.state === 'suspended') audioCtx.resume();
 
-            // Low frequency rumble oscillator
+            // One abrupt, piercing electronic shriek: "삑!!!!!!!!"
+            const now = audioCtx.currentTime;
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
-
-            osc.type = 'sawtooth';
-            osc.frequency.setValueAtTime(110, audioCtx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.3);
-            osc.frequency.exponentialRampToValueAtTime(55, audioCtx.currentTime + 1.2);
-
-            gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 1.5);
-
-            osc.connect(gain);
+            const filter = audioCtx.createBiquadFilter();
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(2850, now);
+            osc.frequency.exponentialRampToValueAtTime(3900, now + 0.045);
+            osc.frequency.exponentialRampToValueAtTime(1750, now + 0.19);
+            filter.type = 'highpass';
+            filter.frequency.setValueAtTime(1500, now);
+            filter.Q.value = 0.7;
+            gain.gain.setValueAtTime(0.0001, now);
+            gain.gain.exponentialRampToValueAtTime(0.32, now + 0.008);
+            gain.gain.setValueAtTime(0.32, now + 0.105);
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.23);
+            osc.connect(filter);
+            filter.connect(gain);
             gain.connect(audioCtx.destination);
-
-            osc.start();
-            osc.stop(audioCtx.currentTime + 1.5);
-
-            // Piercing electronic shriek layered over the distorted rumble.
-            const shriek = audioCtx.createOscillator();
-            const shriekGain = audioCtx.createGain();
-            shriek.type = 'square';
-            shriek.frequency.setValueAtTime(2100, audioCtx.currentTime);
-            shriek.frequency.exponentialRampToValueAtTime(720, audioCtx.currentTime + 0.22);
-            shriek.frequency.exponentialRampToValueAtTime(1850, audioCtx.currentTime + 0.55);
-            shriekGain.gain.setValueAtTime(0.0001, audioCtx.currentTime);
-            shriekGain.gain.exponentialRampToValueAtTime(0.16, audioCtx.currentTime + 0.025);
-            shriekGain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.72);
-            shriek.connect(shriekGain);
-            shriekGain.connect(audioCtx.destination);
-            shriek.start();
-            shriek.stop(audioCtx.currentTime + 0.75);
-
-            // Additional Static Distortion
-            triggerStaticSound(1.5);
+            osc.start(now);
+            osc.stop(now + 0.24);
         }
 
         // 3. School Bell Simulation (Distorted)
@@ -1437,25 +1424,45 @@
 
         function triggerOfficeMinsuCurse() {
             document.body.classList.add('phone-blood-mode');
-            document.getElementById('phoneBloodWash').style.display = 'block';
+            document.body.style.overflow = 'hidden';
+
+            // Replace every visible text node, then lock the page so no navigation is possible.
             const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
             const nodes = [];
             while (walker.nextNode()) {
                 const node = walker.currentNode;
-                if (node.parentElement && !node.parentElement.closest('script, style, #phoneJumpOverlay')) nodes.push(node);
+                if (node.parentElement && !node.parentElement.closest('script, style, #phoneJumpOverlay, #phoneLockOverlay')) nodes.push(node);
             }
             nodes.forEach(node => {
                 if (node.nodeValue.trim()) node.nodeValue = '김민수';
             });
+
+            const lock = document.getElementById('phoneLockOverlay');
+            lock.style.display = 'block';
+            const stopInteraction = event => {
+                if (document.body.classList.contains('phone-blood-mode')) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    if (event.stopImmediatePropagation) event.stopImmediatePropagation();
+                }
+            };
+            ['click', 'dblclick', 'auxclick', 'submit', 'touchstart', 'touchend', 'pointerdown', 'contextmenu'].forEach(type => {
+                document.addEventListener(type, stopInteraction, true);
+            });
+            document.addEventListener('keydown', stopInteraction, true);
+            window.addEventListener('popstate', () => {
+                if (document.body.classList.contains('phone-blood-mode')) history.pushState({locked:true}, '', location.href);
+            });
+            try { history.pushState({locked:true}, '', location.href); } catch (e) {}
+
             window.setTimeout(() => {
                 const jump = document.getElementById('phoneJumpOverlay');
                 jump.style.display = 'flex';
                 triggerMinsuScreamSound();
-                document.body.style.animation = 'none';
                 window.setTimeout(() => {
                     try { window.location.replace('about:blank'); }
                     catch (e) { document.body.innerHTML = ''; document.body.style.background = '#000'; }
-                }, 950);
+                }, 850);
             }, 5000);
         }
 
@@ -1468,11 +1475,16 @@
             if (!shouldWarn) return;
             const overlay = document.getElementById('prankWarningOverlay');
             overlay.style.display = 'flex';
+            overlay.style.opacity = '1';
             window.setTimeout(() => {
-                overlay.style.transition = 'opacity 1s ease';
+                overlay.style.transition = 'opacity .75s ease';
                 overlay.style.opacity = '0';
-                window.setTimeout(() => { overlay.style.display = 'none'; }, 1050);
-            }, 3000);
+                window.setTimeout(() => {
+                    overlay.style.display = 'none';
+                    overlay.style.opacity = '1';
+                    overlay.style.transition = '';
+                }, 800);
+            }, 3600);
         }
 
         // EASTER EGGS & HORROR TRIGGERS
