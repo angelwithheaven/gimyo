@@ -1518,7 +1518,7 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
                 { title: '교내 풍경', img: 'class.png' },
                 { title: '도서관 야간 자율학습', img: 'lib.png' },
                 { title: '제31회 졸업식 기념사진', img: 'graduate.png' },
-                { title: '2학년 4반 단체사진 (2026)', img: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=500&auto=format&fit=crop&q=80', corruptFace: true },
+                { title: '2학년 4반 단체사진 (2026)', img: null, corruptFace: true },
                 { title: '동아리 활동 기록', img: 'dongari.png' },
                 { title: '제20회 기이 예술제 금상 · 2학년 4반 KMS', img: 'art-competition.png' },
                 { title: '舊館', img: null, oldBuilding: true }
@@ -1535,7 +1535,7 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
 
                 div.innerHTML = `
                     <div class="aspect-video bg-slate-900 overflow-hidden relative">
-                        ${item.oldBuilding
+                        ${item.oldBuilding || item.corruptFace
                             ? '<div class="w-full h-full bg-black"></div>'
                             : `<img src="${item.img}" alt="${item.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">`}
                     </div>
