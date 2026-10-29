@@ -1550,7 +1550,6 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
             { id: 5, title: "2학년 4반 김민수 어디 갔는지 아는 사람?", author: "익명", date: "23:14", text: "어제 야자 때 화장실 간다 그러고 가방도 그대로 두고 안 돌아옴. 담임선생님도 계속 피하시는데 진짜 무슨 일 있음?", comments: [{author:"야자생",text:"그날 복도 CCTV 점검한다고 했어. 왜 하필 그 시간이지?"}] },
             { id: 4, title: "밤 9시 반쯤 구관 쪽에서 창문 두드리는 소리 들림", author: "야자생", date: "21:40", text: "신관 3층 화장실에서 구관 쪽 바라보는데 지하 창문 안쪽에서 손바닥으로 유리창 계속 치는 소리 남. 경비 아저씨한테 말하니까 그냥 집에 가래.", comments: [{author:"익명",text:"나도 들었어. 근데 창문은 지하에만 있는 게 아니잖아."}] },
             { id: 3, title: "오늘 급식 김치에서 쇠 맛 안 났냐", author: "익명", date: "13:20", text: "쇠 맛 같은 거 나던데 나만 그럼? 조리실에 물어보니까 오늘 김치 납품 안 됐대.", comments: [{author:"2-1",text:"그럼 우리가 먹은 건 뭐였는데?"}] },
-            { id: 2, title: "학교 홈페이지 출석 인원 숫자 이상함", author: "2학년", date: "어제", text: "우리 반 오늘 27명인데 홈페이지에는 계속 28명으로 떠. 새로고침해도 똑같음.", comments: [{author:"익명",text:"숫자 세지 마. 세면 한 명이 뒤에 서 있다는 말 들었어."}] },
             { id: 1, title: "구관 복도에서 내 이름 부르는 소리", author: "익명", date: "월요일", text: "야자 끝나고 혼자 내려오는데 뒤에서 내 이름을 부르더라. 돌아보니까 아무도 없었음. 다음 날 담임이 어제 결석했다고 하던데 나 학교 왔었거든.", comments: [{author:"졸업생",text:"이 글 지워. 나도 같은 일 겪었어."}] }
         ];
 
@@ -1573,7 +1572,7 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
                     </div>`).join('');
                 card.innerHTML = `
                     <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 font-bold text-slate-800">
-                        <span>${escapeQnaHtml(post.title)}</span>
+                        <span class="${post.isMinsuCorrupt ? 'text-red-700' : ''}">${escapeQnaHtml(post.title)}</span>
                         <span class="font-mono text-[10px] text-slate-400">${escapeQnaHtml(post.author)} | ${escapeQnaHtml(post.date)}</span>
                     </div>
                     <p class="text-slate-600 leading-relaxed whitespace-pre-wrap">${post.isMinsuCorrupt ? '<span class="text-red-700 font-mono font-bold">나 도 무 서 워 나 도 무 서 워 나 도 무 서 워</span>' : escapeQnaHtml(post.text)}</p>
@@ -1730,16 +1729,63 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
             },1350);
         }
 
-        // MINSU JUMPSCARE TRIGGER
+        // MINSU JUMPSCARE TRIGGER: fixed five-second whole-screen disturbance.
         function triggerMinsuJumpscare(userTitle){
-            triggerMinsuScreamSound(0);const overlay=document.getElementById('minsuJumpscareOverlay'),canvas=document.getElementById('minsuScareCanvas'),text=overlay.querySelector('.minsu-monster');
-            overlay.style.display='flex';document.body.classList.add('shake-screen');startMinsuMosaic(canvas,32,1.65);
-            setTimeout(()=>{triggerMinsuHandprints();},280);
-            const times=[32,71,104,168,212,281,337,403,477,531,612,701,783,849,932,1017,1094,1180,1261,1340,1422,1510,1600,1685,1770,1854,1940,2030,2110,2200];
-            const timers=times.map((delay,i)=>setTimeout(()=>{overlay.style.backgroundColor=i%4===0?'#eee':i%3===0?'#650000':'#000';overlay.style.filter=i%5===0?'invert(1) contrast(500%)':'contrast(250%)';text.style.transform=`translate(${(Math.random()-.5)*5}vw,${(Math.random()-.5)*4}vh) scale(${.92+Math.random()*.24})`;drawMinsuMosaic(canvas,2);},delay));
-            setTimeout(()=>{timers.forEach(clearTimeout);if(minsuNoiseLoop)clearInterval(minsuNoiseLoop);minsuNoiseLoop=null;overlay.style.filter='';overlay.style.backgroundColor='#000';text.style.transform='';overlay.style.display='none';document.body.classList.remove('shake-screen');
-                qnaPosts.unshift({id:Date.now(),title:`[삭제된 글] ${userTitle}`,author:'???',date:'방금',text:'나 도 무 서 워 나 도 무 서 워 나 도 무 서 워',isMinsuCorrupt:true});renderQnaBoard();showRetroPopUp('게시글 저장 중 예외 오류 발생. 사용자 통신 세션이 구관 서버에 연결되었습니다.','fatal error: minsu','fa-solid fa-bug text-red-600');
-            },3300);
+            const overlay=document.getElementById('minsuJumpscareOverlay');
+            const canvas=document.getElementById('minsuScareCanvas');
+            const text=overlay.querySelector('.minsu-monster');
+            const started=performance.now();
+            let beepTimer=null, flickerTimer=null, voiceTimer=null, handTimer=null;
+            overlay.style.display='flex';
+            overlay.style.backgroundColor='#050000';
+            document.body.classList.add('shake-screen');
+            document.body.style.transition='filter .08s linear';
+            document.body.style.filter='brightness(.22) contrast(1.8)';
+            startMinsuMosaic(canvas,28,1.8);
+            const beep=()=>{
+                try{
+                    if(audioCtx.state==='suspended')audioCtx.resume();
+                    const now=audioCtx.currentTime;
+                    const o=audioCtx.createOscillator(),g=audioCtx.createGain(),f=audioCtx.createBiquadFilter();
+                    o.type='square';o.frequency.setValueAtTime(2400+Math.random()*1700,now);
+                    o.frequency.setValueAtTime(900+Math.random()*1400,now+.035);
+                    f.type='highpass';f.frequency.value=1100;
+                    g.gain.setValueAtTime(.0001,now);g.gain.exponentialRampToValueAtTime(.42,now+.004);g.gain.exponentialRampToValueAtTime(.0001,now+.075);
+                    o.connect(f);f.connect(g);g.connect(audioCtx.destination);o.start(now);o.stop(now+.08);
+                }catch(e){}
+            };
+            const speakLoop=()=>{
+                if(performance.now()-started>=5000)return;
+                try{
+                    const u=new SpeechSynthesisUtterance('나도 무서워 나도 무서워 나도 무서워 나도 무서워');
+                    u.lang='ko-KR';u.rate=2.7;u.pitch=.45;u.volume=1;
+                    window.speechSynthesis.speak(u);
+                }catch(e){}
+            };
+            beepTimer=window.setInterval(beep,72);
+            voiceTimer=window.setInterval(speakLoop,620);
+            flickerTimer=window.setInterval(()=>{
+                const elapsed=performance.now()-started;
+                overlay.style.backgroundColor=Math.random()>.7?'#280000':'#000';
+                overlay.style.filter=Math.random()>.55?'invert(1) contrast(500%)':'contrast(300%) brightness(.35)';
+                text.style.transform=`translate(${(Math.random()-.5)*7}vw,${(Math.random()-.5)*6}vh) scale(${.85+Math.random()*.35})`;
+                document.body.style.filter=Math.random()>.5?'brightness(.12) contrast(2.5)':'brightness(.3) grayscale(.8)';
+                drawMinsuMosaic(canvas,2.2);
+            },45);
+            handTimer=window.setTimeout(()=>triggerMinsuHandprints(),180);
+            window.setTimeout(()=>{
+                clearInterval(beepTimer);clearInterval(flickerTimer);clearInterval(voiceTimer);clearTimeout(handTimer);
+                if(minsuNoiseLoop)clearInterval(minsuNoiseLoop);minsuNoiseLoop=null;
+                try{window.speechSynthesis.cancel();}catch(e){}
+                const handOverlay=document.getElementById('minsuHandOverlay');
+                if(handOverlay)handOverlay.classList.remove('active');
+                document.body.classList.remove('shake-screen','minsu-impact');
+                document.body.style.filter='';
+                document.body.style.transition='';
+                overlay.style.filter='';overlay.style.backgroundColor='#000';text.style.transform='';overlay.style.display='none';
+                qnaPosts.unshift({id:Date.now(),title:'무서워',author:'???',date:'방금',text:'나도',comments:[]});
+                renderQnaBoard();
+            },5000);
         }
 
         // CCTV camera cycle: CAM-01 -> CAM-02 -> CAM-03 warning -> CAM-01 -> CAM-02 -> CAM-03 jumpscare.
