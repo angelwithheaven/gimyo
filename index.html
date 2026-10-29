@@ -1408,15 +1408,16 @@
 
         function startOfficeCall() {
             if (audioCtx.state === 'suspended') audioCtx.resume();
+            const modal = document.getElementById('officeCallModal');
+            const line = document.querySelector('.phone-line');
+            line.textContent = '전화 연결 중…';
+            modal.style.display = 'none';
             playOfficeRing();
-            document.getElementById('officeCallModal').style.display = 'flex';
             window.setTimeout(() => {
-                const line = document.querySelector('.phone-line');
-                if (line && document.getElementById('officeCallModal').style.display === 'flex') {
-                    line.textContent = '……여보세요?';
-                    triggerGlitchBeep();
-                }
-            }, 2900);
+                modal.style.display = 'flex';
+                line.textContent = '……여보세요?';
+                triggerGlitchBeep();
+            }, 2850);
         }
 
         function chooseOfficeCall(choice) {
