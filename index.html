@@ -142,7 +142,34 @@
             background: #000; color: #fff; align-items: center; justify-content: center;
             flex-direction: column; text-align: center; padding: 24px;
         }
-        #finalMinsuOverlay .smile { font-size: clamp(5rem, 20vw, 12rem); line-height: 1; }
+        #finalMinsuOverlay .smile-face {
+            position: relative; width: clamp(10rem, 34vw, 22rem); height: clamp(10rem, 34vw, 22rem);
+            display: flex; align-items: center; justify-content: center;
+            animation: smileWarp .18s steps(2, end) infinite;
+        }
+        #finalMinsuOverlay .face-symbol {
+            color: #e7e2df; font-family: Arial, sans-serif; font-size: clamp(9rem, 30vw, 19rem);
+            line-height: 1; text-shadow: 0 0 12px #777, 5px 0 #4b0000;
+            transform: rotate(90deg) scaleX(1.08); display: block;
+        }
+        #finalMinsuOverlay .blood-tear {
+            position: absolute; top: 54%; color: #d00000; font-family: monospace;
+            font-size: clamp(2rem, 7vw, 4.5rem); font-weight: 900; line-height: 1;
+            text-shadow: 0 0 12px #f00, 0 0 24px #700;
+            animation: tearDrip .65s ease-in-out infinite alternate;
+        }
+        #finalMinsuOverlay .tear-left { left: 25%; transform: rotate(15deg); }
+        #finalMinsuOverlay .tear-right { right: 25%; transform: rotate(-15deg); animation-delay: -.3s; }
+        @keyframes smileWarp {
+            0% { transform: translate(-2px, 1px) skew(-3deg) scale(1); filter: contrast(180%); }
+            35% { transform: translate(3px, -2px) skew(4deg) scale(1.04, .96); filter: contrast(300%) invert(.12); }
+            70% { transform: translate(-1px, 2px) skew(-5deg) scale(.97, 1.03); filter: contrast(240%); }
+            100% { transform: translate(2px, 0) skew(2deg); filter: contrast(350%) hue-rotate(-15deg); }
+        }
+        @keyframes tearDrip {
+            from { margin-top: 0; opacity: .75; }
+            to { margin-top: 1.2rem; opacity: 1; }
+        }
         #finalMinsuOverlay .final-message { font-family: 'Nanum Myeongjo', serif; font-size: clamp(1.25rem, 4vw, 2rem); margin-top: 2rem; }
 
         /* Custom Scrollbar */
@@ -761,9 +788,13 @@
 
     <!-- FINAL MINSU EVENT -->
     <div id="finalMinsuOverlay" role="alertdialog" aria-modal="true">
-        <div class="smile horror-glyph" aria-label="피 흘리며 일그러진 웃는 얼굴">◉̷̢﹏̸̰◉</div>
-        <div class="blood-drip text-xl sm:text-3xl font-mono mt-4">찾 았 다̷̢̛̰̓  ╱̸╲</div>
-        <div class="final-message">찾아줘서 고마워, 내가 갈게</div>
+        <div class="smile-face" aria-label="피눈물을 흘리며 기괴하게 일그러진 웃는 얼굴">
+            <span class="face-symbol">☺̸̢</span>
+            <span class="blood-tear tear-left">╲̷</span>
+            <span class="blood-tear tear-right">╱̸</span>
+        </div>
+        <div class="blood-drip text-xl sm:text-3xl font-mono mt-4">血̸̢̛̰̓  ╱̷╲  血̷̢̛̰̓</div>
+        <div class="final-message">찾아줘서 고마워, 이제 내가 갈게</div>
         <p class="text-xs text-slate-500 mt-5 font-mono">SESSION TERMINATED</p>
         <button onclick="leaveMinsuPage()" class="mt-8 border border-slate-600 px-5 py-2 text-sm hover:bg-white hover:text-black">확인</button>
     </div>
