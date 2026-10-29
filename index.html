@@ -903,7 +903,7 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
             </div>
 
             <!-- STAFF-ONLY PORTAL -->
-            <div id="tab-staff" class="hidden space-y-4 font-mono text-xs">
+            <div id="tab-staff" class="hidden fixed inset-0 z-[100] overflow-y-auto bg-black p-3 sm:p-6 font-mono text-xs">
                 <div class="bg-slate-900 text-slate-100 p-5 rounded border border-blue-900 space-y-3">
                     <div class="flex justify-between items-center border-b border-slate-700 pb-3">
                         <div>
@@ -924,11 +924,12 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
                         </div>
                     </div>
                     <p class="text-[10px] text-slate-500">내부 포털 접속 종료 후 학생기록부는 별도 인증 경로에서 열람할 것.</p>
+                    <button onclick="switchTab('home')" class="border border-slate-700 px-3 py-1.5 text-slate-300 hover:bg-slate-800">포털 닫기 ×</button>
                 </div>
             </div>
 
             <!-- RESTRICTED STUDENT RECORDS -->
-            <div id="tab-records" class="hidden space-y-4 font-mono text-xs bg-stone-950 text-stone-200 p-5 rounded border border-amber-900">
+            <div id="tab-records" class="hidden fixed inset-0 z-[100] overflow-y-auto bg-stone-950 text-stone-200 p-3 sm:p-6 font-mono text-xs">
                 <div class="flex justify-between items-center border-b border-amber-900 pb-3">
                     <div>
                         <p class="text-amber-500 text-[10px] tracking-widest">KMS ARCHIVE / STUDENT RECORD</p>
