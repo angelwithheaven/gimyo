@@ -1175,6 +1175,8 @@
             document.querySelectorAll('button, input, textarea, a').forEach(el => {
                 if (!overlay.contains(el)) el.setAttribute('tabindex', '-1');
             });
+            // Leave automatically after the message; the button exits immediately.
+            window.setTimeout(leaveMinsuPage, 4500);
         }
 
         function leaveMinsuPage() {
@@ -1247,7 +1249,7 @@
         function triggerEmblemGlitch() {
             triggerGlitchBeep();
             document.getElementById('emergencyBar').classList.remove('hidden');
-            showRetroPopUp('기이고등학교 교장에서 숨겨진 인과 코드가 감지되었습니다.<br>힌트: "기이"를 찾아서...<br><br>기이고등학교의 '기이'를 찾아냈습니다...<br>[설립 연도 또는 그의 이니셜]', '인과 코드 감지', 'fa-solid fa-key text-red-600');
+            showRetroPopUp("기이고등학교 교장에서 숨겨진 인과 코드가 감지되었습니다.<br>힌트: \"기이\"를 찾아서...<br><br>기이고등학교의 '기이'를 찾아냈습니다...<br>[설립 연도 또는 그의 이니셜]", '인과 코드 감지', 'fa-solid fa-key text-red-600');
         }
 
         function triggerMealGlitch() {
