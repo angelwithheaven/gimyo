@@ -1769,63 +1769,88 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
         window.addEventListener('pagehide', stopMinsuPiercingTone);
         window.addEventListener('beforeunload', stopMinsuPiercingTone);
 
-        function triggerOfficeMinsuCurse() {
-            try { sessionStorage.setItem('gimyo_minsu_blackout', '1'); } catch (e) {}
+        function triggerOfficeMinsuCurse(stage = 0) {
+            try {
+                sessionStorage.setItem('gimyo_minsu_blackout','1');
+                sessionStorage.setItem('gimyo_minsu_reload_stage',String(stage));
+            } catch(e) {}
             document.body.classList.add('phone-blood-mode');
-            document.body.style.overflow = 'hidden';
+            document.body.style.overflow='hidden';
             startMinsuPiercingTone();
-
-            // Build a dense wall of repeated text, then cover the entire site with the blackout.
-            const blackout = document.getElementById('minsuTextBlackout');
-            const textWall = document.getElementById('minsuRepeatedText');
-            if (blackout && textWall) {
-                if (!textWall.childElementCount) {
-                    const lineText = '나 안 보여?'.repeat(55);
-                    for (let row = 0; row < 125; row++) {
-                        const line = document.createElement('div');
-                        line.className = 'minsu-text-line';
-                        line.textContent = lineText;
-                        line.style.transform = 'translateX(' + (row % 2 ? '-1.4em' : '0') + ')';
-                        textWall.appendChild(line);
+            const blackout=document.getElementById('minsuTextBlackout');
+            const lock=document.getElementById('phoneLockOverlay');
+            if(lock) lock.style.display='block';
+            if(blackout) {
+                blackout.innerHTML='';
+                blackout.style.cssText='position:fixed;inset:0;z-index:60000;display:block;overflow:hidden;background:#000;color:#777;';
+                blackout.classList.add('active');
+                blackout.setAttribute('aria-hidden','false');
+                if(stage===4) {
+                    let alreadyFinal=false;
+                    try { alreadyFinal=sessionStorage.getItem('gimyo_minsu_finalized')==='1'; } catch(e) {}
+                    if(!alreadyFinal) {
+                        try { sessionStorage.setItem('gimyo_minsu_finalized','1'); } catch(e) {}
+                        const message=document.createElement('div');
+                        message.textContent='도망가지 마, 다음엔 내가 갈게';
+                        message.style.cssText="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:24px;color:#eee;text-align:center;font-family:'Nanum Myeongjo',serif;font-size:clamp(1.4rem,5vw,3.2rem);line-height:1.8;letter-spacing:.06em;text-shadow:0 0 14px #777;opacity:1;transition:opacity 2.8s ease;";
+                        blackout.appendChild(message);
+                        window.setTimeout(()=>{message.style.opacity='0';window.setTimeout(()=>{if(blackout.isConnected)blackout.innerHTML='';},2900);},2200);
+                    }
+                } else if(stage===3) {
+                    blackout.style.display='grid';
+                    blackout.style.gridTemplateColumns='repeat(auto-fill,minmax(82px,1fr))';
+                    blackout.style.gridAutoRows='minmax(120px,1fr)';
+                    blackout.style.gap='0';
+                    const photoUrl='https://angelwithheaven.github.io/gimyo/1793265706938.png';
+                    const count=Math.ceil(window.innerWidth/82)*Math.ceil(window.innerHeight/120)*4;
+                    for(let i=0;i<count;i++) {
+                        const tile=document.createElement('img');
+                        tile.src=photoUrl; tile.alt=''; tile.draggable=false;
+                        tile.style.cssText='display:block;width:100%;height:100%;min-height:120px;object-fit:cover;margin:0;padding:0;border:0;';
+                        blackout.appendChild(tile);
+                    }
+                } else {
+                    const wall=document.createElement('div');
+                    wall.style.cssText=stage===0
+                        ? 'position:absolute;inset:-2%;z-index:1;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;gap:0;color:#777;font-family:Share Tech Mono,monospace;font-size:clamp(7px,.72vw,10px);line-height:1.12;letter-spacing:.015em;overflow-wrap:anywhere;word-break:break-all;user-select:none;'
+                        : "position:absolute;inset:-2%;z-index:1;display:flex;flex-direction:column;justify-content:space-around;gap:0;overflow:hidden;color:#777;font-family:'Share Tech Mono',monospace;font-size:clamp(22px,3.6vw,48px);line-height:1.25;letter-spacing:.02em;overflow-wrap:anywhere;word-break:break-all;user-select:none;";
+                    const phrase=stage===1?'왜 도망가?':stage===2?'응? 왜 도망가냐고?':'나 안 보여?';
+                    const repeated=stage===0?phrase.repeat(55):phrase.repeat(5);
+                    const rows=stage===0?125:22;
+                    for(let row=0;row<rows;row++) {
+                        const line=document.createElement('div');
+                        line.textContent=repeated;
+                        line.style.cssText='flex:0 0 auto;white-space:nowrap;min-width:100%;margin-left:-1.5em;transform:translateX('+(row%2?'-1.4em':'0')+');';
+                        wall.appendChild(line);
+                    }
+                    blackout.appendChild(wall);
+                    if(stage===0) {
+                        const photo=document.createElement('img');
+                        photo.src='https://angelwithheaven.github.io/gimyo/1793265706938.png';
+                        photo.alt='김민수의 증명사진';
+                        photo.style.cssText='position:absolute;z-index:2;left:50%;top:50%;transform:translate(-50%,-50%);width:min(66vw,calc(66vh * 2 / 3),420px);max-height:90vh;object-fit:contain;background:#000;';
+                        blackout.appendChild(photo);
                     }
                 }
-                blackout.classList.add('active');
-                blackout.setAttribute('aria-hidden', 'false');
             }
-
-            // Keep the page trapped on this screen with the centered 2:3 ID photo visible.
-            const lock = document.getElementById('phoneLockOverlay');
-            if (lock) lock.style.display = 'block';
-            // Browsers may suspend Web Audio after a refresh until the user interacts.
-            // Resume the existing scream on the first interaction before the blackout blocks it.
-            const unlockMinsuAudio = () => {
-                if (!document.body.classList.contains('phone-blood-mode')) return;
-                if (audioCtx.state !== 'running') {
-                    audioCtx.resume().then(() => {
-                        if (!minsuPiercingToneNodes.length) startMinsuPiercingTone();
-                    }).catch(() => {});
-                } else if (!minsuPiercingToneNodes.length) {
-                    startMinsuPiercingTone();
+            const unlockMinsuAudio=()=>{
+                if(!document.body.classList.contains('phone-blood-mode')) return;
+                const resume=audioCtx.state==='running'?Promise.resolve():audioCtx.resume();
+                resume.then(()=>{if(!minsuPiercingToneNodes.length)startMinsuPiercingTone();}).catch(()=>{});
+            };
+            document.addEventListener('pointerdown',unlockMinsuAudio,true);
+            document.addEventListener('touchstart',unlockMinsuAudio,true);
+            document.addEventListener('keydown',unlockMinsuAudio,true);
+            const stopInteraction=event=>{
+                if(document.body.classList.contains('phone-blood-mode')) {
+                    event.preventDefault();event.stopPropagation();
+                    if(event.stopImmediatePropagation)event.stopImmediatePropagation();
                 }
             };
-            document.addEventListener('pointerdown', unlockMinsuAudio, true);
-            document.addEventListener('keydown', unlockMinsuAudio, true);
-
-            const stopInteraction = event => {
-                if (document.body.classList.contains('phone-blood-mode')) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                    if (event.stopImmediatePropagation) event.stopImmediatePropagation();
-                }
-            };
-            ['click', 'dblclick', 'auxclick', 'submit', 'touchstart', 'touchend', 'pointerdown', 'contextmenu'].forEach(type => {
-                document.addEventListener(type, stopInteraction, true);
-            });
-            document.addEventListener('keydown', stopInteraction, true);
-            window.addEventListener('popstate', () => {
-                if (document.body.classList.contains('phone-blood-mode')) history.pushState({locked:true}, '', location.href);
-            });
-            try { history.pushState({locked:true}, '', location.href); } catch (e) {}
+            ['click','dblclick','auxclick','submit','touchstart','touchend','pointerdown','contextmenu'].forEach(type=>document.addEventListener(type,stopInteraction,true));
+            document.addEventListener('keydown',stopInteraction,true);
+            window.addEventListener('popstate',()=>{if(document.body.classList.contains('phone-blood-mode'))history.pushState({locked:true},'',location.href);});
+            try{history.pushState({locked:true},'',location.href);}catch(e){}
         }
 
         let warningHeartbeatActive = false;
