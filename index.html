@@ -2114,14 +2114,50 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
             document.title = '1974년 기이고등학교';
             document.body.classList.add('prank-cursed');
 
-            // Keep the original page structure, replacing its visible text only.
-            const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
-            const nodes = [];
-            while (walker.nextNode()) {
-                const node = walker.currentNode;
-                if (node.parentElement && !node.parentElement.closest('script,style,canvas,#prankWarningOverlay,#prankBloodCurtain')) nodes.push(node);
-            }
-            nodes.forEach(node => { if (node.nodeValue.trim()) node.nodeValue = message; });
+            // Replace existing and subsequently-rendered visible text, including menu items,
+            // board posts, and gallery captions that are generated after page initialization.
+            const replaceVisibleText = root => {
+                const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+                const nodes = [];
+                while (walker.nextNode()) {
+                    const node = walker.currentNode;
+                    if (node.parentElement &&
+                        !node.parentElement.closest('script,style,canvas,#prankWarningOverlay,#prankBloodCurtain') &&
+                        node.nodeValue.trim() && node.nodeValue !== message) {
+                        nodes.push(node);
+                    }
+                }
+                nodes.forEach(node => { node.nodeValue = message; });
+            };
+            replaceVisibleText(document.body);
+
+            // Dynamic renderers can add fresh text after the first pass. Keep the curse active
+            // for the whole screen without repeatedly rewriting text already replaced.
+            if (window.gimyoPrankTextObserver) window.gimyoPrankTextObserver.disconnect();
+            window.gimyoPrankTextObserver = new MutationObserver(mutations => {
+                mutations.forEach(mutation => {
+                    if (mutation.type === 'characterData') {
+                        const node = mutation.target;
+                        if (node.parentElement &&
+                            !node.parentElement.closest('script,style,canvas,#prankWarningOverlay,#prankBloodCurtain') &&
+                            node.nodeValue.trim() && node.nodeValue !== message) {
+                            node.nodeValue = message;
+                        }
+                    } else {
+                        mutation.addedNodes.forEach(node => {
+                            if (node.nodeType === Node.TEXT_NODE) {
+                                if (node.nodeValue.trim() && node.nodeValue !== message) node.nodeValue = message;
+                            } else if (node.nodeType === Node.ELEMENT_NODE &&
+                                !node.closest('script,style,canvas,#prankWarningOverlay,#prankBloodCurtain')) {
+                                replaceVisibleText(node);
+                            }
+                        });
+                    }
+                });
+            });
+            window.gimyoPrankTextObserver.observe(document.body, {
+                subtree: true, childList: true, characterData: true
+            });
 
             const overlay = document.getElementById('prankWarningOverlay');
             if (overlay) overlay.style.display = 'none';
