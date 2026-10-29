@@ -737,7 +737,7 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
             <div id="tab-notice" class="hidden space-y-4">
                 <h2 class="font-bold text-lg text-slate-800 border-b-2 border-slate-700 pb-2 flex justify-between items-center">
                     <span>공지사항 및 가정통신문</span>
-                    <span class="text-xs font-normal text-slate-500">총 '35'건의 게시물이 있습니다.</span>
+                    <span class="text-xs font-normal text-slate-500">총 35건의 게시물이 있습니다.</span>
                 </h2>
 
                 <div class="overflow-x-auto">
@@ -1362,7 +1362,7 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
                 tr.innerHTML = `
                     <td class="py-2.5 px-3 text-center font-mono">${id}</td>
                     <td class="py-2.5 px-3 font-medium text-slate-800">${item.title}</td>
-                    <td class="py-2.5 px-3 text-center text-slate-500">${item.author}</td>
+                    <td class="py-2.5 px-3 text-center text-slate-500">${item.author.replace('<span class="micro-glitch">', '').replace('</span>', '')}</td>
                     <td class="py-2.5 px-3 text-center font-mono text-slate-400">${item.date}</td>
                     <td class="py-2.5 px-3 text-center font-mono text-slate-400">${Math.floor(Math.random()*200)+50}</td>
                 `;
