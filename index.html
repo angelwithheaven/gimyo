@@ -1466,7 +1466,7 @@
         function triggerMinsuFinale(){
             triggerMinsuScreamSound(0);const overlay=document.getElementById('finalMinsuOverlay');overlay.style.display='flex';document.body.style.overflow='hidden';document.body.classList.add('shake-screen');
             document.querySelectorAll('button,input,textarea,a').forEach(el=>{if(!overlay.contains(el))el.setAttribute('tabindex','-1');});
-            const msg=overlay.querySelector('.final-message'),status=overlay.querySelectorAll('p');startMinsuMosaic(document.getElementById('finalMinsuCanvas'),1.25);
+            const msg=overlay.querySelector('.final-message'),status=overlay.querySelectorAll('p');startMinsuMosaic(document.getElementById('finalMinsuCanvas'),42,1.25);
             msg.style.opacity='0';status.forEach(el=>el.style.opacity='0');setTimeout(()=>msg.style.opacity='1',520);setTimeout(()=>status.forEach(el=>el.style.opacity='1'),1180);
             setTimeout(()=>{document.body.classList.remove('shake-screen');overlay.style.background='#000';},1850);setTimeout(leaveMinsuPage,5200);
         }
@@ -1481,7 +1481,7 @@
         // MINSU JUMPSCARE TRIGGER
         function triggerMinsuJumpscare(userTitle){
             triggerMinsuScreamSound(0);const overlay=document.getElementById('minsuJumpscareOverlay'),canvas=document.getElementById('minsuScareCanvas'),text=overlay.querySelector('.minsu-monster');
-            overlay.style.display='flex';document.body.classList.add('shake-screen');startMinsuMosaic(canvas,1.65);
+            overlay.style.display='flex';document.body.classList.add('shake-screen');startMinsuMosaic(canvas,32,1.65);
             const times=[32,71,104,168,212,281,337,403,477,531,612,701,783,849,932,1017,1094,1180,1261,1340,1422,1510,1600,1685,1770,1854,1940,2030,2110,2200];
             const timers=times.map((delay,i)=>setTimeout(()=>{overlay.style.backgroundColor=i%4===0?'#eee':i%3===0?'#650000':'#000';overlay.style.filter=i%5===0?'invert(1) contrast(500%)':'contrast(250%)';text.style.transform=`translate(${(Math.random()-.5)*5}vw,${(Math.random()-.5)*4}vh) scale(${.92+Math.random()*.24})`;drawMinsuMosaic(canvas,2);},delay));
             setTimeout(()=>{timers.forEach(clearTimeout);if(minsuNoiseLoop)clearInterval(minsuNoiseLoop);minsuNoiseLoop=null;overlay.style.filter='';overlay.style.backgroundColor='#000';text.style.transform='';overlay.style.display='none';document.body.classList.remove('shake-screen');
