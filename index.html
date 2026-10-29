@@ -1482,11 +1482,13 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
                 lunchGlitchResetTimeout = setTimeout(() => {
                     chosen.textContent = '· ' + chosen.dataset.normal;
                     chosen.classList.remove('text-red-700', 'font-bold');
-                    lunchGlitchTimeout = setTimeout(runRandomMenuGlitch, 1500 + Math.random() * 2000);
+                    // Keep the abnormal red menu visible for 3 seconds, then repeat on a strict 5-second cycle.
+                    lunchGlitchTimeout = setTimeout(runRandomMenuGlitch, 2000);
                 }, 3000);
             };
 
-            lunchGlitchTimeout = setTimeout(runRandomMenuGlitch, 1500 + Math.random() * 2000);
+            // First glitch appears after 5 seconds; thereafter one abnormal menu appears every 5 seconds.
+            lunchGlitchTimeout = setTimeout(runRandomMenuGlitch, 5000);
         }
 
         // Render Gallery
