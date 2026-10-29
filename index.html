@@ -271,7 +271,130 @@
         ::-webkit-scrollbar-thumb:hover {
             background: #64748b;
         }
-    </style>
+    
+        /* Pixel-mosaic analog horror: one glyph-eye, a single moving blood tear, and hard signal breakup. */
+        #minsuJumpscareOverlay, #finalMinsuOverlay {
+            overflow: hidden !important;
+            isolation: isolate;
+            background: #000 !important;
+        }
+        #minsuJumpscareOverlay::after, #finalMinsuOverlay::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            z-index: 5;
+            pointer-events: none;
+            opacity: .72;
+            background:
+                repeating-linear-gradient(0deg, transparent 0 3px, rgba(255,0,0,.18) 4px 5px),
+                repeating-linear-gradient(90deg, rgba(255,255,255,.055) 0 1px, transparent 1px 7px),
+                repeating-linear-gradient(0deg, rgba(255,0,0,.10) 0 5px, transparent 5px 11px);
+            mix-blend-mode: screen;
+            animation: mosaicBreak .09s steps(2,end) infinite;
+        }
+        .minsu-monster { position: relative; z-index: 1; width:100%; min-height:100vh; }
+        .minsu-eye-art {
+            position: relative;
+            width: min(100vw, 100vh);
+            height: min(100vw, 100vh);
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            flex: 0 0 auto;
+            filter: grayscale(1) contrast(3.5);
+            animation: glyphEyeJolt .11s steps(2,end) infinite;
+            text-shadow: 0 0 3px #eee, 0 0 13px #900, 0 0 35px #300;
+        }
+        .eye-glyph {
+            position:relative;
+            color:#d8d5cf;
+            font-family: "Noto Serif", "Times New Roman", serif;
+            font-size: clamp(17rem, 64vw, 62rem);
+            line-height: .72;
+            transform: scaleX(1.1) scaleY(.82);
+            text-shadow: 0 0 2px #fff, 0 0 12px #aaa, 0 0 34px #700;
+            animation: glyphBlink .19s steps(2,end) infinite;
+        }
+        .eye-blood-trail {
+            position:absolute;
+            z-index:2;
+            top:57%;
+            left:53%;
+            width:3px;
+            height:0;
+            background:linear-gradient(#b00000,#6c0000 70%,transparent);
+            box-shadow:0 0 8px #a00000;
+            animation:bloodTrail 1.15s steps(5,end) infinite;
+        }
+        .eye-blood-drop {
+            position:absolute;
+            z-index:3;
+            top:56%;
+            left:calc(53% - 3px);
+            width:8px;
+            height:11px;
+            border-radius:60% 45% 65% 50%;
+            background:#a00000;
+            box-shadow:0 0 8px #b00000;
+            opacity:0;
+            animation:bloodDrop .95s linear infinite;
+        }
+        .eye-static-label {
+            position:absolute;
+            bottom:7%;
+            left:50%;
+            transform:translateX(-50%);
+            white-space:nowrap;
+            color:#8d0000;
+            font: bold clamp(9px, 1.4vw, 14px) monospace;
+            letter-spacing:.45em;
+            text-shadow:0 0 8px #700;
+            animation:labelCorrupt .13s steps(2,end) infinite;
+        }
+        #finalMinsuOverlay .minsu-eye-art { width:min(100vw,100vh); height:min(100vw,100vh); }
+        #finalMinsuOverlay .eye-glyph { font-size:clamp(17rem,64vw,62rem); }
+        #finalMinsuOverlay .final-message, #finalMinsuOverlay > p {
+            position:relative; z-index:7;
+        }
+        @keyframes glyphEyeJolt {
+            0% { transform:translate(0,0) scale(.55); filter:contrast(4) brightness(.25); }
+            12% { transform:translate(-3vw,2vh) scale(1.18); filter:contrast(5) brightness(1.2); }
+            28% { transform:translate(2vw,-1vh) scale(.94); filter:contrast(3.5) invert(.85); }
+            47% { transform:translate(-1vw,1vh) scale(1.1); filter:contrast(5) brightness(.65); }
+            63% { transform:translate(3vw,0) scale(1.02); filter:contrast(4) invert(.2); }
+            100% { transform:translate(0,0) scale(1.08); filter:contrast(5) brightness(.8); }
+        }
+        @keyframes glyphBlink {
+            0%, 36%, 40%, 100% { opacity:1; }
+            38% { opacity:.02; }
+            72% { opacity:.45; }
+            74% { opacity:1; }
+        }
+        @keyframes bloodTrail {
+            0% { height:0; opacity:0; }
+            14% { height:0; opacity:1; }
+            70% { height:17vh; opacity:1; }
+            82%,100% { height:20vh; opacity:.15; }
+        }
+        @keyframes bloodDrop {
+            0%,12% { transform:translateY(0) scale(.55); opacity:0; }
+            18% { opacity:1; }
+            72% { transform:translateY(17vh) scale(1); opacity:1; }
+            90%,100% { transform:translateY(21vh) scale(.8); opacity:0; }
+        }
+        @keyframes mosaicBreak {
+            0% { opacity:.25; transform:translate(0,0); filter:contrast(1); }
+            25% { opacity:.9; transform:translate(-2px,1px); filter:contrast(4) hue-rotate(35deg); }
+            50% { opacity:.4; transform:translate(3px,-1px); filter:contrast(2) invert(.6); }
+            75% { opacity:1; transform:translate(-1px,2px); filter:contrast(5); }
+            100% { opacity:.55; transform:translate(0,0); }
+        }
+        @keyframes labelCorrupt {
+            0%,100% { opacity:.8; transform:translateX(-50%); }
+            50% { opacity:.15; transform:translateX(calc(-50% + 8px)); }
+        }
+
+</style>
 </head>
 <body class="text-slate-800 font-sans flex flex-col min-h-screen relative">
 
@@ -285,28 +408,12 @@
     <!-- MINSU HORROR JUMPSCARE OVERLAY -->
     <div id="minsuJumpscareOverlay">
         <div class="minsu-monster relative flex flex-col items-center justify-center w-full">
-            <div class="minsu-face-art" aria-label="비대칭으로 일그러진 창백한 사람 얼굴">
-            <svg viewBox="0 0 400 400" role="img" aria-hidden="true">
-  <defs>
-    <radialGradient id="eyeballShade" cx="35%" cy="28%" r="72%"><stop offset="0" stop-color="#fffdf4"/><stop offset=".48" stop-color="#d5d0c7"/><stop offset=".82" stop-color="#817b76"/><stop offset="1" stop-color="#181313"/></radialGradient>
-    <filter id="eyeballGrain"><feTurbulence type="fractalNoise" baseFrequency=".72" numOctaves="3" seed="7"/><feColorMatrix values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 .2 0"/></filter>
-  </defs>
-  <ellipse cx="200" cy="214" rx="170" ry="158" fill="#170000" opacity=".9"/>
-  <path d="M27 205 Q90 62 204 67 Q320 67 374 203 Q299 333 194 340 Q82 333 27 205Z" fill="#0a0303" stroke="#4d0000" stroke-width="8"/>
-  <path d="M38 202 Q101 82 202 82 Q304 79 362 203 Q292 316 196 324 Q97 317 38 202Z" fill="url(#eyeballShade)"/>
-  <g class="rolling-pupil">
-    <ellipse cx="221" cy="200" rx="75" ry="88" fill="#76000a"/>
-    <ellipse cx="225" cy="198" rx="49" ry="65" fill="#160305"/>
-    <ellipse cx="229" cy="197" rx="24" ry="42" fill="#000"/>
-    <circle cx="244" cy="168" r="12" fill="#fff" opacity=".92"/>
-    <circle cx="205" cy="220" r="5" fill="#f4e9dc" opacity=".7"/>
-  </g>
-  <path d="M30 199 Q92 65 202 67 Q317 66 374 201" fill="none" stroke="#080202" stroke-width="24"/>
-  <path d="M49 233 Q107 314 196 324 Q288 315 351 234" fill="none" stroke="#2b0000" stroke-width="13"/>
-  <path d="M91 286 Q104 315 96 349 Q91 369 103 383 Q119 357 114 331 L109 300Z M302 277 Q316 307 307 333 Q302 353 316 366 Q333 342 325 310 L320 282Z" fill="#650000"/>
-  <rect x="0" y="0" width="400" height="400" filter="url(#eyeballGrain)" opacity=".32"/>
-</svg>
-        </div>
+            <div class="minsu-eye-art" role="img" aria-label="검은 화면에 떠 있는 피눈물 흘리는 눈">
+  <div class="eye-glyph">𓁹</div>
+  <div class="eye-blood-trail"></div>
+  <div class="eye-blood-drop"></div>
+  <div class="eye-static-label">NO SIGNAL // 0x884F</div>
+</div>
             <h1 class="text-4xl sm:text-6xl font-extrabold text-red-700 font-mono tracking-widest mt-2 select-none text-center" style="text-shadow:0 0 9px #a00000,0 0 30px #300;">
                 나도 무서워
             </h1>
@@ -894,28 +1001,12 @@
 
     <!-- FINAL MINSU EVENT -->
     <div id="finalMinsuOverlay" role="alertdialog" aria-modal="true">
-        <div class="minsu-face-art" aria-label="비대칭으로 일그러진 창백한 사람 얼굴">
-            <svg viewBox="0 0 400 400" role="img" aria-hidden="true">
-  <defs>
-    <radialGradient id="eyeballShade" cx="35%" cy="28%" r="72%"><stop offset="0" stop-color="#fffdf4"/><stop offset=".48" stop-color="#d5d0c7"/><stop offset=".82" stop-color="#817b76"/><stop offset="1" stop-color="#181313"/></radialGradient>
-    <filter id="eyeballGrain"><feTurbulence type="fractalNoise" baseFrequency=".72" numOctaves="3" seed="7"/><feColorMatrix values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 .2 0"/></filter>
-  </defs>
-  <ellipse cx="200" cy="214" rx="170" ry="158" fill="#170000" opacity=".9"/>
-  <path d="M27 205 Q90 62 204 67 Q320 67 374 203 Q299 333 194 340 Q82 333 27 205Z" fill="#0a0303" stroke="#4d0000" stroke-width="8"/>
-  <path d="M38 202 Q101 82 202 82 Q304 79 362 203 Q292 316 196 324 Q97 317 38 202Z" fill="url(#eyeballShade)"/>
-  <g class="rolling-pupil">
-    <ellipse cx="221" cy="200" rx="75" ry="88" fill="#76000a"/>
-    <ellipse cx="225" cy="198" rx="49" ry="65" fill="#160305"/>
-    <ellipse cx="229" cy="197" rx="24" ry="42" fill="#000"/>
-    <circle cx="244" cy="168" r="12" fill="#fff" opacity=".92"/>
-    <circle cx="205" cy="220" r="5" fill="#f4e9dc" opacity=".7"/>
-  </g>
-  <path d="M30 199 Q92 65 202 67 Q317 66 374 201" fill="none" stroke="#080202" stroke-width="24"/>
-  <path d="M49 233 Q107 314 196 324 Q288 315 351 234" fill="none" stroke="#2b0000" stroke-width="13"/>
-  <path d="M91 286 Q104 315 96 349 Q91 369 103 383 Q119 357 114 331 L109 300Z M302 277 Q316 307 307 333 Q302 353 316 366 Q333 342 325 310 L320 282Z" fill="#650000"/>
-  <rect x="0" y="0" width="400" height="400" filter="url(#eyeballGrain)" opacity=".32"/>
-</svg>
-        </div>
+        <div class="minsu-eye-art" role="img" aria-label="검은 화면에 떠 있는 피눈물 흘리는 눈">
+  <div class="eye-glyph">𓁹</div>
+  <div class="eye-blood-trail"></div>
+  <div class="eye-blood-drop"></div>
+  <div class="eye-static-label">NO SIGNAL // 0x884F</div>
+</div>
         <div class="final-message" style="font-family:'Nanum Myeongjo',serif;color:#a00000;text-shadow:0 0 12px #500;font-size:clamp(1.5rem,5vw,2.5rem);">찾아줘서 고마워, 이제 내가 갈게</div>
         <p class="text-xs text-red-950 mt-5 font-mono tracking-[.4em]">SESSION TERMINATED</p>
         <p class="text-xs text-red-950 mt-2 font-mono">너를 보고 있어</p>
@@ -1013,75 +1104,80 @@
         }
 
         // 3. MINSU SCREAM SOUND EFFECT
-        function triggerMinsuScreamSound() {
+        function triggerMinsuScreamSound(type = 0) {
             if (audioCtx.state === 'suspended') audioCtx.resume();
             const now = audioCtx.currentTime;
 
-            // Abrupt original synthesized shriek, low impact, and a short static burst.
+            // Reference-style layered jumpscare: piercing frequency sweep + sub hit + harsh static.
+            // Synthesized locally; no external audio asset. Master compressor prevents runaway peaks.
             const master = audioCtx.createGain();
             const limiter = audioCtx.createDynamicsCompressor();
-            limiter.threshold.setValueAtTime(-10, now);
-            limiter.knee.setValueAtTime(8, now);
-            limiter.ratio.setValueAtTime(8, now);
-            limiter.attack.setValueAtTime(0.003, now);
-            limiter.release.setValueAtTime(0.12, now);
-            master.gain.setValueAtTime(0.72, now);
+            limiter.threshold.setValueAtTime(-8, now);
+            limiter.knee.setValueAtTime(4, now);
+            limiter.ratio.setValueAtTime(12, now);
+            limiter.attack.setValueAtTime(0.002, now);
+            limiter.release.setValueAtTime(0.16, now);
+            master.gain.setValueAtTime(0.92, now);
             master.connect(limiter);
             limiter.connect(audioCtx.destination);
 
+            const duration = type === 2 ? 1.5 : type === 3 ? 1.15 : 1.2;
             const shriek = audioCtx.createOscillator();
             const shriekGain = audioCtx.createGain();
             const shriekFilter = audioCtx.createBiquadFilter();
-            shriek.type = 'sawtooth';
-            shriek.frequency.setValueAtTime(1700, now);
-            shriek.frequency.exponentialRampToValueAtTime(4900, now + 0.045);
-            shriek.frequency.setValueAtTime(2850, now + 0.085);
-            shriek.frequency.exponentialRampToValueAtTime(1050, now + 0.2);
-            shriek.frequency.exponentialRampToValueAtTime(3900, now + 0.255);
-            shriek.frequency.exponentialRampToValueAtTime(1700, now + 0.43);
-            shriekFilter.type = 'highpass';
-            shriekFilter.frequency.setValueAtTime(1450, now);
-            shriekFilter.Q.setValueAtTime(1.4, now);
+            shriek.type = type === 1 ? 'square' : 'sawtooth';
+            const startHz = type === 1 ? 800 : type === 2 ? 120 : type === 3 ? 1500 : 2200;
+            const peakHz = type === 1 ? 3200 : type === 2 ? 45 : type === 3 ? 2600 : 4200;
+            const endHz = type === 1 ? 150 : type === 2 ? 45 : type === 3 ? 300 : 100;
+            shriek.frequency.setValueAtTime(startHz, now);
+            if (type === 0) {
+                shriek.frequency.exponentialRampToValueAtTime(peakHz, now + 0.025);
+                shriek.frequency.setValueAtTime(2850, now + 0.075);
+                shriek.frequency.exponentialRampToValueAtTime(100, now + duration);
+            } else {
+                shriek.frequency.linearRampToValueAtTime(peakHz, now + 0.3);
+                shriek.frequency.linearRampToValueAtTime(endHz, now + duration);
+            }
+            shriekFilter.type = type === 2 ? 'lowpass' : 'highpass';
+            shriekFilter.frequency.setValueAtTime(type === 2 ? 260 : 1500, now);
+            shriekFilter.Q.setValueAtTime(1.5, now);
             shriekGain.gain.setValueAtTime(0.0001, now);
-            shriekGain.gain.exponentialRampToValueAtTime(0.72, now + 0.008);
-            shriekGain.gain.setValueAtTime(0.48, now + 0.12);
-            shriekGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.44);
+            shriekGain.gain.exponentialRampToValueAtTime(type === 2 ? 0.72 : 0.82, now + 0.008);
+            shriekGain.gain.setValueAtTime(type === 2 ? 0.58 : 0.62, now + 0.09);
+            shriekGain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
             shriek.connect(shriekFilter); shriekFilter.connect(shriekGain); shriekGain.connect(master);
-            shriek.start(now); shriek.stop(now + 0.45);
+            shriek.start(now); shriek.stop(now + duration + 0.02);
 
+            // Short sub-bass impact under the shriek.
             const sub = audioCtx.createOscillator();
             const subGain = audioCtx.createGain();
             sub.type = 'sine';
-            sub.frequency.setValueAtTime(105, now);
+            sub.frequency.setValueAtTime(type === 2 ? 120 : 105, now);
             sub.frequency.exponentialRampToValueAtTime(38, now + 0.32);
             subGain.gain.setValueAtTime(0.0001, now);
-            subGain.gain.exponentialRampToValueAtTime(0.5, now + 0.012);
-            subGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.38);
+            subGain.gain.exponentialRampToValueAtTime(0.52, now + 0.012);
+            subGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.42);
             sub.connect(subGain); subGain.connect(master);
-            sub.start(now); sub.stop(now + 0.39);
+            sub.start(now); sub.stop(now + 0.44);
 
-            const noiseLength = Math.floor(audioCtx.sampleRate * 0.19);
+            // Harsh, clipped broadband static burst, like damaged VHS audio.
+            const noiseLength = Math.floor(audioCtx.sampleRate * 0.24);
             const noiseBuffer = audioCtx.createBuffer(1, noiseLength, audioCtx.sampleRate);
             const noiseData = noiseBuffer.getChannelData(0);
-            for (let i = 0; i < noiseLength; i++) {
-                noiseData[i] = (Math.random() * 2 - 1) * (1 - i / noiseLength);
-            }
+            for (let i = 0; i < noiseLength; i++) noiseData[i] = (Math.random() * 2 - 1) * (1 - i / noiseLength);
             const noise = audioCtx.createBufferSource();
             const noiseFilter = audioCtx.createBiquadFilter();
             const noiseGain = audioCtx.createGain();
             noise.buffer = noiseBuffer;
             noiseFilter.type = 'highpass';
-            noiseFilter.frequency.setValueAtTime(2300, now);
+            noiseFilter.frequency.setValueAtTime(1800, now);
             noiseGain.gain.setValueAtTime(0.0001, now);
-            noiseGain.gain.exponentialRampToValueAtTime(0.22, now + 0.012);
-            noiseGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.19);
+            noiseGain.gain.exponentialRampToValueAtTime(0.32, now + 0.01);
+            noiseGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.24);
             noise.connect(noiseFilter); noiseFilter.connect(noiseGain); noiseGain.connect(master);
-            noise.start(now + 0.015); noise.stop(now + 0.2);
-
-            window.setTimeout(() => {
-                try { master.disconnect(); limiter.disconnect(); } catch (e) {}
-            }, 800);
+            noise.start(now + 0.012);
         }
+
         // 3. School Bell Simulation (Distorted)
         function playSchoolBell() {
             if (audioCtx.state === 'suspended') audioCtx.resume();
