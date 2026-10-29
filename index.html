@@ -713,6 +713,10 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
                                 <span class="truncate font-medium text-slate-700">[가정통신문] 2026학년도 동복 착용 안내</span>
                                 <span class="text-[10px] text-slate-400 font-mono shrink-0 ml-2">10.01</span>
                             </li>
+                            <li class="flex justify-between items-center border-b border-slate-100 pb-1.5 cursor-pointer hover:text-red-700" onclick="openPhantomPhoneNotice()">
+                                <span class="truncate font-medium text-slate-700">[가정통신문] 교내 전화번호 사칭 주의 안내</span>
+                                <span class="text-[10px] text-red-600 font-mono shrink-0 ml-2">10.33</span>
+                            </li>
                         </ul>
                     </div>
                 </div>
@@ -1317,6 +1321,21 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
                 `;
                 tbody.appendChild(tr);
             });
+        }
+
+        // This notice appears only in the home-page family-letter preview, not in the official notice board.
+        function openPhantomPhoneNotice() {
+            triggerStaticSound(0.15);
+            document.getElementById('modalNoticeTitle').innerText = '[가정통신문] 교내 전화번호 사칭 주의 안내';
+            document.getElementById('modalNoticeAuthor').innerText = '작성자: 교무기획부';
+            document.getElementById('modalNoticeDate').innerText = '작성일: 2026-10-33';
+            document.getElementById('modalNoticeBody').innerHTML = `
+                <p>최근 본교 전화번호를 사칭하는 전화가 발생하고 있습니다.</p>
+                <p>교무실 및 당직실의 공식 전화번호는 <strong class="text-red-700">031-999-9999</strong> 하나뿐입니다. 이외의 번호는 본교에서 사용하지 않습니다.</p>
+                <p>다른 번호로 연결했을 때 '김민수'라는 이름이 들리더라도 대답하지 마십시오. 상대방이 먼저 말을 걸어도 마찬가지입니다.</p>
+                <p class="text-slate-400">※ 본 안내문은 별도 게시판에서 확인할 수 없습니다.</p>
+            `;
+            document.getElementById('noticeModal').classList.remove('hidden');
         }
 
         // Notice Modal Handlers
