@@ -1696,9 +1696,9 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
 
             const beat = () => {
                 if (!warningHeartbeatActive) return;
-                if (audioCtx.state === 'suspended') {
+                if (audioCtx.state !== 'running') {
                     audioCtx.resume().then(() => {
-                        if (warningHeartbeatActive) beat();
+                        if (warningHeartbeatActive && audioCtx.state === 'running') beat();
                     }).catch(() => {});
                     return;
                 }
@@ -1706,95 +1706,92 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
                 try {
                     const now = audioCtx.currentTime;
 
-                    // Deep, irregular "kuung" knocks: sub-bass body + wooden mid thump + dusty impact.
+                    // Audible layered knock: clear mid punch, deep rumble, and a short noisy impact.
+                    const thump = audioCtx.createOscillator();
+                    const thumpGain = audioCtx.createGain();
+                    thump.type = 'triangle';
+                    thump.frequency.setValueAtTime(118 + Math.random() * 28, now);
+                    thump.frequency.exponentialRampToValueAtTime(48 + Math.random() * 10, now + 0.22);
+                    thumpGain.gain.setValueAtTime(0.0001, now);
+                    thumpGain.gain.exponentialRampToValueAtTime(0.9, now + 0.008);
+                    thumpGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.29);
+                    thump.connect(thumpGain);
+                    thumpGain.connect(audioCtx.destination);
+                    thump.start(now);
+                    thump.stop(now + 0.3);
+
                     const sub = audioCtx.createOscillator();
                     const subGain = audioCtx.createGain();
                     sub.type = 'sine';
-                    sub.frequency.setValueAtTime(52 + Math.random() * 12, now);
-                    sub.frequency.exponentialRampToValueAtTime(24 + Math.random() * 5, now + 0.34);
+                    sub.frequency.setValueAtTime(58 + Math.random() * 10, now);
+                    sub.frequency.exponentialRampToValueAtTime(29, now + 0.32);
                     subGain.gain.setValueAtTime(0.0001, now);
-                    subGain.gain.exponentialRampToValueAtTime(1.25, now + 0.018);
-                    subGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.42);
+                    subGain.gain.exponentialRampToValueAtTime(0.95, now + 0.014);
+                    subGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.38);
                     sub.connect(subGain);
                     subGain.connect(audioCtx.destination);
                     sub.start(now);
-                    sub.stop(now + 0.44);
+                    sub.stop(now + 0.4);
 
-                    const body = audioCtx.createOscillator();
-                    const bodyGain = audioCtx.createGain();
-                    const bodyFilter = audioCtx.createBiquadFilter();
-                    body.type = 'triangle';
-                    body.frequency.setValueAtTime(145 + Math.random() * 35, now);
-                    body.frequency.exponentialRampToValueAtTime(58 + Math.random() * 12, now + 0.19);
-                    bodyFilter.type = 'lowpass';
-                    bodyFilter.frequency.setValueAtTime(230, now);
-                    bodyFilter.Q.setValueAtTime(1.8, now);
-                    bodyGain.gain.setValueAtTime(0.0001, now);
-                    bodyGain.gain.exponentialRampToValueAtTime(0.62, now + 0.009);
-                    bodyGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.24);
-                    body.connect(bodyFilter);
-                    bodyFilter.connect(bodyGain);
-                    bodyGain.connect(audioCtx.destination);
-                    body.start(now);
-                    body.stop(now + 0.26);
-
-                    // A short low-passed noise burst gives the impact a physical, muffled edge.
-                    const length = Math.floor(audioCtx.sampleRate * 0.24);
+                    const length = Math.floor(audioCtx.sampleRate * 0.2);
                     const buffer = audioCtx.createBuffer(1, length, audioCtx.sampleRate);
                     const data = buffer.getChannelData(0);
                     for (let i = 0; i < length; i++) {
-                        const fade = Math.pow(1 - i / length, 3);
-                        data[i] = (Math.random() * 2 - 1) * fade;
+                        data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / length, 2.5);
                     }
                     const noise = audioCtx.createBufferSource();
-                    noise.buffer = buffer;
                     const filter = audioCtx.createBiquadFilter();
-                    filter.type = 'lowpass';
-                    filter.frequency.setValueAtTime(320 + Math.random() * 100, now);
-                    filter.frequency.exponentialRampToValueAtTime(90, now + 0.22);
                     const noiseGain = audioCtx.createGain();
+                    noise.buffer = buffer;
+                    filter.type = 'lowpass';
+                    filter.frequency.setValueAtTime(520, now);
+                    filter.frequency.exponentialRampToValueAtTime(120, now + 0.19);
                     noiseGain.gain.setValueAtTime(0.0001, now);
-                    noiseGain.gain.exponentialRampToValueAtTime(0.72, now + 0.006);
-                    noiseGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.24);
+                    noiseGain.gain.exponentialRampToValueAtTime(0.55, now + 0.005);
+                    noiseGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.2);
                     noise.connect(filter);
                     filter.connect(noiseGain);
                     noiseGain.connect(audioCtx.destination);
                     noise.start(now);
 
-                    // Tiny delayed bass reflections create a hollow, ominous room-like tail.
+                    // Quiet delayed bass reflection.
                     const echo = audioCtx.createOscillator();
                     const echoGain = audioCtx.createGain();
                     echo.type = 'sine';
-                    echo.frequency.setValueAtTime(42, now + 0.09);
+                    echo.frequency.setValueAtTime(43, now + 0.08);
                     echoGain.gain.setValueAtTime(0.0001, now);
                     echoGain.gain.setValueAtTime(0.0001, now + 0.08);
-                    echoGain.gain.exponentialRampToValueAtTime(0.22, now + 0.105);
-                    echoGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.48);
+                    echoGain.gain.exponentialRampToValueAtTime(0.2, now + 0.1);
+                    echoGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.43);
                     echo.connect(echoGain);
                     echoGain.connect(audioCtx.destination);
                     echo.start(now + 0.08);
-                    echo.stop(now + 0.5);
-                } catch (e) {}
+                    echo.stop(now + 0.45);
+                } catch (e) {
+                    console.warn('Warning knock sound failed:', e);
+                }
 
-                // Uneven clustered knocks, with occasional breathing space between clusters.
+                // Starts immediately when the warning appears, then repeats in uneven clusters.
                 const roll = Math.random();
-                const interval = roll < 0.34 ? 105 + Math.random() * 35
-                    : roll < 0.78 ? 185 + Math.random() * 65
-                    : 310 + Math.random() * 100;
+                const interval = roll < 0.4 ? 95 + Math.random() * 40
+                    : roll < 0.82 ? 165 + Math.random() * 55
+                    : 280 + Math.random() * 90;
                 warningHeartbeatTimer = window.setTimeout(beat, interval);
             };
 
-            if (audioCtx.state === 'suspended') {
-                // Browser autoplay policy: resume on the first click/key while the warning is visible.
+            if (audioCtx.state === 'running') {
+                beat();
+            } else {
                 warningAudioUnlockHandler = () => {
                     audioCtx.resume().then(() => {
-                        if (warningHeartbeatActive) beat();
+                        if (warningHeartbeatActive && audioCtx.state === 'running') beat();
                     }).catch(() => {});
                 };
                 document.addEventListener('pointerdown', warningAudioUnlockHandler, { once: true });
                 document.addEventListener('keydown', warningAudioUnlockHandler, { once: true });
-            } else {
-                beat();
+                audioCtx.resume().then(() => {
+                    if (warningHeartbeatActive && audioCtx.state === 'running') beat();
+                }).catch(() => {});
             }
         }
 
