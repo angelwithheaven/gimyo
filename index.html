@@ -255,12 +255,12 @@
         body.prank-cursed #staticCanvas { opacity:.3 !important; }
         body.prank-cursed main,body.prank-cursed header,body.prank-cursed section,body.prank-cursed footer,body.prank-cursed nav,body.prank-cursed article,body.prank-cursed button,body.prank-cursed img { image-rendering:pixelated; }
         @keyframes archiveSignal { 0%{transform:translate(0,0);filter:contrast(1.4)} 25%{transform:translate(-2px,1px);filter:contrast(2.5)} 50%{transform:translate(1px,-1px);filter:contrast(1.8)} 75%{transform:translate(2px,0);filter:contrast(3)} 100%{transform:translate(0,1px);filter:contrast(2)} }
-        #prankBloodCurtain { position:fixed; inset:0; z-index:50000; pointer-events:none; display:none; background:#e00016; clip-path:polygon(0 0,100% 0,100% 0,0 0); }
-        #prankBloodCurtain::before { content:""; position:absolute; inset:-2%; background:radial-gradient(ellipse at 12% 5%,#ff1b2d 0 8%,transparent 25%),radial-gradient(ellipse at 39% 0%,#b00012 0 15%,transparent 32%),radial-gradient(ellipse at 68% 4%,#ff2638 0 10%,transparent 28%),radial-gradient(ellipse at 91% 0%,#9f0010 0 12%,transparent 29%),linear-gradient(180deg,#b00012 0%,#ed001b 48%,#ff152c 100%); filter:saturate(1.8) contrast(1.12); }
-        #prankBloodCurtain.spread { display:block; animation:prankBloodSpread 1.25s cubic-bezier(.3,.7,.2,1) forwards; }
-        #prankBloodCurtain.full { clip-path:polygon(0 0,100% 0,100% 100%,0 100%); }
-        @keyframes prankBloodSpread { 0%{clip-path:polygon(0 0,100% 0,100% 0,0 0)} 18%{clip-path:polygon(0 0,100% 0,100% 18%,96% 22%,92% 15%,87% 25%,80% 20%,74% 31%,68% 18%,60% 27%,53% 17%,46% 29%,39% 20%,31% 28%,24% 17%,17% 25%,10% 18%,4% 23%,0 17%)} 48%{clip-path:polygon(0 0,100% 0,100% 49%,95% 43%,91% 56%,83% 46%,76% 61%,69% 49%,61% 64%,53% 48%,46% 60%,38% 47%,30% 62%,23% 48%,15% 58%,8% 45%,0 53%)} 78%{clip-path:polygon(0 0,100% 0,100% 79%,93% 73%,85% 84%,77% 72%,68% 87%,59% 76%,50% 89%,41% 74%,32% 86%,23% 75%,14% 88%,7% 76%,0 83%)} 100%{clip-path:polygon(0 0,100% 0,100% 100%,0 100%)} }
-        body.prank-blood-final { background:#e00016 !important; }
+        #prankBloodCurtain { position:fixed; inset:0; z-index:50000; pointer-events:none; display:none; background:linear-gradient(180deg,rgba(210,0,18,.84) 0%,rgba(142,0,14,.91) 42%,rgba(62,0,8,.97) 100%); clip-path:inset(0 0 100% 0); backdrop-filter:blur(0) saturate(1.3); -webkit-backdrop-filter:blur(0) saturate(1.3); }
+        #prankBloodCurtain::before { content:""; position:absolute; inset:0; background:radial-gradient(ellipse at 22% 12%,rgba(255,12,32,.42),transparent 48%),radial-gradient(ellipse at 78% 30%,rgba(120,0,12,.35),transparent 52%),linear-gradient(180deg,rgba(180,0,18,.08),rgba(15,0,4,.55)); }
+        #prankBloodCurtain.spread { display:block; animation:prankBloodSpread 4.2s ease-in forwards; }
+        #prankBloodCurtain.full { clip-path:inset(0); background:linear-gradient(180deg,#79000c 0%,#420007 52%,#160004 100%); backdrop-filter:blur(11px) saturate(.65); -webkit-backdrop-filter:blur(11px) saturate(.65); }
+        @keyframes prankBloodSpread { 0%{clip-path:inset(0 0 100% 0);backdrop-filter:blur(0) saturate(1.3);-webkit-backdrop-filter:blur(0) saturate(1.3);filter:brightness(1.1)} 24%{clip-path:inset(0 0 76% 0);backdrop-filter:blur(2px) saturate(1.15);-webkit-backdrop-filter:blur(2px) saturate(1.15);filter:brightness(1)} 55%{clip-path:inset(0 0 45% 0);backdrop-filter:blur(5px) saturate(.95);-webkit-backdrop-filter:blur(5px) saturate(.95);filter:brightness(.85)} 82%{clip-path:inset(0 0 18% 0);backdrop-filter:blur(8px) saturate(.8);-webkit-backdrop-filter:blur(8px) saturate(.8);filter:brightness(.7)} 100%{clip-path:inset(0);backdrop-filter:blur(11px) saturate(.65);-webkit-backdrop-filter:blur(11px) saturate(.65);filter:brightness(.58)} }
+        body.prank-blood-final { background:#240005 !important; }
         .melt-warning { white-space:pre-line; color:#ff0000; font-family:'Nanum Myeongjo',serif; font-weight:900; font-size:calc(clamp(2rem,8vw,6.5rem) - 5pt); letter-spacing:.04em; line-height:1.65; text-align:center; padding:1.5rem; text-shadow:0 0 2px #f00,0 0 14px #900; opacity:1; } .melt-warning .warning-char { display:inline-block; color:#ff0000; opacity:0; visibility:hidden; } .melt-warning .warning-char.visible { opacity:1; visibility:visible; animation:warningCharIn .08s steps(1,end) both; } @keyframes warningCharIn { from { transform:translateY(-3px); } to { transform:translateY(0); } }
         @keyframes warningImpact { 0% { transform:scale(1.08); filter:blur(4px); } 12% { transform:scale(1); filter:blur(0); } 28% { transform:translateX(-8px) scale(1.02); text-shadow:5px 0 #5b0000,-5px 0 #f00; } 29% { transform:translateX(7px) scale(.99); } 30% { transform:translateX(0) scale(1); } 72% { filter:contrast(180%); } 100% { transform:scale(.92); filter:blur(4px); } }
         #phoneLockOverlay { position:fixed; inset:0; z-index:25000; display:none; background:transparent; pointer-events:auto; cursor:wait; touch-action:none; }
@@ -1709,6 +1709,7 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
         function playWarningHeartbeat() {
             warningHeartbeatActive = true;
             let loopStarted = false;
+
             const beat = () => {
                 if (!warningHeartbeatActive || loopStarted) return;
                 if (audioCtx.state !== 'running') {
@@ -1719,70 +1720,69 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
                 }
                 loopStarted = true;
 
-                // Fast, uneven, panicked pounding: a dense "tok-tok-toktok-tok-toktoktok" rhythm.
-                const knock = (accent = 1) => {
+                // Five heavy, blunt door knocks, exactly two seconds apart.
+                const knock = () => {
                     if (!warningHeartbeatActive) return;
                     try {
                         const now = audioCtx.currentTime;
-                        const strength = (0.78 + Math.random() * 0.22) * accent;
-                        const impact = audioCtx.createOscillator();
-                        const impactGain = audioCtx.createGain();
-                        const impactFilter = audioCtx.createBiquadFilter();
-                        impact.type = 'triangle';
-                        impact.frequency.setValueAtTime(145 + Math.random() * 95, now);
-                        impact.frequency.exponentialRampToValueAtTime(42 + Math.random() * 15, now + .075);
-                        impactFilter.type = 'lowpass';
-                        impactFilter.frequency.setValueAtTime(1250, now);
-                        impactFilter.frequency.exponentialRampToValueAtTime(220, now + .12);
-                        impactGain.gain.setValueAtTime(.0001, now);
-                        impactGain.gain.exponentialRampToValueAtTime(.95 * strength, now + .002);
-                        impactGain.gain.exponentialRampToValueAtTime(.0001, now + .16);
-                        impact.connect(impactFilter); impactFilter.connect(impactGain); impactGain.connect(audioCtx.destination);
-                        impact.start(now); impact.stop(now + .17);
 
-                        const thump = audioCtx.createOscillator();
-                        const thumpGain = audioCtx.createGain();
-                        thump.type = 'sine';
-                        thump.frequency.setValueAtTime(58 + Math.random() * 20, now);
-                        thump.frequency.exponentialRampToValueAtTime(31, now + .19);
-                        thumpGain.gain.setValueAtTime(.0001, now);
-                        thumpGain.gain.exponentialRampToValueAtTime(.85 * strength, now + .004);
-                        thumpGain.gain.exponentialRampToValueAtTime(.0001, now + .24);
-                        thump.connect(thumpGain); thumpGain.connect(audioCtx.destination);
-                        thump.start(now); thump.stop(now + .25);
+                        // Low, chesty impact with a hard attack and a deep wooden-door resonance.
+                        const body = audioCtx.createOscillator();
+                        const bodyGain = audioCtx.createGain();
+                        const bodyFilter = audioCtx.createBiquadFilter();
+                        body.type = 'sine';
+                        body.frequency.setValueAtTime(92, now);
+                        body.frequency.exponentialRampToValueAtTime(38, now + .34);
+                        bodyFilter.type = 'lowpass';
+                        bodyFilter.frequency.setValueAtTime(420, now);
+                        bodyFilter.frequency.exponentialRampToValueAtTime(115, now + .32);
+                        bodyGain.gain.setValueAtTime(.0001, now);
+                        bodyGain.gain.exponentialRampToValueAtTime(1.0, now + .006);
+                        bodyGain.gain.setValueAtTime(.72, now + .045);
+                        bodyGain.gain.exponentialRampToValueAtTime(.0001, now + .58);
+                        body.connect(bodyFilter); bodyFilter.connect(bodyGain); bodyGain.connect(audioCtx.destination);
+                        body.start(now); body.stop(now + .6);
 
-                        const len = Math.floor(audioCtx.sampleRate * .075);
-                        const buffer = audioCtx.createBuffer(1, len, audioCtx.sampleRate);
+                        // Short wooden crack layered over the bass, so each hit lands like KUNG!
+                        const crack = audioCtx.createOscillator();
+                        const crackGain = audioCtx.createGain();
+                        const crackFilter = audioCtx.createBiquadFilter();
+                        crack.type = 'triangle';
+                        crack.frequency.setValueAtTime(205, now);
+                        crack.frequency.exponentialRampToValueAtTime(72, now + .09);
+                        crackFilter.type = 'lowpass'; crackFilter.frequency.value = 780;
+                        crackGain.gain.setValueAtTime(.0001, now);
+                        crackGain.gain.exponentialRampToValueAtTime(.8, now + .002);
+                        crackGain.gain.exponentialRampToValueAtTime(.0001, now + .19);
+                        crack.connect(crackFilter); crackFilter.connect(crackGain); crackGain.connect(audioCtx.destination);
+                        crack.start(now); crack.stop(now + .2);
+
+                        const length = Math.floor(audioCtx.sampleRate * .11);
+                        const buffer = audioCtx.createBuffer(1, length, audioCtx.sampleRate);
                         const data = buffer.getChannelData(0);
-                        for (let i = 0; i < len; i++) data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 5);
-                        const src = audioCtx.createBufferSource();
-                        const filter = audioCtx.createBiquadFilter();
-                        const gain = audioCtx.createGain();
-                        src.buffer = buffer; filter.type = 'bandpass'; filter.frequency.value = 650 + Math.random() * 350; filter.Q.value = .9;
-                        gain.gain.setValueAtTime(.0001, now);
-                        gain.gain.exponentialRampToValueAtTime(.48 * strength, now + .0015);
-                        gain.gain.exponentialRampToValueAtTime(.0001, now + .075);
-                        src.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination); src.start(now);
+                        for (let i = 0; i < length; i++) data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / length, 6);
+                        const noise = audioCtx.createBufferSource();
+                        const noiseFilter = audioCtx.createBiquadFilter();
+                        const noiseGain = audioCtx.createGain();
+                        noise.buffer = buffer; noiseFilter.type = 'lowpass'; noiseFilter.frequency.value = 900;
+                        noiseGain.gain.setValueAtTime(.0001, now);
+                        noiseGain.gain.exponentialRampToValueAtTime(.52, now + .002);
+                        noiseGain.gain.exponentialRampToValueAtTime(.0001, now + .11);
+                        noise.connect(noiseFilter); noiseFilter.connect(noiseGain); noiseGain.connect(audioCtx.destination);
+                        noise.start(now);
                     } catch (e) { console.warn('Warning knock sound failed:', e); }
                 };
 
-                const scheduleCluster = () => {
-                    if (!warningHeartbeatActive) return;
-                    // Short gaps create a rapid, uneven heartbeat rather than isolated slow knocks.
-                    const patterns = [
-                        {gaps:[0,105,178,310,405,475], accents:[1,.72,.88,1,.68,.92], pause:90},
-                        {gaps:[0,82,151,225,355,430,505], accents:[1,.7,.82,.66,1,.72,.9], pause:75},
-                        {gaps:[0,125,205,270], accents:[1,.76,.94,.7], pause:115},
-                        {gaps:[0,72,145,250,322,390,455], accents:[1,.66,.86,.72,1,.7,.9], pause:85}
-                    ];
-                    const p = patterns[Math.floor(Math.random() * patterns.length)];
-                    p.gaps.forEach((delay, i) => window.setTimeout(() => {
-                        if (warningHeartbeatActive) knock(p.accents[i]);
-                    }, delay));
-                    warningHeartbeatTimer = window.setTimeout(scheduleCluster, p.gaps[p.gaps.length - 1] + p.pause + Math.random() * 90);
+                let count = 0;
+                const playNextKnock = () => {
+                    if (!warningHeartbeatActive || count >= 5) return;
+                    knock();
+                    count++;
+                    if (count < 5) warningHeartbeatTimer = window.setTimeout(playNextKnock, 2000);
                 };
-                scheduleCluster();
+                playNextKnock();
             };
+
             beat();
             warningAudioUnlockHandler = () => {
                 if (!warningHeartbeatActive || loopStarted) return;
@@ -1841,8 +1841,8 @@ body.minsu-impact{animation:impactShake .075s steps(2,end) infinite}
                 window.setTimeout(() => {
                     if (curtain) curtain.classList.add('full');
                     document.body.classList.add('prank-blood-final');
-                }, 1450);
-                window.setTimeout(() => stopWarningHeartbeat(), 4800);
+                }, 4200);
+                window.setTimeout(() => stopWarningHeartbeat(), 10000);
             }, 5000);
         }
 
