@@ -1337,7 +1337,7 @@
             const query = document.getElementById('searchInput').value.trim();
             if(!query) return;
 
-            if(query === '김민수' || query === '1998' || query === '구관' || query === '기이') {
+            if(query.toUpperCase() === 'KMS' || query === '1974' || query === '김민수' || query === '구관' || query === '기이') {
                 verifySecretCodeQuery(query);
             } else if(query.includes('급식')) {
                 switchTab('lunch');
